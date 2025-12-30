@@ -1,0 +1,20 @@
+services:
+  quarkus-db:
+    image: postgres:16-alpine
+    container_name: quarkus-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - quarkus-db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    networks:
+      - quarkus-network
+
+volumes:
+  quarkus-db-data:
+networks:
+    quarkus-network:
+      driver: bridge
