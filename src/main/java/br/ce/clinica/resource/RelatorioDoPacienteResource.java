@@ -60,4 +60,16 @@ public class RelatorioDoPacienteResource {
         return relatorioDoPacienteService.deleteById(id)
                 .onItem().transform(relatorio -> RestResponse.noContent());
     }
+
+    @PUT
+    @Path("/{id}")
+    @Operation(summary = "Atualiza um relatorio do paciente pelo id",
+            description = "Atualiza um relatorio do paciente pelo id no sistema")
+    public Uni<RestResponse<RelatorioDoPacienteResponse>> atualizar(
+            @PathParam("id") Long id,
+            @RequestBody RelatorioDoPacienteRequest relatorioDoPacienteRequest
+    ) {
+        return relatorioDoPacienteService.update(id, relatorioDoPacienteRequest)
+                .onItem().transform(relatorio -> RestResponse.ok(relatorio));
+    }
 }
