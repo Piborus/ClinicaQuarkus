@@ -15,7 +15,7 @@ public class RelatorioDoPaciente extends BaseAuditEntity {
     @Column(name = "relatorio", columnDefinition = "TEXT")
     private String relatorio;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "paciente_id", nullable = false)
     private Paciente paciente;
 }
