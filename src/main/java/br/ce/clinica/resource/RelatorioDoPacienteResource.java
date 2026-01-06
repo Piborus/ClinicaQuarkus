@@ -72,4 +72,15 @@ public class RelatorioDoPacienteResource {
         return relatorioDoPacienteService.update(id, relatorioDoPacienteRequest)
                 .onItem().transform(relatorio -> RestResponse.ok(relatorio));
     }
+
+    @GET
+    @Path("/{id}/paciente")
+    @Operation()
+    public Uni<RestResponse<RelatorioDoPacienteResponse>> findByIdWithPaciente(
+            @PathParam("id") Long id
+    ) {
+        return relatorioDoPacienteService.findByIdWithPaciente(id)
+                .onItem().transform(RestResponse::ok);
+
+    }
 }

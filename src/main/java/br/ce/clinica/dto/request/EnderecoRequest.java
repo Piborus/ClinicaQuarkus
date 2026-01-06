@@ -8,8 +8,8 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Setter
 public class EnderecoRequest {
 
-    @Schema(name = "rua", description = "Rua do paciente", examples = { "Av. Paulista" })
-    private String rua;
+    @Schema(name = "logradouro", description = "Rua do paciente", examples = { "Av. Paulista" })
+    private String logradouro;
 
     @Schema(name = "numero", description = "Número da residência do paciente", examples = { "123" })
     private String numero;

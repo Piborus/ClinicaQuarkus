@@ -14,8 +14,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Endereco {
 
-    @Column(name = "rua")
-    private String rua;
+    @Column(name = "logradouro")
+    private String logradouro;
 
     @Column(name = "numero")
     private String numero;
@@ -32,9 +32,9 @@ public class Endereco {
     @Column(name = "cidade")
     private String cidade;
 
-    @Column
+    @Column(name = "estado")
     private String estado;
 
-    @Column
+    @Column(name = "pais")
     private String pais;
 }

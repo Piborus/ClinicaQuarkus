@@ -26,7 +26,7 @@ public class Transacao extends BaseAuditEntity{
     @Enumerated(EnumType.STRING)
     private TipoDePagamento tipoDePagamento;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id", nullable = false)
     private Paciente paciente;
 

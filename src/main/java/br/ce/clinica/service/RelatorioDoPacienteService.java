@@ -13,4 +13,6 @@ public interface RelatorioDoPacienteService {
     public Uni<Boolean> deleteById(Long id);
 
     public Uni<RelatorioDoPacienteResponse> update(Long id, RelatorioDoPacienteRequest relatorioDoPacienteRequest);
+
+    public Uni<RelatorioDoPacienteResponse> findByIdWithPaciente(Long id);
 }
