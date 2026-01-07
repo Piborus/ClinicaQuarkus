@@ -1,19 +1,31 @@
 package br.ce.clinica.service.impl;
 
 import br.ce.clinica.dto.request.RelatorioDoPacienteRequest;
+import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.dto.response.RelatorioDoPacienteResponse;
 import br.ce.clinica.entity.RelatorioDoPaciente;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.repository.RelatorioDoPacienteRepository;
 import br.ce.clinica.service.RelatorioDoPacienteService;
 import io.quarkus.hibernate.reactive.panache.Panache;
+import io.quarkus.hibernate.reactive.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
 
+import java.util.List;
+import java.util.Set;
+
 @ApplicationScoped
 public class RelatorioDoPacienteServiceImpl implements RelatorioDoPacienteService {
+
+    private static final Set<String> SORT_FIELDS_ALLOWED = Set.of(
+            "id",
+            "relatorio"
+    );
 
     @Inject
     RelatorioDoPacienteRepository relatorioDoPacienteRepository;
@@ -76,5 +88,57 @@ public class RelatorioDoPacienteServiceImpl implements RelatorioDoPacienteServic
                 .onItem().transform(RelatorioDoPacienteResponse::toDetailedResponse);
     }
 
+    @Override
+    public Uni<PanachePage<RelatorioDoPacienteResponse>> findPaginated(
+            Page page,
+            String sort,
+            List<String> filterFields,
+            List<String> filterValues) {
 
+        Sort panacheSort = null;
+
+        if (sort != null && !sort.isBlank()) {
+            String[] split = sort.split(",");
+            String field = split[0].trim();
+
+            if (!SORT_FIELDS_ALLOWED.contains(field)) {
+                throw new IllegalArgumentException(
+                        "Campo de ordenação invalido: " + field
+                );
+            }
+
+            boolean asc = split.length < 2 || split[1].equalsIgnoreCase("asc");
+
+            panacheSort = asc
+                    ? Sort.by(field).ascending()
+                    : Sort.by(field).descending();
+        }
+
+        PanacheQuery<RelatorioDoPaciente> query =
+                relatorioDoPacienteRepository.findPaginated(
+                panacheSort,
+                filterFields,
+                filterValues
+        );
+
+        return Uni.combine().all().unis(
+                query.page(page).list(),
+                query.count()
+        ).asTuple()
+                .map(tuple -> PanachePage.<RelatorioDoPacienteResponse>builder()
+                        .content(
+                                tuple.getItem1()
+                                        .stream()
+                                        .map(RelatorioDoPacienteResponse ::toResponse)
+                                        .toList()
+                        )
+                        .page(page)
+                        .totalCount(tuple.getItem2())
+                        .build()
+                );
+    }
 }
+
+
+
+

@@ -1,9 +1,11 @@
 package br.ce.clinica.resource;
 
 import br.ce.clinica.dto.request.RelatorioDoPacienteRequest;
+import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.dto.response.RelatorioDoPacienteResponse;
 import br.ce.clinica.service.RelatorioDoPacienteService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
+import io.quarkus.panache.common.Page;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -12,6 +14,8 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestResponse;
+
+import java.util.List;
 
 @Consumes("application/json")
 @Produces("application/json")
@@ -82,5 +86,21 @@ public class RelatorioDoPacienteResource {
         return relatorioDoPacienteService.findByIdWithPaciente(id)
                 .onItem().transform(RestResponse::ok);
 
+    }
+
+    @GET
+    @Operation(summary = "Busca relatórios do paciente paginados",
+            description = "Busca relatórios do paciente com paginação, ordenação e filtros")
+    public Uni<RestResponse<PanachePage<RelatorioDoPacienteResponse>>> listarRelatorios(
+            @QueryParam("page") @DefaultValue("1") Integer page,
+            @QueryParam("size") @DefaultValue("20") Integer size,
+            @QueryParam("sort") String sort,
+            @QueryParam("filterFields") List<String> filterFields,
+            @QueryParam("filterValues") List<String> filterValues
+    ) {
+        Page panachePage  = Page.of(page - 1, size);
+
+        return relatorioDoPacienteService.findPaginated(panachePage, sort, filterFields, filterValues)
+                .onItem().transform(RestResponse::ok);
     }
 }

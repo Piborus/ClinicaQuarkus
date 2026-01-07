@@ -1,8 +1,12 @@
 package br.ce.clinica.service;
 
 import br.ce.clinica.dto.request.RelatorioDoPacienteRequest;
+import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.dto.response.RelatorioDoPacienteResponse;
+import io.quarkus.panache.common.Page;
 import io.smallrye.mutiny.Uni;
+
+import java.util.List;
 
 public interface RelatorioDoPacienteService {
 
@@ -15,4 +19,11 @@ public interface RelatorioDoPacienteService {
     public Uni<RelatorioDoPacienteResponse> update(Long id, RelatorioDoPacienteRequest relatorioDoPacienteRequest);
 
     public Uni<RelatorioDoPacienteResponse> findByIdWithPaciente(Long id);
+
+    public Uni<PanachePage<RelatorioDoPacienteResponse>> findPaginated(
+            Page page,
+            String sort,
+            List<String> filterFields,
+            List<String> filterValues
+    );
 }
