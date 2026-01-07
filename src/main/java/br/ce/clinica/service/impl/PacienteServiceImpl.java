@@ -7,14 +7,11 @@ import br.ce.clinica.entity.Paciente;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.service.PacienteService;
 import io.quarkus.hibernate.reactive.panache.Panache;
-import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
 
-import java.time.OffsetDateTime;
-import java.util.UUID;
 
 @ApplicationScoped
 public class PacienteServiceImpl implements PacienteService {
@@ -40,7 +37,7 @@ public class PacienteServiceImpl implements PacienteService {
 
                     if (pacienteRequest.getEndereco() != null) {
                         Endereco endereco = new Endereco();
-                        endereco.setRua(pacienteRequest.getEndereco().getRua());
+                        endereco.setLogradouro(pacienteRequest.getEndereco().getLogradouro());
                         endereco.setNumero(pacienteRequest.getEndereco().getNumero());
                         endereco.setBairro(pacienteRequest.getEndereco().getBairro());
                         endereco.setCep(pacienteRequest.getEndereco().getCep());
@@ -93,7 +90,7 @@ public class PacienteServiceImpl implements PacienteService {
                                 if (endereco == null) {
                                     endereco = new Endereco();
                                 }
-                                endereco.setRua(pacienteRequest.getEndereco().getRua());
+                                endereco.setLogradouro(pacienteRequest.getEndereco().getLogradouro());
                                 endereco.setNumero(pacienteRequest.getEndereco().getNumero());
                                 endereco.setBairro(pacienteRequest.getEndereco().getBairro());
                                 endereco.setCep(pacienteRequest.getEndereco().getCep());

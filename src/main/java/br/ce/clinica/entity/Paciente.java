@@ -2,6 +2,7 @@ package br.ce.clinica.entity;
 
 import br.ce.clinica.enums.Sexo;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -17,7 +18,8 @@ import java.util.List;
 @EqualsAndHashCode(of = "id")
 public class Paciente extends BaseAuditEntity {
 
-    @Column(name = "nome")
+    @Column(name = "nome", nullable = false)
+    @NotBlank
     private String nome;
 
     @Column(name = "idade")
@@ -27,7 +29,8 @@ public class Paciente extends BaseAuditEntity {
     @Column(name = "sexo")
     private Sexo sexo;
 
-    @Column(name = "data_nascimento")
+    @Column(name = "data_nascimento", nullable = false)
+    @NotBlank
     private LocalDate dataNascimento;
 
     @Column(name = "cpf", unique = true)

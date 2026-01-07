@@ -31,7 +31,7 @@ public class EnderecoResponse {
             return null;
         }
         return EnderecoResponse.builder()
-                .rua(endereco.getRua())
+                .rua(endereco.getLogradouro())
                 .numero(endereco.getNumero())
                 .bairro(endereco.getBairro())
                 .cep(endereco.getCep())

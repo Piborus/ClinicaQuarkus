@@ -14,6 +14,7 @@ import java.time.LocalDate;
 public class PacienteRequest {
 
     @Schema(name = "nome", description = "Nome do paciente", examples = {"João da Silva"})
+    @NonNull
     private String nome;
 
     @Schema(name = "idade", description = "Idade do paciente", examples = {"30"} )
@@ -23,6 +24,7 @@ public class PacienteRequest {
     private Sexo sexo;
 
     @Schema(name = "dataNascimento", description = "Data de nascimento do paciente", examples = {"1990-01-01"}, format = "date")
+    @NonNull
     private LocalDate dataNascimento;
 
     @Schema(name = "cpf", description = "CPF do paciente", examples = {"123.456.789-00"})

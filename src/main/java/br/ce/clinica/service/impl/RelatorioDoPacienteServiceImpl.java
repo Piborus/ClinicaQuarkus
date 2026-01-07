@@ -34,15 +34,15 @@ public class RelatorioDoPacienteServiceImpl implements RelatorioDoPacienteServic
 
                     return relatorioDoPacienteRepository.persist(relatorio);
                 })
-                .onItem().transform(RelatorioDoPacienteResponse::fromEntity)
+                .onItem().transform(RelatorioDoPacienteResponse::toResponse)
         );
     }
 
     @Override
     public Uni<RelatorioDoPacienteResponse> findById(Long id) {
         return relatorioDoPacienteRepository.findById(id)
-                .onItem().ifNull().failWith(() -> new NotFoundException("Paciente não encontrado"))
-                .onItem().transform(RelatorioDoPacienteResponse :: fromEntity);
+                .onItem().ifNull().failWith(() -> new NotFoundException("Relatorio não encontrado"))
+                .onItem().transform(RelatorioDoPacienteResponse :: toResponse);
     }
 
     @Override
@@ -66,6 +66,15 @@ public class RelatorioDoPacienteServiceImpl implements RelatorioDoPacienteServic
                     relatorioDoPaciente.setRelatorio(relatorioDoPacienteRequest.getRelatorio());
                     return relatorioDoPacienteRepository.persist(relatorioDoPaciente);
                 })
-                .onItem().transform(RelatorioDoPacienteResponse::fromEntity);
+                .onItem().transform(RelatorioDoPacienteResponse::toResponse);
     }
+
+    @Override
+    public Uni<RelatorioDoPacienteResponse> findByIdWithPaciente(Long id) {
+        return relatorioDoPacienteRepository.findByIdWithPaciente(id)
+                .onItem().ifNull().failWith(() -> new NotFoundException("Relatório não encontrado"))
+                .onItem().transform(RelatorioDoPacienteResponse::toDetailedResponse);
+    }
+
+
 }
