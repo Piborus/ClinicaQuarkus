@@ -1,12 +1,13 @@
 package br.ce.clinica.service.impl;
 
-import br.ce.clinica.dto.request.RelatorioDoPacienteRequest;
+import br.ce.clinica.dto.request.RelatorioRequest;
 import br.ce.clinica.dto.response.PanachePage;
-import br.ce.clinica.dto.response.RelatorioDoPacienteResponse;
-import br.ce.clinica.entity.RelatorioDoPaciente;
+import br.ce.clinica.dto.response.RelatorioDetalhadoResponse;
+import br.ce.clinica.dto.response.RelatorioResponse;
+import br.ce.clinica.entity.Relatorio;
 import br.ce.clinica.repository.PacienteRepository;
-import br.ce.clinica.repository.RelatorioDoPacienteRepository;
-import br.ce.clinica.service.RelatorioDoPacienteService;
+import br.ce.clinica.repository.RelatorioRepository;
+import br.ce.clinica.service.RelatorioService;
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 @ApplicationScoped
-public class RelatorioDoPacienteServiceImpl implements RelatorioDoPacienteService {
+public class RelatorioServiceImpl implements RelatorioService {
 
     private static final Set<String> SORT_FIELDS_ALLOWED = Set.of(
             "id",
@@ -28,38 +29,38 @@ public class RelatorioDoPacienteServiceImpl implements RelatorioDoPacienteServic
     );
 
     @Inject
-    RelatorioDoPacienteRepository relatorioDoPacienteRepository;
+    RelatorioRepository relatorioRepository;
 
     @Inject
     PacienteRepository pacienteRepository;
 
     @Override
-    public Uni<RelatorioDoPacienteResponse> save(RelatorioDoPacienteRequest relatorioDoPacienteRequest) {
-        return Panache.withTransaction(() -> pacienteRepository.find("id", relatorioDoPacienteRequest.getPacienteId())
+    public Uni<RelatorioResponse> save(RelatorioRequest relatorioRequest) {
+        return Panache.withTransaction(() -> pacienteRepository.find("id", relatorioRequest.getPacienteId())
                 .firstResult()
                 .onItem().ifNull().failWith(() -> new NotFoundException("Paciente não encontrado"))
                 .onItem()
                 .transformToUni( relatorioDoPaciente -> {
-                    RelatorioDoPaciente relatorio = new RelatorioDoPaciente();
-                    relatorio.setRelatorio(relatorioDoPacienteRequest.getRelatorio());
+                    Relatorio relatorio = new Relatorio();
+                    relatorio.setTexto(relatorioRequest.getTexto());
                     relatorio.setPaciente(relatorioDoPaciente);
 
-                    return relatorioDoPacienteRepository.persist(relatorio);
+                    return relatorioRepository.persist(relatorio);
                 })
-                .onItem().transform(RelatorioDoPacienteResponse::toResponse)
+                .onItem().transform(RelatorioResponse::toResponse)
         );
     }
 
     @Override
-    public Uni<RelatorioDoPacienteResponse> findById(Long id) {
-        return relatorioDoPacienteRepository.findById(id)
+    public Uni<RelatorioResponse> findById(Long id) {
+        return relatorioRepository.findById(id)
                 .onItem().ifNull().failWith(() -> new NotFoundException("Relatorio não encontrado"))
-                .onItem().transform(RelatorioDoPacienteResponse :: toResponse);
+                .onItem().transform(RelatorioResponse:: toResponse);
     }
 
     @Override
     public Uni<Boolean> deleteById(Long id) {
-        return Panache.withTransaction(() -> relatorioDoPacienteRepository.deleteById(id))
+        return Panache.withTransaction(() -> relatorioRepository.deleteById(id))
                 .onItem()
                 .transform(delete -> {
                     if (delete) {
@@ -71,25 +72,25 @@ public class RelatorioDoPacienteServiceImpl implements RelatorioDoPacienteServic
     }
 
     @Override
-    public Uni<RelatorioDoPacienteResponse> update(Long id, RelatorioDoPacienteRequest relatorioDoPacienteRequest) {
-        return Panache.withTransaction(() -> relatorioDoPacienteRepository.findById(id))
+    public Uni<RelatorioResponse> update(Long id, RelatorioRequest relatorioRequest) {
+        return Panache.withTransaction(() -> relatorioRepository.findById(id))
                 .onItem().ifNull().failWith(() -> new NotFoundException("Relatório do paciente não encontrado"))
                 .onItem().transformToUni(relatorioDoPaciente -> {
-                    relatorioDoPaciente.setRelatorio(relatorioDoPacienteRequest.getRelatorio());
-                    return relatorioDoPacienteRepository.persist(relatorioDoPaciente);
+                    relatorioDoPaciente.setTexto(relatorioRequest.getTexto());
+                    return relatorioRepository.persist(relatorioDoPaciente);
                 })
-                .onItem().transform(RelatorioDoPacienteResponse::toResponse);
+                .onItem().transform(RelatorioResponse::toResponse);
     }
 
     @Override
-    public Uni<RelatorioDoPacienteResponse> findByIdWithPaciente(Long id) {
-        return relatorioDoPacienteRepository.findByIdWithPaciente(id)
+    public Uni<RelatorioDetalhadoResponse> findByIdWithPaciente(Long id) {
+        return relatorioRepository.findByIdWithPaciente(id)
                 .onItem().ifNull().failWith(() -> new NotFoundException("Relatório não encontrado"))
-                .onItem().transform(RelatorioDoPacienteResponse::toDetailedResponse);
+                .onItem().transform(RelatorioDetalhadoResponse::toDetailedResponse);
     }
 
     @Override
-    public Uni<PanachePage<RelatorioDoPacienteResponse>> findPaginated(
+    public Uni<PanachePage<RelatorioResponse>> findPaginated(
             Page page,
             String sort,
             List<String> filterFields,
@@ -114,8 +115,8 @@ public class RelatorioDoPacienteServiceImpl implements RelatorioDoPacienteServic
                     : Sort.by(field).descending();
         }
 
-        PanacheQuery<RelatorioDoPaciente> query =
-                relatorioDoPacienteRepository.findPaginated(
+        PanacheQuery<Relatorio> query =
+                relatorioRepository.findPaginated(
                 panacheSort,
                 filterFields,
                 filterValues
@@ -125,11 +126,11 @@ public class RelatorioDoPacienteServiceImpl implements RelatorioDoPacienteServic
                 query.page(page).list(),
                 query.count()
         ).asTuple()
-                .map(tuple -> PanachePage.<RelatorioDoPacienteResponse>builder()
+                .map(tuple -> PanachePage.<RelatorioResponse>builder()
                         .content(
                                 tuple.getItem1()
                                         .stream()
-                                        .map(RelatorioDoPacienteResponse ::toResponse)
+                                        .map(RelatorioResponse::toResponse)
                                         .toList()
                         )
                         .page(page)

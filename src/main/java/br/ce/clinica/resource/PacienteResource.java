@@ -3,9 +3,7 @@ package br.ce.clinica.resource;
 import br.ce.clinica.dto.request.PacienteRequest;
 import br.ce.clinica.dto.response.PacienteResponse;
 import br.ce.clinica.service.PacienteService;
-import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
-import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -72,8 +70,7 @@ public class PacienteResource {
             @RequestBody PacienteRequest pacienteRequest
     ){
         return pacienteService.update(id, pacienteRequest)
-                .onItem().transform( pessoa -> RestResponse.ok(pessoa))
-                .onFailure().recoverWithItem( RestResponse.notFound());
+                .onItem().transform( pessoa -> RestResponse.ok(pessoa));
     }
 
 }

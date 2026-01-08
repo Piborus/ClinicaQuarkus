@@ -29,8 +29,8 @@ public class TransacaoServiceImpl implements TransacaoService {
                 .onItem().transformToUni(paciente -> {
                     Transacao transacao = new Transacao();
                     transacao.setDescricao(transacaoRequest.getDescricao());
-                    transacao.setCaixaEntrada(transacaoRequest.getCaixaEntrada());
-                    transacao.setCaixaSaida(transacaoRequest.getCaixaSaida());
+                    transacao.setValor(transacaoRequest.getValor());
+                    transacao.setTipoMovimento(transacaoRequest.getTipoMovimento());
                     transacao.setTipoDePagamento(transacaoRequest.getTipoDePagamento());
                     transacao.setPaciente(paciente);
                     return transacaoRepository.persist(transacao)
@@ -41,7 +41,7 @@ public class TransacaoServiceImpl implements TransacaoService {
 
     @Override
     public Uni<TransacaoResponse> findById(Long id) {
-        return transacaoRepository.findById(id)
+        return transacaoRepository.findByIdWithPaciente(id)
                 .onItem().ifNull().failWith(
                         () -> new NotFoundException("Transação não encontrada")
                 )
@@ -68,8 +68,8 @@ public class TransacaoServiceImpl implements TransacaoService {
                 .onItem().ifNull().failWith(() -> new NotFoundException("Transação não encontrada"))
                 .onItem().transformToUni(transacao -> {
                     transacao.setDescricao(transacaoRequest.getDescricao());
-                    transacao.setCaixaEntrada(transacaoRequest.getCaixaEntrada());
-                    transacao.setCaixaSaida(transacaoRequest.getCaixaSaida());
+                    transacao.setValor(transacaoRequest.getValor());
+                    transacao.setTipoMovimento(transacaoRequest.getTipoMovimento());
                     transacao.setTipoDePagamento(transacaoRequest.getTipoDePagamento());
                     return transacaoRepository.persist(transacao);
                 })

@@ -49,7 +49,7 @@ public class Paciente extends BaseAuditEntity {
     private Endereco endereco;
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RelatorioDoPaciente> relatorioDoPaciente;
+    private List<Relatorio> relatorioDoPaciente;
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transacao> transacao;

@@ -1,10 +1,8 @@
 package br.ce.clinica.repository;
 
-import br.ce.clinica.dto.response.PanachePage;
-import br.ce.clinica.entity.RelatorioDoPaciente;
+import br.ce.clinica.entity.Relatorio;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
 import io.quarkus.hibernate.reactive.panache.PanacheRepository;
-import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,18 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
-public class RelatorioDoPacienteRepository implements PanacheRepository<RelatorioDoPaciente> {
+public class RelatorioRepository implements PanacheRepository<Relatorio> {
 
-    public Uni<RelatorioDoPaciente> findByIdWithPaciente(Long id) {
+    public Uni<Relatorio> findByIdWithPaciente(Long id) {
         return find("""
             SELECT r
-            FROM RelatorioDoPaciente r
+            FROM Relatorio r
             JOIN FETCH r.paciente
             WHERE r.id = ?1
         """, id).firstResult();
     }
 
-    public PanacheQuery<RelatorioDoPaciente> findPaginated(
+    public PanacheQuery<Relatorio> findPaginated(
             Sort sort,
             List<String> fields,
             List<String> values
