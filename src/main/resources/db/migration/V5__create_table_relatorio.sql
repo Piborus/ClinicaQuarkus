@@ -1,4 +1,4 @@
-CREATE TABLE clinica.relatorio_do_paciente (
+CREATE TABLE clinica.relatorio (
     id BIGSERIAL PRIMARY KEY,
     dt_criacao TIMESTAMP WITH TIME ZONE NOT NULL,
     dt_alteracao TIMESTAMP WITH TIME ZONE,
@@ -8,5 +8,5 @@ CREATE TABLE clinica.relatorio_do_paciente (
     status BOOLEAN NOT NULL,
     deletado BOOLEAN NOT NULL,
     paciente_id BIGSERIAL NOT NULL REFERENCES clinica.paciente(id),
-    relatorio TEXT
+    texto TEXT
 )

@@ -1,32 +1,40 @@
 package br.ce.clinica.repository;
 
-
-import br.ce.clinica.dto.response.PanachePage;
-import br.ce.clinica.entity.Paciente;
+import br.ce.clinica.entity.Relatorio;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
 import io.quarkus.hibernate.reactive.panache.PanacheRepository;
 import io.quarkus.panache.common.Sort;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @ApplicationScoped
-public class PacienteRepository implements PanacheRepository<Paciente> {
+public class RelatorioRepository implements PanacheRepository<Relatorio> {
 
     private static final String JPQL_BASE = """
-            SELECT DISTINCT p
-            FROM Paciente p
-            LEFT JOIN FETCH p.relatorioDoPaciente
-            LEFT JOIN FETCH p.transacao
-            WHERE 1 = 1
+            SELECT DISTINCT r
+            FROM Relatorio r
+            JOIN FETCH r.paciente
+            WHERE 1 = 1 
             """;
 
-    public PanacheQuery<Paciente> findPaginated(
-           Sort sort,
-           List<String> fields,
-           List<String> values
-    ){
+    public Uni<Relatorio> findByIdWithPaciente(Long id) {
+        return find("""
+            SELECT r
+            FROM Relatorio r
+            JOIN FETCH r.paciente
+            WHERE r.id = ?1
+        """, id).firstResult();
+    }
+
+    public PanacheQuery<Relatorio> findPaginated(
+            Sort sort,
+            List<String> fields,
+            List<String> values
+    ) {
         StringBuilder query = new StringBuilder(JPQL_BASE);
         List<Object> params = new ArrayList<>();
 
@@ -34,11 +42,11 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
 
             if (fields.size() != values.size()) {
                 throw new IllegalArgumentException(
-                        "fields e values devem ter o mesmo tamanho"
+                        "filterFields e filterValues devem ter o mesmo tamanho"
                 );
             }
 
-            for (int i = 0; i < fields.size(); i++){
+            for (int i = 0; i < fields.size(); i++) {
                 String field = fields.get(i);
                 String value = values.get(i);
 
@@ -47,25 +55,29 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
                             .append(field)
                             .append(") LIKE ?")
                             .append(i + 1);
+
                     params.add("%" + value.toLowerCase() + "%");
+
                 } else {
                     query.append(" AND ")
                             .append(field)
                             .append(" = ?")
                             .append(i + 1);
+
                     params.add(formatValue(value));
                 }
             }
         }
 
-        Object[] paramsArray = params.toArray();
+        Object[] paramArray = params.toArray();
 
         if (sort != null) {
-            return find(query.toString(), sort, paramsArray);
-        } else {
-            return find(query.toString(), paramsArray);
+            return find(query.toString(), sort, paramArray);
         }
+
+        return find(query.toString(), paramArray);
     }
+
 
     public String formatValue(String value) {
 

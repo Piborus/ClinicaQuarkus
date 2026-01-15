@@ -2,10 +2,11 @@ package br.ce.clinica.resource;
 
 import br.ce.clinica.dto.request.PacienteRequest;
 import br.ce.clinica.dto.response.PacienteResponse;
+import br.ce.clinica.dto.response.PacienteResumeResponse;
+import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.service.PacienteService;
-import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
-import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
+import io.quarkus.panache.common.Page;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,6 +16,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestResponse;
 
+import java.util.List;
 
 
 @ApplicationScoped
@@ -36,10 +38,6 @@ public class PacienteResource {
       return pacienteService.save(pacienteRequest)
               .onItem()
               .transform( pessoa -> RestResponse.ok(pessoa))
-              .onFailure().invoke(t -> {
-                  System.err.println("Erro ao salvar paciente: " + t.getMessage());
-                  t.printStackTrace();
-              })
               .onFailure().recoverWithItem( RestResponse.serverError());
     }
 
@@ -72,8 +70,26 @@ public class PacienteResource {
             @RequestBody PacienteRequest pacienteRequest
     ){
         return pacienteService.update(id, pacienteRequest)
-                .onItem().transform( pessoa -> RestResponse.ok(pessoa))
-                .onFailure().recoverWithItem( RestResponse.notFound());
+                .onItem().transform( pessoa -> RestResponse.ok(pessoa));
+    }
+
+    @GET
+    @Operation(summary = "Lista Pacientes", description = "Retorna uma lista paginada de pacientes" )
+    public Uni<RestResponse<PanachePage<PacienteResumeResponse>>> listarPacientePag(
+            @QueryParam("page") @DefaultValue("1") Integer page,
+            @QueryParam("size") @DefaultValue("10") Integer size,
+            @QueryParam("sort") String sort,
+            @QueryParam("filterFields") List<String> filterFields,
+            @QueryParam("filterValues") List<String> filterValues
+    ){
+        Page panachePage = Page.of(page - 1, size);
+        return pacienteService.findPaginated(
+                panachePage,
+                sort,
+                filterFields,
+                filterValues
+        )
+                .onItem().transform(RestResponse::ok);
     }
 
 }

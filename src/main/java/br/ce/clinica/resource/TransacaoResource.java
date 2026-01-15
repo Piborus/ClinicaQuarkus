@@ -1,9 +1,11 @@
 package br.ce.clinica.resource;
 
 import br.ce.clinica.dto.request.TransacaoRequest;
+import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.dto.response.TransacaoResponse;
 import br.ce.clinica.service.TransacaoService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
+import io.quarkus.panache.common.Page;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -12,6 +14,8 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestResponse;
+
+import java.util.List;
 
 @Path("/transacao")
 @Consumes("application/json")
@@ -45,7 +49,8 @@ public class TransacaoResource {
             @PathParam("id") Long id
     ) {
         return transacaoService.findById(id)
-                .onItem().transform(RestResponse::ok);
+                .onItem().transform(RestResponse::ok)
+                .onFailure().recoverWithItem(RestResponse.notFound());
 
     }
 
@@ -72,5 +77,24 @@ public class TransacaoResource {
                 .onItem()
                 .transform(RestResponse::ok)
                 .onFailure().recoverWithItem(RestResponse.notFound());
+    }
+
+    @GET
+    @Operation(summary = "Lista transações paginadas",
+            description = "Lista as transações com paginação, ordenação e filtros opcionais")
+    public Uni<RestResponse<PanachePage<TransacaoResponse>>> listarRegistrosPag(
+            @QueryParam("page") @DefaultValue("1") Integer page,
+            @QueryParam("size") @DefaultValue("10") Integer size,
+            @QueryParam("sort") String sort,
+            @QueryParam("filterFields") List<String> filterFields,
+            @QueryParam("filterValues") List<String> filterValues
+    ) {
+        Page panachePage = Page.of(page - 1,size);
+        return transacaoService.findPaginated(
+                panachePage,
+                sort,
+                filterFields,
+                filterValues
+        ).onItem().transform(RestResponse :: ok);
     }
 }

@@ -1,6 +1,8 @@
 package br.ce.clinica.dto.request;
 
 import br.ce.clinica.enums.Sexo;
+import io.smallrye.common.constraint.NotNull;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -14,7 +16,7 @@ import java.time.LocalDate;
 public class PacienteRequest {
 
     @Schema(name = "nome", description = "Nome do paciente", examples = {"João da Silva"})
-    @NonNull
+    @NotNull
     private String nome;
 
     @Schema(name = "idade", description = "Idade do paciente", examples = {"30"} )
@@ -24,7 +26,7 @@ public class PacienteRequest {
     private Sexo sexo;
 
     @Schema(name = "dataNascimento", description = "Data de nascimento do paciente", examples = {"1990-01-01"}, format = "date")
-    @NonNull
+    @NotNull
     private LocalDate dataNascimento;
 
     @Schema(name = "cpf", description = "CPF do paciente", examples = {"123.456.789-00"})
@@ -37,6 +39,7 @@ public class PacienteRequest {
     private String telefone;
 
     @Schema(name = "email", description = "Email do paciente", examples = {"jj@gmail.com"})
+    @Email
     private String email;
 
     private EnderecoRequest endereco;
