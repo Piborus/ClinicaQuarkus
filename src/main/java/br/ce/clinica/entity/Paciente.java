@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -49,9 +50,9 @@ public class Paciente extends BaseAuditEntity {
     private Endereco endereco;
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Relatorio> relatorioDoPaciente;
+    private Set<Relatorio> relatorioDoPaciente;
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Transacao> transacao;
+    private Set<Transacao> transacao;
 
 }

@@ -5,16 +5,14 @@ import br.ce.clinica.enums.Sexo;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PacienteResponse {
+public class PacienteResumeResponse {
 
     private Long id;
 
@@ -36,12 +34,12 @@ public class PacienteResponse {
 
     private EnderecoResponse endereco;
 
-    private List<TransacaoResponse> transacoes;
+    private List<TransacaoResumeResponse> transacoes;
 
-    private List<RelatorioResponse> relatorios;
+    private List<RelatorioResumeResponse> relatorios;
 
-    public static PacienteResponse toResponse(Paciente paciente) {
-        return PacienteResponse.builder()
+    public static PacienteResumeResponse toResponse(Paciente paciente) {
+        return PacienteResumeResponse.builder()
                 .id(paciente.getId())
                 .nome(paciente.getNome())
                 .idade(paciente.getIdade())
@@ -52,20 +50,12 @@ public class PacienteResponse {
                 .telefone(paciente.getTelefone())
                 .email(paciente.getEmail())
                 .endereco(EnderecoResponse.toResponse(paciente.getEndereco()))
-                .transacoes(
-                        paciente.getTransacao() == null
-                                ? Collections.emptyList()
-                                : paciente.getTransacao().stream()
-                                .map(TransacaoResponse::toResponse)
-                                .toList()
-                )
-                .relatorios(
-                        paciente.getRelatorioDoPaciente() == null
-                                ? Collections.emptyList()
-                                : paciente.getRelatorioDoPaciente().stream()
-                                .map(RelatorioResponse::toResponse)
-                                .toList()
-                )
+                .transacoes(paciente.getTransacao().stream()
+                        .map(TransacaoResumeResponse::toResponse)
+                        .toList())
+                .relatorios(paciente.getRelatorioDoPaciente().stream()
+                        .map(RelatorioResumeResponse::toResponse)
+                        .toList())
                 .build();
     }
 }

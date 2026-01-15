@@ -2,7 +2,6 @@ package br.ce.clinica.service.impl;
 
 import br.ce.clinica.dto.request.RelatorioRequest;
 import br.ce.clinica.dto.response.PanachePage;
-import br.ce.clinica.dto.response.RelatorioDetalhadoResponse;
 import br.ce.clinica.dto.response.RelatorioResponse;
 import br.ce.clinica.entity.Relatorio;
 import br.ce.clinica.repository.PacienteRepository;
@@ -83,10 +82,10 @@ public class RelatorioServiceImpl implements RelatorioService {
     }
 
     @Override
-    public Uni<RelatorioDetalhadoResponse> findByIdWithPaciente(Long id) {
+    public Uni<RelatorioResponse> findByIdWithPaciente(Long id) {
         return relatorioRepository.findByIdWithPaciente(id)
                 .onItem().ifNull().failWith(() -> new NotFoundException("Relatório não encontrado"))
-                .onItem().transform(RelatorioDetalhadoResponse::toDetailedResponse);
+                .onItem().transform(RelatorioResponse::toResponse);
     }
 
     @Override

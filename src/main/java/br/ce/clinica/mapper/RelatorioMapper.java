@@ -1,6 +1,5 @@
 package br.ce.clinica.mapper;
 
-import br.ce.clinica.dto.response.RelatorioDetalhadoResponse;
 import br.ce.clinica.dto.response.RelatorioResponse;
 import br.ce.clinica.entity.Relatorio;
 

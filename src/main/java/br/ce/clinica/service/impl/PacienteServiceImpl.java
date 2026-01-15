@@ -2,15 +2,23 @@ package br.ce.clinica.service.impl;
 
 import br.ce.clinica.dto.request.PacienteRequest;
 import br.ce.clinica.dto.response.PacienteResponse;
+import br.ce.clinica.dto.response.PacienteResumeResponse;
+import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.entity.Endereco;
 import br.ce.clinica.entity.Paciente;
 import br.ce.clinica.repository.PacienteRepository;
+import br.ce.clinica.repository.TransacaoRepository;
 import br.ce.clinica.service.PacienteService;
 import io.quarkus.hibernate.reactive.panache.Panache;
+import io.quarkus.hibernate.reactive.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
+
+import java.util.List;
 
 
 @ApplicationScoped
@@ -18,6 +26,20 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Inject
     PacienteRepository pacienteRepository;
+
+    private static final List<String> SORT_FIELDS_ALLOWED = List.of(
+            "id",
+            "nome",
+            "cpf",
+            "rg",
+            "dataNascimento",
+            "sexo",
+            "telefone",
+            "email",
+            "idade"
+    );
+    @Inject
+    TransacaoRepository transacaoRepository;
 
     @Override
     public Uni<PacienteResponse> save(PacienteRequest pacienteRequest) {
@@ -51,14 +73,14 @@ public class PacienteServiceImpl implements PacienteService {
                     return paciente;
                 })
                 .onItem().transformToUni(paciente -> pacienteRepository.persist(paciente))
-                .onItem().transform(PacienteResponse::fromEntity));
+                .onItem().transform(PacienteResponse::toResponse));
     }
 
     @Override
     public Uni<PacienteResponse> findById(Long id) {
         return pacienteRepository.find("id", id)
                 .firstResult()
-                .onItem().transform(PacienteResponse::fromEntity);
+                .onItem().transform(PacienteResponse::toResponse);
     }
 
     @Override
@@ -71,20 +93,33 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Override
     public Uni<PacienteResponse> update(Long id, PacienteRequest pacienteRequest) {
-        return Panache.withTransaction(() -> pacienteRepository.find("id", id)
-                .firstResult()
-                .onItem().ifNull().failWith(() -> new NotFoundException("Paciente não encontrado"))
-                .onItem().ifNotNull().transformToUni(
-                        paciente -> {
+        return Panache.withTransaction(() ->
+                pacienteRepository.findById(id)
+                        .onItem().ifNull().failWith(() ->
+                                new NotFoundException("Paciente não encontrado")
+                        )
+                        .onItem().transformToUni(paciente ->
+                                pacienteRepository.find(
+                                                "cpf = ?1 and id <> ?2",
+                                                pacienteRequest.getCpf(),
+                                                id
+                                        )
+                                        .firstResult()
+                                        .onItem().ifNotNull().failWith(() ->
+                                                new RuntimeException("CPF já existente!")
+                                        )
+                                        .replaceWith(paciente)
+                        )
+                        .onItem().transform(paciente -> {
                             paciente.setNome(pacienteRequest.getNome());
                             paciente.setIdade(pacienteRequest.getIdade());
                             paciente.setCpf(pacienteRequest.getCpf());
                             paciente.setSexo(pacienteRequest.getSexo());
                             paciente.setDataNascimento(pacienteRequest.getDataNascimento());
-                            paciente.setCpf(pacienteRequest.getCpf());
-                            paciente.setRg(paciente.getRg());
+                            paciente.setRg(pacienteRequest.getRg());
                             paciente.setTelefone(pacienteRequest.getTelefone());
                             paciente.setEmail(pacienteRequest.getEmail());
+
                             if (pacienteRequest.getEndereco() != null) {
                                 Endereco endereco = paciente.getEndereco();
                                 if (endereco == null) {
@@ -101,10 +136,56 @@ public class PacienteServiceImpl implements PacienteService {
                                 paciente.setEndereco(endereco);
                             }
 
-                            return pacienteRepository.persist(paciente)
-                                    .onItem().transform(PacienteResponse::fromEntity);
-                        }
+                            return paciente;
+                        })
+                        .onItem().transform(PacienteResponse::toResponse)
+        );
+    }
+
+    @Override
+    public Uni<PanachePage<PacienteResumeResponse>> findPaginated(
+            Page page,
+            String sort,
+            List<String> filterFields,
+            List<String> filterValues) {
+
+        Sort panacheSort = null;
+
+        if (sort != null && !sort.isBlank()) {
+            String[] split = sort.split(",");
+            String field = split[0].trim();
+
+            if (!SORT_FIELDS_ALLOWED.contains(field)) {
+                throw new IllegalArgumentException(
+                        "Campo de ordenação invalido: " + field
+                );
+            }
+
+            boolean asc = split.length < 2 || split[1].equalsIgnoreCase("asc");
+
+            panacheSort = asc ? Sort.by(field).ascending() : Sort.by(field).descending();
+
+        }
+        PanacheQuery<Paciente> query =
+                pacienteRepository.findPaginated(
+                        panacheSort,
+                        filterFields,
+                        filterValues
+                );
+
+        return Uni.combine().all().unis(
+                query.page(page).list(),
+                query.count()
+        ).asTuple().map(tuple -> PanachePage.<PacienteResumeResponse>builder()
+                .content(
+                        tuple.getItem1()
+                                .stream()
+                                .map(PacienteResumeResponse::toResponse)
+                                .toList()
                 )
+                .page(page)
+                .totalCount(tuple.getItem2())
+                .build()
         );
     }
 }

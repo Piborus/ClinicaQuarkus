@@ -14,10 +14,13 @@ public class RelatorioResponse {
 
     private String texto;
 
+    private PacienteResponse paciente;
+
     public static RelatorioResponse toResponse(Relatorio entity) {
         return RelatorioResponse.builder()
                 .id(entity.getId())
                 .texto(entity.getTexto())
+                .paciente(PacienteResponse.toResponse(entity.getPaciente()))
                 .build();
     }
 }

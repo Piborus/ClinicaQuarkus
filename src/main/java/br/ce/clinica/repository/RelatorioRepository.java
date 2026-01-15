@@ -9,9 +9,17 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @ApplicationScoped
 public class RelatorioRepository implements PanacheRepository<Relatorio> {
+
+    private static final String JPQL_BASE = """
+            SELECT DISTINCT r
+            FROM Relatorio r
+            JOIN FETCH r.paciente
+            WHERE 1 = 1 
+            """;
 
     public Uni<Relatorio> findByIdWithPaciente(Long id) {
         return find("""
@@ -27,7 +35,7 @@ public class RelatorioRepository implements PanacheRepository<Relatorio> {
             List<String> fields,
             List<String> values
     ) {
-        StringBuilder query = new StringBuilder("1 = 1");
+        StringBuilder query = new StringBuilder(JPQL_BASE);
         List<Object> params = new ArrayList<>();
 
         if (fields != null && values != null) {

@@ -2,7 +2,6 @@ package br.ce.clinica.resource;
 
 import br.ce.clinica.dto.request.RelatorioRequest;
 import br.ce.clinica.dto.response.PanachePage;
-import br.ce.clinica.dto.response.RelatorioDetalhadoResponse;
 import br.ce.clinica.dto.response.RelatorioResponse;
 import br.ce.clinica.service.RelatorioService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
@@ -80,8 +79,8 @@ public class RelatorioResource {
 
     @GET
     @Path("/{id}/paciente")
-    @Operation()
-    public Uni<RestResponse<RelatorioDetalhadoResponse>> findByIdWithPaciente(
+    @Operation(summary = "Buscar o relatorio com o paciente", description = "Busca um relatorio com o paciente pelo id")
+    public Uni<RestResponse<RelatorioResponse>> findByIdWithPaciente(
             @PathParam("id") Long id
     ) {
         return relatorioService.findByIdWithPaciente(id)
@@ -100,8 +99,11 @@ public class RelatorioResource {
             @QueryParam("filterValues") List<String> filterValues
     ) {
         Page panachePage  = Page.of(page - 1, size);
-
-        return relatorioService.findPaginated(panachePage, sort, filterFields, filterValues)
-                .onItem().transform(RestResponse::ok);
+        return relatorioService.findPaginated(
+                panachePage,
+                sort,
+                filterFields,
+                filterValues
+        ).onItem().transform(RestResponse::ok);
     }
 }
