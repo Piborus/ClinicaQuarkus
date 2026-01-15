@@ -2,7 +2,9 @@ package br.ce.clinica.entity;
 
 import br.ce.clinica.enums.Sexo;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -35,15 +37,20 @@ public class Paciente extends BaseAuditEntity {
     private LocalDate dataNascimento;
 
     @Column(name = "cpf", unique = true)
+    @Size(max = 11)
     private String cpf;
 
     @Column(name = "rg", unique = true)
+    @Size(max = 15)
     private String rg;
 
     @Column(name = "telefone")
+    @Size(max = 15)
     private String telefone;
 
     @Column(name = "email")
+    @Size(max = 100)
+    @Email
     private String email;
 
     @Embedded

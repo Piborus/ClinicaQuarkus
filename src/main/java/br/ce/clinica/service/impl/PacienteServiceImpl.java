@@ -6,6 +6,7 @@ import br.ce.clinica.dto.response.PacienteResumeResponse;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.entity.Endereco;
 import br.ce.clinica.entity.Paciente;
+import br.ce.clinica.exception.BusinessException;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.repository.TransacaoRepository;
 import br.ce.clinica.service.PacienteService;
@@ -17,6 +18,7 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
@@ -43,43 +45,64 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Override
     public Uni<PacienteResponse> save(PacienteRequest pacienteRequest) {
-        return Panache.withTransaction(() -> pacienteRepository.find("cpf", pacienteRequest.getCpf())
-                .firstResult()
-                .onItem().ifNotNull().failWith(() -> new RuntimeException("CPF ja existente!"))
-                .onItem().ifNull().continueWith(() -> {
-                    Paciente paciente = new Paciente();
-                    paciente.setNome(pacienteRequest.getNome());
-                    paciente.setCpf(pacienteRequest.getCpf());
-                    paciente.setRg(pacienteRequest.getRg());
-                    paciente.setDataNascimento(pacienteRequest.getDataNascimento());
-                    paciente.setSexo(pacienteRequest.getSexo());
-                    paciente.setTelefone(pacienteRequest.getTelefone());
-                    paciente.setEmail(pacienteRequest.getEmail());
-                    paciente.setIdade(pacienteRequest.getIdade());
 
-                    if (pacienteRequest.getEndereco() != null) {
-                        Endereco endereco = new Endereco();
-                        endereco.setLogradouro(pacienteRequest.getEndereco().getLogradouro());
-                        endereco.setNumero(pacienteRequest.getEndereco().getNumero());
-                        endereco.setBairro(pacienteRequest.getEndereco().getBairro());
-                        endereco.setCep(pacienteRequest.getEndereco().getCep());
-                        endereco.setComplemento(pacienteRequest.getEndereco().getComplemento());
-                        endereco.setCidade(pacienteRequest.getEndereco().getCidade());
-                        endereco.setEstado(pacienteRequest.getEndereco().getEstado());
-                        endereco.setPais(pacienteRequest.getEndereco().getPais());
-                        paciente.setEndereco(endereco);
-                    }
+        return Panache.withTransaction(() ->
+                pacienteRepository.find("cpf", pacienteRequest.getCpf())
+                        .firstResult()
 
-                    return paciente;
-                })
-                .onItem().transformToUni(paciente -> pacienteRepository.persist(paciente))
-                .onItem().transform(PacienteResponse::toResponse));
+                        // 🔹 valida CPF
+                        .onItem().ifNotNull()
+                        .failWith(() -> new BusinessException("CPF já existente!"))
+
+                        // 🔹 se CPF não existir, valida RG
+                        .onItem().ifNull()
+                        .switchTo(() ->
+                                pacienteRepository.find("rg", pacienteRequest.getRg())
+                                        .firstResult()
+                        )
+
+                        .onItem().ifNotNull()
+                        .failWith(() -> new BusinessException("RG já existente!"))
+
+                        // 🔹 se CPF e RG não existirem
+                        .onItem().ifNull()
+                        .continueWith(() -> {
+                            Paciente paciente = new Paciente();
+                            paciente.setNome(pacienteRequest.getNome());
+                            paciente.setCpf(pacienteRequest.getCpf());
+                            paciente.setRg(pacienteRequest.getRg());
+                            paciente.setDataNascimento(pacienteRequest.getDataNascimento());
+                            paciente.setSexo(pacienteRequest.getSexo());
+                            paciente.setTelefone(pacienteRequest.getTelefone());
+                            paciente.setEmail(pacienteRequest.getEmail());
+                            paciente.setIdade(pacienteRequest.getIdade());
+
+                            if (pacienteRequest.getEndereco() != null) {
+                                Endereco endereco = new Endereco();
+                                endereco.setLogradouro(pacienteRequest.getEndereco().getLogradouro());
+                                endereco.setNumero(pacienteRequest.getEndereco().getNumero());
+                                endereco.setBairro(pacienteRequest.getEndereco().getBairro());
+                                endereco.setCep(pacienteRequest.getEndereco().getCep());
+                                endereco.setComplemento(pacienteRequest.getEndereco().getComplemento());
+                                endereco.setCidade(pacienteRequest.getEndereco().getCidade());
+                                endereco.setEstado(pacienteRequest.getEndereco().getEstado());
+                                endereco.setPais(pacienteRequest.getEndereco().getPais());
+                                paciente.setEndereco(endereco);
+                            }
+
+                            return paciente;
+                        })
+
+                        .onItem().transformToUni(paciente -> pacienteRepository.persist(paciente))
+                        .onItem().transform(PacienteResponse::toResponse)
+        );
     }
 
     @Override
     public Uni<PacienteResponse> findById(Long id) {
         return pacienteRepository.find("id", id)
                 .firstResult()
+                .onItem().ifNull().failWith(() -> new BusinessException("Paciente não encontrado"))
                 .onItem().transform(PacienteResponse::toResponse);
     }
 
@@ -87,7 +110,7 @@ public class PacienteServiceImpl implements PacienteService {
     public Uni<Boolean> deleteById(Long id) {
         return Panache.withTransaction(() -> pacienteRepository.find("id", id)
                 .firstResult()
-                .onItem().ifNull().failWith(() -> new RuntimeException("Paciente não encontrado"))
+                .onItem().ifNull().failWith(() -> new BusinessException("Paciente não encontrado"))
                 .onItem().ifNotNull().transformToUni(paciente -> pacienteRepository.deleteById(id)));
     }
 
@@ -106,7 +129,7 @@ public class PacienteServiceImpl implements PacienteService {
                                         )
                                         .firstResult()
                                         .onItem().ifNotNull().failWith(() ->
-                                                new RuntimeException("CPF já existente!")
+                                                new BusinessException("CPF já existente!")
                                         )
                                         .replaceWith(paciente)
                         )

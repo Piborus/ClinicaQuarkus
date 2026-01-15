@@ -10,6 +10,7 @@ import io.quarkus.panache.common.Page;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
@@ -33,12 +34,11 @@ public class PacienteResource {
     @POST
     @Operation(summary = "Cria paciente", description = "Cria um novo paciente no sistema")
     public Uni<RestResponse<PacienteResponse>> salvar(
-            @RequestBody PacienteRequest pacienteRequest
+            @Valid @RequestBody PacienteRequest pacienteRequest
     ) {
       return pacienteService.save(pacienteRequest)
               .onItem()
-              .transform( pessoa -> RestResponse.ok(pessoa))
-              .onFailure().recoverWithItem( RestResponse.serverError());
+              .transform( pessoa -> RestResponse.ok(pessoa));
     }
 
     @GET
@@ -48,8 +48,12 @@ public class PacienteResource {
             @PathParam("id") Long id
     ) {
         return pacienteService.findById(id)
-                .onItem().transform( pessoa -> RestResponse.ok(pessoa))
-                .onFailure().recoverWithItem( RestResponse.notFound());
+                .onItem().transform( pessoa -> {
+                    if (pessoa == null) {
+                        throw new NotFoundException("Paciente não encontrado");
+                    }
+                    return RestResponse.ok(pessoa);
+                });
     }
 
     @DELETE

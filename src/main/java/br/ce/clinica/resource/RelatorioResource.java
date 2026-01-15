@@ -37,8 +37,7 @@ public class RelatorioResource {
     ) {
         return relatorioService.save(relatorioRequest)
                 .onItem()
-                .transform(RestResponse::ok)
-                .onFailure().recoverWithItem(RestResponse.serverError());
+                .transform(RestResponse::ok);
     }
 
     @GET
@@ -50,8 +49,7 @@ public class RelatorioResource {
     ) {
         return relatorioService.findById(id)
                 .onItem()
-                .transform(RestResponse::ok)
-                .onFailure().recoverWithItem(RestResponse.notFound());
+                .transform(RestResponse::ok);
     }
 
     @DELETE

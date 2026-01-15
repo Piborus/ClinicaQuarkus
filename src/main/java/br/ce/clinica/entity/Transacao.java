@@ -3,6 +3,7 @@ package br.ce.clinica.entity;
 import br.ce.clinica.enums.TipoDePagamento;
 import br.ce.clinica.enums.TipoMovimento;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
@@ -15,6 +16,7 @@ import lombok.*;
 public class Transacao extends BaseAuditEntity{
 
     @Column(name = "valor", nullable = false)
+    @NotBlank
     private Double valor;
 
     @Column(name = "descricao")
