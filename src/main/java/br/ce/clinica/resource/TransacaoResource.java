@@ -37,8 +37,7 @@ public class TransacaoResource {
     ){
         return transacaoService.save(transacaoRequest)
                 .onItem()
-                .transform(transacao-> RestResponse.ok(transacao))
-                .onFailure().recoverWithItem(RestResponse.serverError());
+                .transform(transacao-> RestResponse.status(RestResponse.Status.CREATED));
     }
 
     @GET
@@ -49,8 +48,7 @@ public class TransacaoResource {
             @PathParam("id") Long id
     ) {
         return transacaoService.findById(id)
-                .onItem().transform(RestResponse::ok)
-                .onFailure().recoverWithItem(RestResponse.notFound());
+                .onItem().transform(RestResponse::ok);
 
     }
 
@@ -63,8 +61,7 @@ public class TransacaoResource {
     ){
         return transacaoService.deleteById(id)
                 .onItem()
-                .transform(RestResponse::ok)
-                .onFailure().recoverWithItem(RestResponse.notFound());
+                .transform(transacao -> RestResponse.noContent());
     }
 
     @PUT
@@ -75,8 +72,7 @@ public class TransacaoResource {
     ) {
         return transacaoService.update(id, transacaoRequest)
                 .onItem()
-                .transform(RestResponse::ok)
-                .onFailure().recoverWithItem(RestResponse.notFound());
+                .transform(RestResponse::ok);
     }
 
     @GET

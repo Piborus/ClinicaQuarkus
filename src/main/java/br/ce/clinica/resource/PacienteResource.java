@@ -37,8 +37,8 @@ public class PacienteResource {
     ) {
       return pacienteService.save(pacienteRequest)
               .onItem()
-              .transform( pessoa -> RestResponse.ok(pessoa))
-              .onFailure().recoverWithItem( RestResponse.serverError());
+              .transform(pessoa -> RestResponse.status(RestResponse.Status.CREATED));
+
     }
 
     @GET
@@ -48,8 +48,8 @@ public class PacienteResource {
             @PathParam("id") Long id
     ) {
         return pacienteService.findById(id)
-                .onItem().transform( pessoa -> RestResponse.ok(pessoa))
-                .onFailure().recoverWithItem( RestResponse.notFound());
+                .onItem().transform(RestResponse::ok);
+
     }
 
     @DELETE
