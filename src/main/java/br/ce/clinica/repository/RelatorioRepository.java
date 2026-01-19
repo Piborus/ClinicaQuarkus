@@ -9,7 +9,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @ApplicationScoped
 public class RelatorioRepository implements PanacheRepository<Relatorio> {
@@ -28,6 +27,10 @@ public class RelatorioRepository implements PanacheRepository<Relatorio> {
             JOIN FETCH r.paciente
             WHERE r.id = ?1
         """, id).firstResult();
+    }
+
+    public Uni<Long> deleteByPacienteId(Long pacienteId) {
+        return delete("paciente.id", pacienteId);
     }
 
     public PanacheQuery<Relatorio> findPaginated(

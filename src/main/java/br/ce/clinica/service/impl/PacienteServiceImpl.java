@@ -8,6 +8,7 @@ import br.ce.clinica.entity.Endereco;
 import br.ce.clinica.entity.Paciente;
 import br.ce.clinica.exception.BusinessException;
 import br.ce.clinica.repository.PacienteRepository;
+import br.ce.clinica.repository.RelatorioRepository;
 import br.ce.clinica.repository.TransacaoRepository;
 import br.ce.clinica.service.PacienteService;
 import io.quarkus.hibernate.reactive.panache.Panache;
@@ -28,6 +29,12 @@ public class PacienteServiceImpl implements PacienteService {
     @Inject
     PacienteRepository pacienteRepository;
 
+    @Inject
+    TransacaoRepository transacaoRepository;
+
+    @Inject
+    RelatorioRepository relatorioRepository;
+
     private static final List<String> SORT_FIELDS_ALLOWED = List.of(
             "id",
             "nome",
@@ -39,9 +46,6 @@ public class PacienteServiceImpl implements PacienteService {
             "email",
             "idade"
     );
-
-    @Inject
-    TransacaoRepository transacaoRepository;
 
     @Override
     public Uni<PacienteResponse> save(PacienteRequest pacienteRequest) {
@@ -79,27 +83,41 @@ public class PacienteServiceImpl implements PacienteService {
                     return paciente;
                 })
                 .onItem().transformToUni(paciente -> pacienteRepository.persist(paciente))
+                .onItem().transformToUni(paciente -> pacienteRepository.findByIdWithCollections(paciente.getId()))
                 .onItem().transform(PacienteResponse::toResponse));
     }
 
     @Override
-    public Uni<PacienteResponse> findById(Long id) {
-        return pacienteRepository.find("id", id)
-                .firstResult()
+    public Uni<PacienteResumeResponse> findById(Long id) {
+        return pacienteRepository.findByIdWithCollections(id)
                 .onItem().ifNull().failWith(() ->  new NotFoundException("Paciente não encontrado!"))
-                .onItem().transform(PacienteResponse::toResponse);
+                .onItem().transform(PacienteResumeResponse::toResponse);
     }
 
     @Override
     public Uni<Boolean> deleteById(Long id) {
-        return Panache.withTransaction(() -> pacienteRepository.find("id", id)
-                .firstResult()
-                .onItem().ifNull().failWith(() -> new NotFoundException("Paciente não encontrado"))
-                .onItem().ifNotNull().transformToUni(paciente -> pacienteRepository.deleteById(id)));
+
+        return Panache.withTransaction(() ->
+                pacienteRepository.findById(id)
+                        .onItem().ifNull().failWith(
+                                () -> new NotFoundException("Paciente não encontrado")
+                        )
+                        .chain(relatorios ->
+                                relatorioRepository.deleteByPacienteId(id)
+                        )
+                        .chain(transacoes ->
+                                transacaoRepository.deleteByPacienteId(id)
+                        )
+                        .chain( paciente ->
+                                pacienteRepository.deleteById(id)
+                        )
+                        .replaceWith(true)
+        );
     }
 
+
     @Override
-    public Uni<PacienteResponse> update(Long id, PacienteRequest pacienteRequest) {
+    public Uni<PacienteResumeResponse> update(Long id, PacienteRequest pacienteRequest) {
         return Panache.withTransaction(() ->
                 pacienteRepository.findById(id)
                         .onItem().ifNull().failWith(() ->
@@ -155,7 +173,8 @@ public class PacienteServiceImpl implements PacienteService {
 
                             return paciente;
                         })
-                        .onItem().transform(PacienteResponse::toResponse)
+                        .onItem().transformToUni(paciente -> pacienteRepository.findByIdWithCollections(paciente.getId()))
+                        .onItem().transform(PacienteResumeResponse::toResponse)
         );
     }
 

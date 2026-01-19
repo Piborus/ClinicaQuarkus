@@ -1,6 +1,5 @@
 package br.ce.clinica.repository;
 
-import br.ce.clinica.entity.Relatorio;
 import br.ce.clinica.entity.Transacao;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
 import io.quarkus.hibernate.reactive.panache.PanacheRepository;
@@ -26,9 +25,13 @@ public class TransacaoRepository implements PanacheRepository<Transacao> {
         return find("""
                 SELECT t
                 FROM Transacao t
-                JOIN FETCH t.paciente
-                WHERE t.id = :id
+                LEFT JOIN FETCH t.paciente
+                WHERE t.id = ?1
                 """, id).firstResult();
+    }
+
+    public Uni<Long> deleteByPacienteId(Long pacienteId) {
+        return delete("paciente.id", pacienteId);
     }
 
     public PanacheQuery<Transacao> findPaginated(

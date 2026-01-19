@@ -3,6 +3,7 @@ package br.ce.clinica.service.impl;
 import br.ce.clinica.dto.request.RelatorioRequest;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.dto.response.RelatorioResponse;
+import br.ce.clinica.dto.response.RelatorioResumeResponse;
 import br.ce.clinica.entity.Relatorio;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.repository.RelatorioRepository;
@@ -51,34 +52,33 @@ public class RelatorioServiceImpl implements RelatorioService {
     }
 
     @Override
-    public Uni<RelatorioResponse> findById(Long id) {
+    public Uni<RelatorioResumeResponse> findById(Long id) {
         return relatorioRepository.findById(id)
                 .onItem().ifNull().failWith(() -> new NotFoundException("Relatorio não encontrado"))
-                .onItem().transform(RelatorioResponse:: toResponse);
+                .onItem().transform(RelatorioResumeResponse:: toResponse);
     }
 
     @Override
     public Uni<Boolean> deleteById(Long id) {
-        return Panache.withTransaction(() -> relatorioRepository.deleteById(id))
-                .onItem()
-                .transform(delete -> {
-                    if (delete) {
-                        return true;
-                    } else {
-                        throw new NotFoundException("Relatório do paciente não encontrado");
-                    }
-                });
+        return Panache.withTransaction(() -> relatorioRepository.find("id", id)
+                .firstResult()
+                .onItem().ifNull().failWith(() -> new NotFoundException("Relatório do paciente não encontado"))
+                .onItem().ifNotNull().transformToUni(relatorio -> relatorioRepository.deleteById(id)));
+
     }
 
     @Override
-    public Uni<RelatorioResponse> update(Long id, RelatorioRequest relatorioRequest) {
-        return Panache.withTransaction(() -> relatorioRepository.findById(id))
-                .onItem().ifNull().failWith(() -> new NotFoundException("Relatório do paciente não encontrado"))
-                .onItem().transformToUni(relatorioDoPaciente -> {
-                    relatorioDoPaciente.setTexto(relatorioRequest.getTexto());
-                    return relatorioRepository.persist(relatorioDoPaciente);
-                })
-                .onItem().transform(RelatorioResponse::toResponse);
+    public Uni<RelatorioResumeResponse> update(Long id, RelatorioRequest relatorioRequest) {
+        return Panache.withTransaction(() ->
+                relatorioRepository.findById(id)
+                        .onItem().ifNull().failWith(
+                                () -> new NotFoundException("Relatório do paciente não encontrado")
+                        )
+                        .onItem().invoke(relatorio -> {
+                            relatorio.setTexto(relatorioRequest.getTexto());
+                        })
+                        .onItem().transform(RelatorioResumeResponse::toResponse)
+        );
     }
 
     @Override
