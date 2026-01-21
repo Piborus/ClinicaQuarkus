@@ -6,7 +6,9 @@ import br.ce.clinica.dto.response.PacienteResumeResponse;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.entity.Endereco;
 import br.ce.clinica.entity.Paciente;
-import br.ce.clinica.exception.BusinessException;
+import br.ce.clinica.exception.BadRequestBusinessException;
+import br.ce.clinica.exception.ConflictBusinessException;
+import br.ce.clinica.exception.NotFoundBusinessException;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.repository.RelatorioRepository;
 import br.ce.clinica.repository.TransacaoRepository;
@@ -51,10 +53,11 @@ public class PacienteServiceImpl implements PacienteService {
     public Uni<PacienteResponse> save(PacienteRequest pacienteRequest) {
         return Panache.withTransaction(() -> pacienteRepository.find("cpf", pacienteRequest.getCpf())
                 .firstResult()
-                .onItem().ifNotNull().failWith(() -> new BusinessException("CPF ja existente!"))
+                .onItem().ifNotNull().failWith(() -> new ConflictBusinessException("CPF ja existente!") {
+                })
                 .onItem().ifNull().switchTo(
                         pacienteRepository.find("rg", pacienteRequest.getRg()).firstResult()
-                                .onItem().ifNotNull().failWith(() -> new BusinessException("RG ja existente!"))
+                                .onItem().ifNotNull().failWith(() -> new ConflictBusinessException("RG ja existente!"))
                 )
                 .onItem().ifNull().continueWith(() -> {
                     Paciente paciente = new Paciente();
@@ -90,7 +93,7 @@ public class PacienteServiceImpl implements PacienteService {
     @Override
     public Uni<PacienteResumeResponse> findById(Long id) {
         return pacienteRepository.findByIdWithCollections(id)
-                .onItem().ifNull().failWith(() ->  new NotFoundException("Paciente não encontrado!"))
+                .onItem().ifNull().failWith(() ->  new NotFoundBusinessException("Paciente não encontrado!"))
                 .onItem().transform(PacienteResumeResponse::toResponse);
     }
 
@@ -131,7 +134,7 @@ public class PacienteServiceImpl implements PacienteService {
                                         )
                                         .firstResult()
                                         .onItem().ifNotNull().failWith(() ->
-                                                new BusinessException("CPF já existente!")
+                                                new ConflictBusinessException("CPF já existente!")
                                         )
                                         .replaceWith(paciente)
                         ).onItem().transformToUni(paciente ->
@@ -142,7 +145,7 @@ public class PacienteServiceImpl implements PacienteService {
                                         )
                                         .firstResult()
                                         .onItem().ifNotNull()
-                                        .failWith(() -> new BusinessException("RG já existente!"))
+                                        .failWith(() -> new ConflictBusinessException("RG já existente!"))
                                         .replaceWith(paciente)
                         )
                         .onItem().transform(paciente -> {
@@ -192,7 +195,7 @@ public class PacienteServiceImpl implements PacienteService {
             String field = split[0].trim();
 
             if (!SORT_FIELDS_ALLOWED.contains(field)) {
-                throw new IllegalArgumentException(
+                throw new BadRequestBusinessException(
                         "Campo de ordenação invalido: " + field
                 );
             }

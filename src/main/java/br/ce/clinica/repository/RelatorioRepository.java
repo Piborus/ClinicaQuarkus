@@ -1,6 +1,7 @@
 package br.ce.clinica.repository;
 
 import br.ce.clinica.entity.Relatorio;
+import br.ce.clinica.exception.BadRequestBusinessException;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
 import io.quarkus.hibernate.reactive.panache.PanacheRepository;
 import io.quarkus.panache.common.Sort;
@@ -44,7 +45,7 @@ public class RelatorioRepository implements PanacheRepository<Relatorio> {
         if (fields != null && values != null) {
 
             if (fields.size() != values.size()) {
-                throw new IllegalArgumentException(
+                throw new BadRequestBusinessException(
                         "filterFields e filterValues devem ter o mesmo tamanho"
                 );
             }

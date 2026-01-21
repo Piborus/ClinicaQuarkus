@@ -1,4 +1,4 @@
-package br.ce.clinica.exception;
+package br.ce.clinica.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,9 +1,15 @@
 package br.ce.clinica.exception;
 
-public class BusinessException extends RuntimeException{
+import lombok.Getter;
 
-    public BusinessException(String message){
+@Getter
+public abstract class BusinessException extends RuntimeException{
+
+    private final int status;
+
+    public BusinessException(String message, int status){
         super(message);
+        this.status = status;
     }
 
 }
