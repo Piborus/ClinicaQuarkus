@@ -5,8 +5,6 @@ import br.ce.clinica.enums.Sexo;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -36,11 +34,7 @@ public class PacienteResponse {
 
     private EnderecoResponse endereco;
 
-    private List<TransacaoResponse> transacoes;
-
-    private List<RelatorioResponse> relatorios;
-
-    public static PacienteResponse toResponse(Paciente paciente) {
+    public static PacienteResponse fromEntity(Paciente paciente) {
         return PacienteResponse.builder()
                 .id(paciente.getId())
                 .nome(paciente.getNome())
@@ -51,21 +45,7 @@ public class PacienteResponse {
                 .rg(paciente.getRg())
                 .telefone(paciente.getTelefone())
                 .email(paciente.getEmail())
-                .endereco(EnderecoResponse.toResponse(paciente.getEndereco()))
-                .transacoes(
-                        paciente.getTransacao() == null
-                                ? Collections.emptyList()
-                                : paciente.getTransacao().stream()
-                                .map(TransacaoResponse::toResponse)
-                                .toList()
-                )
-                .relatorios(
-                        paciente.getRelatorioDoPaciente() == null
-                                ? Collections.emptyList()
-                                : paciente.getRelatorioDoPaciente().stream()
-                                .map(RelatorioResponse::toResponse)
-                                .toList()
-                )
+                .endereco(EnderecoResponse.fromEntity(paciente.getEndereco()))
                 .build();
     }
 }

@@ -1,7 +1,6 @@
 package br.ce.clinica.entity;
 
 import br.ce.clinica.enums.TipoDePagamento;
-import br.ce.clinica.enums.TipoMovimento;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,17 +13,16 @@ import lombok.*;
 @EqualsAndHashCode(of = "id")
 public class Transacao extends BaseAuditEntity{
 
-    @Column(name = "valor", nullable = false)
-    private Double valor;
+    @Column(name = "caixa_entrada")
+    private Integer caixaEntrada;
+
+    @Column(name = "caixa_saida")
+    private Integer caixaSaida;
 
     @Column(name = "descricao")
     private String descricao;
 
-    @Column(name = "tipo_movimento", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private TipoMovimento tipoMovimento;
-
-    @Column(name = "tipo_pagamento", nullable = false)
+    @Column(name = "tipo_de_pagamento")
     @Enumerated(EnumType.STRING)
     private TipoDePagamento tipoDePagamento;
 

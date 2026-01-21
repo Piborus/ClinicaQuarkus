@@ -1,22 +1,17 @@
 package br.ce.clinica.resource;
 
 import br.ce.clinica.dto.request.TransacaoRequest;
-import br.ce.clinica.dto.response.PanachePage;
-import br.ce.clinica.dto.response.TransacaoResumeResponse;
+import br.ce.clinica.dto.response.TransacaoResponse;
 import br.ce.clinica.service.TransacaoService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
-import io.quarkus.panache.common.Page;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestResponse;
-
-import java.util.List;
 
 @Path("/transacao")
 @Consumes("application/json")
@@ -33,20 +28,20 @@ public class TransacaoResource {
 
     @POST
     @Operation(summary = "Cria uma Transação", description = "Cria uma transação para um paciente no sistema")
-    public Uni<RestResponse<TransacaoResumeResponse>> salvar (
-            @Valid @RequestBody TransacaoRequest transacaoRequest
+    public Uni<RestResponse<TransacaoResponse>> salvar (
+            @RequestBody TransacaoRequest transacaoRequest
     ){
         return transacaoService.save(transacaoRequest)
                 .onItem()
-                .transform(transacaoResumeResponse -> RestResponse
-                        .ResponseBuilder.create(RestResponse.Status.CREATED, transacaoResumeResponse).build());
+                .transform(transacao-> RestResponse.ok(transacao))
+                .onFailure().recoverWithItem(RestResponse.serverError());
     }
 
     @GET
     @Path("/{id}")
     @Operation(summary = "Busca Transação por id",
             description = "Busca uma transação pelo id no sistema")
-    public Uni<RestResponse<TransacaoResumeResponse>> buscarPorId(
+    public Uni<RestResponse<TransacaoResponse>> buscarPorId(
             @PathParam("id") Long id
     ) {
         return transacaoService.findById(id)
@@ -63,36 +58,19 @@ public class TransacaoResource {
     ){
         return transacaoService.deleteById(id)
                 .onItem()
-                .transform(transacao -> RestResponse.noContent());
+                .transform(RestResponse::ok)
+                .onFailure().recoverWithItem(RestResponse.notFound());
     }
 
     @PUT
     @Path("/{id}")
-    public Uni<RestResponse<TransacaoResumeResponse>> atualizar(
+    public Uni<RestResponse<TransacaoResponse>> atualizar(
             @PathParam("id") Long id,
-            @Valid @RequestBody TransacaoRequest transacaoRequest
+            @RequestBody TransacaoRequest transacaoRequest
     ) {
         return transacaoService.update(id, transacaoRequest)
                 .onItem()
-                .transform(RestResponse::ok);
-    }
-
-    @GET
-    @Operation(summary = "Lista transações paginadas",
-            description = "Lista as transações com paginação, ordenação e filtros opcionais")
-    public Uni<RestResponse<PanachePage<TransacaoResumeResponse>>> listarRegistrosPag(
-            @QueryParam("page") @DefaultValue("1") Integer page,
-            @QueryParam("size") @DefaultValue("10") Integer size,
-            @QueryParam("sort") String sort,
-            @QueryParam("filterFields") List<String> filterFields,
-            @QueryParam("filterValues") List<String> filterValues
-    ) {
-        Page panachePage = Page.of(page - 1,size);
-        return transacaoService.findPaginated(
-                panachePage,
-                sort,
-                filterFields,
-                filterValues
-        ).onItem().transform(RestResponse :: ok);
+                .transform(RestResponse::ok)
+                .onFailure().recoverWithItem(RestResponse.notFound());
     }
 }

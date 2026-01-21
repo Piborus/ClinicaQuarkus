@@ -7,10 +7,10 @@ CREATE TABLE clinica.transacao (
     atualizado_por VARCHAR(100),
     status BOOLEAN NOT NULL,
     deletado BOOLEAN NOT NULL,
-    valor NUMERIC(19,2) NOT NULL,
-    tipo_movimento VARCHAR(50) NOT NULL,
+    caixa_entrada BIGINT,
+    caixa_saida BIGINT,
     descricao VARCHAR(255),
-    tipo_pagamento VARCHAR(50) NOT NULL,
+    tipo_de_pagamento VARCHAR(50),
     paciente_id BIGSERIAL NOT NULL REFERENCES clinica.paciente(id)
 
 )

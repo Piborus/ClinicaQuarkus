@@ -3,12 +3,10 @@ package br.ce.clinica.entity;
 import br.ce.clinica.enums.Sexo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 
 @Entity
@@ -31,9 +29,8 @@ public class Paciente extends BaseAuditEntity {
     @Column(name = "sexo")
     private Sexo sexo;
 
-    @NotNull
-    @PastOrPresent
     @Column(name = "data_nascimento", nullable = false)
+    @NotBlank
     private LocalDate dataNascimento;
 
     @Column(name = "cpf", unique = true)
@@ -52,9 +49,9 @@ public class Paciente extends BaseAuditEntity {
     private Endereco endereco;
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Relatorio> relatorioDoPaciente;
+    private List<RelatorioDoPaciente> relatorioDoPaciente;
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Transacao> transacao;
+    private List<Transacao> transacao;
 
 }
