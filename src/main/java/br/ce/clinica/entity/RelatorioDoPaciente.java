@@ -8,12 +8,12 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "relatorio", schema = "clinica")
+@Table(name = "relatorio_do_paciente", schema = "clinica")
 @EqualsAndHashCode(of = "id")
-public class Relatorio extends BaseAuditEntity {
+public class RelatorioDoPaciente extends BaseAuditEntity {
 
-    @Column(name = "texto", columnDefinition = "TEXT")
-    private String texto;
+    @Column(name = "relatorio", columnDefinition = "TEXT")
+    private String relatorio;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id", nullable = false)

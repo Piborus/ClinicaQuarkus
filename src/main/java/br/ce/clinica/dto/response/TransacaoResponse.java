@@ -2,7 +2,6 @@ package br.ce.clinica.dto.response;
 
 import br.ce.clinica.entity.Transacao;
 import br.ce.clinica.enums.TipoDePagamento;
-import br.ce.clinica.enums.TipoMovimento;
 import lombok.*;
 
 @Getter
@@ -14,24 +13,24 @@ public class TransacaoResponse {
 
     private Long id;
 
-    private Double valor;
+    private Integer caixaEntrada;
+
+    private Integer caixaSaida;
 
     private String descricao;
-
-    private TipoMovimento tipoMovimento;
 
     private TipoDePagamento tipoDePagamento;
 
     private PacienteResponse paciente;
 
-    public static TransacaoResponse toResponse(Transacao transacao) {
+    public static TransacaoResponse fromEntity(Transacao transacao) {
         return TransacaoResponse.builder()
                 .id(transacao.getId())
-                .valor(transacao.getValor())
+                .caixaEntrada(transacao.getCaixaEntrada())
+                .caixaSaida(transacao.getCaixaSaida())
                 .descricao(transacao.getDescricao())
-                .tipoMovimento(transacao.getTipoMovimento())
                 .tipoDePagamento(transacao.getTipoDePagamento())
-                .paciente(PacienteResponse.toResponse(transacao.getPaciente()))
+                .paciente(PacienteResponse.fromEntity(transacao.getPaciente()))
                 .build();
     }
 }

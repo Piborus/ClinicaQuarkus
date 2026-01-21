@@ -26,7 +26,7 @@ public class EnderecoResponse {
 
     private String pais;
 
-    public static EnderecoResponse toResponse(Endereco endereco) {
+    public static EnderecoResponse fromEntity(Endereco endereco) {
         if (endereco == null) {
             return null;
         }

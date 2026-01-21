@@ -1,7 +1,5 @@
 package br.ce.clinica.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -11,7 +9,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 public class EnderecoRequest {
 
     @Schema(name = "logradouro", description = "Rua do paciente", examples = { "Av. Paulista" })
-    @NotBlank
     private String logradouro;
 
     @Schema(name = "numero", description = "Número da residência do paciente", examples = { "123" })
@@ -21,7 +18,6 @@ public class EnderecoRequest {
     private String bairro;
 
     @Schema(name = "cep", description = "CEP do paciente", examples = { "01311-000" })
-    @Pattern(regexp = "^\\d{5}-\\d{3}$")
     private String cep;
 
     @Schema(name = "complemento", description = "Complemento do endereço do paciente", examples = { "Apto 45" })
