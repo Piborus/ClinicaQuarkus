@@ -23,7 +23,6 @@ public class GlobalExceptionHandler {
     @Inject
     UriInfo uriInfo;
 
-
     @ServerExceptionMapper({BusinessException.class})
     public Response handleBusinessException(BusinessException e) {
         ErrorReponse error = new ErrorReponse(
@@ -47,8 +46,10 @@ public class GlobalExceptionHandler {
                 OffsetDateTime.now(),
                 "Invalid data",
                 "Dados inválidos",
-               null
+                new ArrayList<>()
         );
+
+        error.getMessages().add(new ErrorObject(null, e.getMessage()));
 
         return Response.status(400).entity(error).build();
     }
