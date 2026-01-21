@@ -3,6 +3,7 @@ package br.ce.clinica.resource;
 import br.ce.clinica.dto.request.TransacaoRequest;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.dto.response.TransacaoResumeResponse;
+import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.service.TransacaoService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.panache.common.Page;
@@ -26,6 +27,7 @@ import java.util.List;
 @Tag(name = "Transaçoes"
         , description = "Controlador para gerenciar " +
         "as transaçoes dos paciente no sistema")
+@ApiDocumentation
 public class TransacaoResource {
 
     @Inject
@@ -34,7 +36,7 @@ public class TransacaoResource {
     @POST
     @Operation(summary = "Cria uma Transação", description = "Cria uma transação para um paciente no sistema")
     public Uni<RestResponse<TransacaoResumeResponse>> salvar (
-            @Valid @RequestBody TransacaoRequest transacaoRequest
+            @Valid TransacaoRequest transacaoRequest
     ){
         return transacaoService.save(transacaoRequest)
                 .onItem()
@@ -70,7 +72,7 @@ public class TransacaoResource {
     @Path("/{id}")
     public Uni<RestResponse<TransacaoResumeResponse>> atualizar(
             @PathParam("id") Long id,
-            @Valid @RequestBody TransacaoRequest transacaoRequest
+            @Valid TransacaoRequest transacaoRequest
     ) {
         return transacaoService.update(id, transacaoRequest)
                 .onItem()

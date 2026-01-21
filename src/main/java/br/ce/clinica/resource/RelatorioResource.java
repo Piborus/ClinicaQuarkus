@@ -4,6 +4,7 @@ import br.ce.clinica.dto.request.RelatorioRequest;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.dto.response.RelatorioResponse;
 import br.ce.clinica.dto.response.RelatorioResumeResponse;
+import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.service.RelatorioService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.panache.common.Page;
@@ -25,6 +26,7 @@ import java.util.List;
 @ApplicationScoped
 @Tag(name = "RelatorioDoPaciente",
         description = "Controlador para gerenciar RelatorioDoPaciente no sistema")
+@ApiDocumentation
 public class RelatorioResource {
 
     @Inject

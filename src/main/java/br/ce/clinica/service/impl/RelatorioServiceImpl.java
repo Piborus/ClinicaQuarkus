@@ -70,16 +70,17 @@ public class RelatorioServiceImpl implements RelatorioService {
 
     @Override
     public Uni<RelatorioResumeResponse> update(Long id, RelatorioRequest relatorioRequest) {
-        return Panache.withTransaction(() ->
-                relatorioRepository.findById(id)
-                        .onItem().ifNull().failWith(
-                                () -> new NotFoundBusinessException("Relatório do paciente não encontrado")
-                        )
-                        .onItem().invoke(relatorio -> {
-                            relatorio.setTexto(relatorioRequest.getTexto());
-                        })
-                        .onItem().transform(RelatorioResumeResponse::toResponse)
-        );
+        return Panache.withTransaction(() -> pacienteRepository.find("id", relatorioRequest.getPacienteId())
+                .firstResult()
+                        .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado"))
+                .onItem()
+                        .transformToUni(relatorio -> relatorioRepository.findById(id))
+                        .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Relatório do paciente não encontrado")))
+                .onItem()
+                .invoke(relatorio -> {
+                    relatorio.setTexto(relatorioRequest.getTexto());
+                })
+                .onItem().transform(RelatorioResumeResponse::toResponse);
     }
 
     @Override

@@ -4,6 +4,7 @@ import br.ce.clinica.dto.request.PacienteRequest;
 import br.ce.clinica.dto.response.PacienteResponse;
 import br.ce.clinica.dto.response.PacienteResumeResponse;
 import br.ce.clinica.dto.response.PanachePage;
+import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.service.PacienteService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.panache.common.Page;
@@ -13,6 +14,8 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestResponse;
 
@@ -25,6 +28,7 @@ import java.util.List;
 @Produces("application/json")
 @WithSession
 @Tag(name = "Pacientes", description = "Controlador para gerenciar Pacientes no sistema")
+@ApiDocumentation
 public class PacienteResource {
 
     @Inject
@@ -70,7 +74,7 @@ public class PacienteResource {
             @Valid PacienteRequest pacienteRequest
     ){
         return pacienteService.update(id, pacienteRequest)
-                .onItem().transform( pessoa -> RestResponse.ok(pessoa));
+                .onItem().transform( pessoa -> RestResponse.ok());
     }
 
     @GET

@@ -1,5 +1,7 @@
 package br.ce.clinica.dto.request;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -29,9 +31,11 @@ public class RelatorioRequest {
                     "desenvolvidas em terapia. Embora ainda existam núcleos de resistência no que tange à vulnerabilidade " +
                     "emocional, o prognóstico é positivo, com indicação de continuidade para consolidação da identidade " +
                     "e fortalecimento da resiliência psicológica diante de novos estressores." })
+    @NotBlank
     private String texto;
 
     @Schema(name = "pacienteId", description = "Id do paciente", examples = { "1" })
+    @NotNull
     private Long pacienteId;
 
 }
