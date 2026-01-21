@@ -28,13 +28,13 @@ import java.lang.annotation.Target;
                 description = "Dados deletados com sucesso"
         ),
         @APIResponse(
-                responseCode = "500",
-                description = "Erro interno do servidor",
+                responseCode = "400",
+                description = "Dados inválidos",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @APIResponse(
-                responseCode = "400",
-                description = "Dados inválidos",
+                responseCode = "401",
+                description = "Não autorizado",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @APIResponse(
@@ -50,6 +50,11 @@ import java.lang.annotation.Target;
         @APIResponse(
                 responseCode = "422",
                 description = "Erro de negócio",
+                content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @APIResponse(
+                responseCode = "500",
+                description = "Erro interno do servidor",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         )
 })
