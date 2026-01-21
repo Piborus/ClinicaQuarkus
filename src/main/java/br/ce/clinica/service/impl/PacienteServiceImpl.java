@@ -20,7 +20,6 @@ import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.NotFoundException;
 
 import java.util.List;
 
@@ -103,7 +102,7 @@ public class PacienteServiceImpl implements PacienteService {
         return Panache.withTransaction(() ->
                 pacienteRepository.findById(id)
                         .onItem().ifNull().failWith(
-                                () -> new NotFoundException("Paciente não encontrado")
+                                () -> new NotFoundBusinessException("Paciente não encontrado")
                         )
                         .chain(relatorios ->
                                 relatorioRepository.deleteByPacienteId(id)
@@ -124,7 +123,7 @@ public class PacienteServiceImpl implements PacienteService {
         return Panache.withTransaction(() ->
                 pacienteRepository.findById(id)
                         .onItem().ifNull().failWith(() ->
-                                new NotFoundException("Paciente não encontrado")
+                                new NotFoundBusinessException("Paciente não encontrado")
                         )
                         .onItem().transformToUni(paciente ->
                                 pacienteRepository.find(
