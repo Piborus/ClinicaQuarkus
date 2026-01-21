@@ -1,11 +1,12 @@
 package br.ce.clinica.repository;
 
 
-import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.entity.Paciente;
+import br.ce.clinica.exception.BadRequestBusinessException;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
 import io.quarkus.hibernate.reactive.panache.PanacheRepository;
 import io.quarkus.panache.common.Sort;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.ArrayList;
@@ -22,6 +23,18 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
             WHERE 1 = 1
             """;
 
+    private static final String JPQL_FIND_BY_ID = """
+            SELECT DISTINCT p
+            FROM Paciente p
+            LEFT JOIN FETCH p.relatorioDoPaciente
+            LEFT JOIN FETCH p.transacao
+            WHERE p.id = ?1
+            """;
+
+    public Uni<Paciente> findByIdWithCollections(Long id) {
+        return find(JPQL_FIND_BY_ID, id).firstResult();
+    }
+
     public PanacheQuery<Paciente> findPaginated(
            Sort sort,
            List<String> fields,
@@ -33,7 +46,7 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
         if (fields != null && values != null) {
 
             if (fields.size() != values.size()) {
-                throw new IllegalArgumentException(
+                throw new BadRequestBusinessException(
                         "fields e values devem ter o mesmo tamanho"
                 );
             }

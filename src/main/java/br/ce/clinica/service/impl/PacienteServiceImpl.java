@@ -6,7 +6,11 @@ import br.ce.clinica.dto.response.PacienteResumeResponse;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.entity.Endereco;
 import br.ce.clinica.entity.Paciente;
+import br.ce.clinica.exception.BadRequestBusinessException;
+import br.ce.clinica.exception.ConflictBusinessException;
+import br.ce.clinica.exception.NotFoundBusinessException;
 import br.ce.clinica.repository.PacienteRepository;
+import br.ce.clinica.repository.RelatorioRepository;
 import br.ce.clinica.repository.TransacaoRepository;
 import br.ce.clinica.service.PacienteService;
 import io.quarkus.hibernate.reactive.panache.Panache;
@@ -16,7 +20,6 @@ import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.NotFoundException;
 
 import java.util.List;
 
@@ -26,6 +29,12 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Inject
     PacienteRepository pacienteRepository;
+
+    @Inject
+    TransacaoRepository transacaoRepository;
+
+    @Inject
+    RelatorioRepository relatorioRepository;
 
     private static final List<String> SORT_FIELDS_ALLOWED = List.of(
             "id",
@@ -38,14 +47,17 @@ public class PacienteServiceImpl implements PacienteService {
             "email",
             "idade"
     );
-    @Inject
-    TransacaoRepository transacaoRepository;
 
     @Override
     public Uni<PacienteResponse> save(PacienteRequest pacienteRequest) {
         return Panache.withTransaction(() -> pacienteRepository.find("cpf", pacienteRequest.getCpf())
                 .firstResult()
-                .onItem().ifNotNull().failWith(() -> new RuntimeException("CPF ja existente!"))
+                .onItem().ifNotNull().failWith(() -> new ConflictBusinessException("CPF ja existente!") {
+                })
+                .onItem().ifNull().switchTo(
+                        pacienteRepository.find("rg", pacienteRequest.getRg()).firstResult()
+                                .onItem().ifNotNull().failWith(() -> new ConflictBusinessException("RG ja existente!"))
+                )
                 .onItem().ifNull().continueWith(() -> {
                     Paciente paciente = new Paciente();
                     paciente.setNome(pacienteRequest.getNome());
@@ -73,30 +85,45 @@ public class PacienteServiceImpl implements PacienteService {
                     return paciente;
                 })
                 .onItem().transformToUni(paciente -> pacienteRepository.persist(paciente))
+                .onItem().transformToUni(paciente -> pacienteRepository.findByIdWithCollections(paciente.getId()))
                 .onItem().transform(PacienteResponse::toResponse));
     }
 
     @Override
-    public Uni<PacienteResponse> findById(Long id) {
-        return pacienteRepository.find("id", id)
-                .firstResult()
-                .onItem().transform(PacienteResponse::toResponse);
+    public Uni<PacienteResumeResponse> findById(Long id) {
+        return pacienteRepository.findByIdWithCollections(id)
+                .onItem().ifNull().failWith(() ->  new NotFoundBusinessException("Paciente não encontrado!"))
+                .onItem().transform(PacienteResumeResponse::toResponse);
     }
 
     @Override
     public Uni<Boolean> deleteById(Long id) {
-        return Panache.withTransaction(() -> pacienteRepository.find("id", id)
-                .firstResult()
-                .onItem().ifNull().failWith(() -> new RuntimeException("Paciente não encontrado"))
-                .onItem().ifNotNull().transformToUni(paciente -> pacienteRepository.deleteById(id)));
+
+        return Panache.withTransaction(() ->
+                pacienteRepository.findById(id)
+                        .onItem().ifNull().failWith(
+                                () -> new NotFoundBusinessException("Paciente não encontrado")
+                        )
+                        .chain(relatorios ->
+                                relatorioRepository.deleteByPacienteId(id)
+                        )
+                        .chain(transacoes ->
+                                transacaoRepository.deleteByPacienteId(id)
+                        )
+                        .chain( paciente ->
+                                pacienteRepository.deleteById(id)
+                        )
+                        .replaceWith(true)
+        );
     }
 
+
     @Override
-    public Uni<PacienteResponse> update(Long id, PacienteRequest pacienteRequest) {
+    public Uni<PacienteResumeResponse> update(Long id, PacienteRequest pacienteRequest) {
         return Panache.withTransaction(() ->
                 pacienteRepository.findById(id)
                         .onItem().ifNull().failWith(() ->
-                                new NotFoundException("Paciente não encontrado")
+                                new NotFoundBusinessException("Paciente não encontrado")
                         )
                         .onItem().transformToUni(paciente ->
                                 pacienteRepository.find(
@@ -106,8 +133,18 @@ public class PacienteServiceImpl implements PacienteService {
                                         )
                                         .firstResult()
                                         .onItem().ifNotNull().failWith(() ->
-                                                new RuntimeException("CPF já existente!")
+                                                new ConflictBusinessException("CPF já existente!")
                                         )
+                                        .replaceWith(paciente)
+                        ).onItem().transformToUni(paciente ->
+                                pacienteRepository.find(
+                                                "rg = ?1 and id <> ?2",
+                                                pacienteRequest.getRg(),
+                                                id
+                                        )
+                                        .firstResult()
+                                        .onItem().ifNotNull()
+                                        .failWith(() -> new ConflictBusinessException("RG já existente!"))
                                         .replaceWith(paciente)
                         )
                         .onItem().transform(paciente -> {
@@ -138,7 +175,8 @@ public class PacienteServiceImpl implements PacienteService {
 
                             return paciente;
                         })
-                        .onItem().transform(PacienteResponse::toResponse)
+                        .onItem().transformToUni(paciente -> pacienteRepository.findByIdWithCollections(paciente.getId()))
+                        .onItem().transform(PacienteResumeResponse::toResponse)
         );
     }
 
@@ -156,7 +194,7 @@ public class PacienteServiceImpl implements PacienteService {
             String field = split[0].trim();
 
             if (!SORT_FIELDS_ALLOWED.contains(field)) {
-                throw new IllegalArgumentException(
+                throw new BadRequestBusinessException(
                         "Campo de ordenação invalido: " + field
                 );
             }

@@ -3,15 +3,16 @@ package br.ce.clinica.resource;
 import br.ce.clinica.dto.request.RelatorioRequest;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.dto.response.RelatorioResponse;
+import br.ce.clinica.dto.response.RelatorioResumeResponse;
 import br.ce.clinica.service.RelatorioService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.panache.common.Page;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestResponse;
 
@@ -33,25 +34,24 @@ public class RelatorioResource {
     @Operation(summary = "Cria um relatório do paciente",
             description = "Cria um novo relatório do paciente no sistema")
     public Uni<RestResponse<RelatorioResponse>> salvar(
-            @RequestBody RelatorioRequest relatorioRequest
+            @Valid RelatorioRequest relatorioRequest
     ) {
         return relatorioService.save(relatorioRequest)
                 .onItem()
-                .transform(RestResponse::ok)
-                .onFailure().recoverWithItem(RestResponse.serverError());
+                .transform(relatorioResponse -> RestResponse
+                        .ResponseBuilder.create(RestResponse.Status.CREATED, relatorioResponse).build());
     }
 
     @GET
     @Path("/{id}")
     @Operation(summary = "Busca o relatorio por id",
             description = "Busca um relatorio do paciente pelo id no sistema")
-    public Uni<RestResponse<RelatorioResponse>> buscarPorId(
+    public Uni<RestResponse<RelatorioResumeResponse>> buscarPorId(
             @PathParam("id") Long id
     ) {
         return relatorioService.findById(id)
                 .onItem()
-                .transform(RestResponse::ok)
-                .onFailure().recoverWithItem(RestResponse.notFound());
+                .transform(RestResponse::ok);
     }
 
     @DELETE
@@ -69,9 +69,9 @@ public class RelatorioResource {
     @Path("/{id}")
     @Operation(summary = "Atualiza um relatorio do paciente pelo id",
             description = "Atualiza um relatorio do paciente pelo id no sistema")
-    public Uni<RestResponse<RelatorioResponse>> atualizar(
+    public Uni<RestResponse<RelatorioResumeResponse>> atualizar(
             @PathParam("id") Long id,
-            @RequestBody RelatorioRequest relatorioRequest
+            @Valid RelatorioRequest relatorioRequest
     ) {
         return relatorioService.update(id, relatorioRequest)
                 .onItem().transform(relatorio -> RestResponse.ok(relatorio));

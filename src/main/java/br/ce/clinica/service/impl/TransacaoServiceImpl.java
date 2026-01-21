@@ -2,10 +2,10 @@ package br.ce.clinica.service.impl;
 
 import br.ce.clinica.dto.request.TransacaoRequest;
 import br.ce.clinica.dto.response.PanachePage;
-import br.ce.clinica.dto.response.RelatorioResponse;
-import br.ce.clinica.dto.response.TransacaoResponse;
-import br.ce.clinica.entity.Relatorio;
+import br.ce.clinica.dto.response.TransacaoResumeResponse;
 import br.ce.clinica.entity.Transacao;
+import br.ce.clinica.exception.BadRequestBusinessException;
+import br.ce.clinica.exception.NotFoundBusinessException;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.repository.TransacaoRepository;
 import br.ce.clinica.service.TransacaoService;
@@ -16,7 +16,6 @@ import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.NotFoundException;
 
 import java.util.List;
 import java.util.Set;
@@ -39,10 +38,10 @@ public class TransacaoServiceImpl implements TransacaoService {
     );
 
     @Override
-    public Uni<TransacaoResponse> save(TransacaoRequest transacaoRequest) {
+    public Uni<TransacaoResumeResponse> save(TransacaoRequest transacaoRequest) {
         return Panache.withTransaction(() -> pacienteRepository.find("id", transacaoRequest.getPacienteId())
                 .firstResult()
-                .onItem().ifNull().failWith(() -> new NotFoundException("Paciente não encontrado"))
+                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado"))
                 .onItem().transformToUni(paciente -> {
                     Transacao transacao = new Transacao();
                     transacao.setDescricao(transacaoRequest.getDescricao());
@@ -51,51 +50,45 @@ public class TransacaoServiceImpl implements TransacaoService {
                     transacao.setTipoDePagamento(transacaoRequest.getTipoDePagamento());
                     transacao.setPaciente(paciente);
                     return transacaoRepository.persist(transacao)
-                            .onItem().transform(TransacaoResponse::toResponse);
+                            .onItem().transform(TransacaoResumeResponse::toResponse);
                 })
         );
     }
 
     @Override
-    public Uni<TransacaoResponse> findById(Long id) {
+    public Uni<TransacaoResumeResponse> findById(Long id) {
         return transacaoRepository.findByIdWithPaciente(id)
                 .onItem().ifNull().failWith(
-                        () -> new NotFoundException("Transação não encontrada")
+                        () -> new NotFoundBusinessException("Transação não encontrada")
                 )
-                .onItem().transform(TransacaoResponse::toResponse);
+                .onItem().transform(TransacaoResumeResponse::toResponse);
     }
 
     @Override
     public Uni<Boolean> deleteById(Long id) {
-        return Panache.withTransaction(() -> transacaoRepository.deleteById(id))
-                .onItem()
-                .transform(delete -> {
-                    if (delete) {
-                        return true;
-                    } else {
-                        throw new NotFoundException("Transação não encontrada");
-                    }
-                });
+        return Panache.withTransaction(() -> transacaoRepository.find("id", id)
+                .firstResult()
+                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Transação não encontrada"))
+                .onItem().ifNotNull().transformToUni(transacao -> transacaoRepository.deleteById(id)));
     }
 
     @Override
-    public Uni<TransacaoResponse> update(Long id, TransacaoRequest transacaoRequest) {
+    public Uni<TransacaoResumeResponse> update(Long id, TransacaoRequest transacaoRequest) {
         return Panache.withTransaction(() -> transacaoRepository.find("id", id)
                 .firstResult()
-                .onItem().ifNull().failWith(() -> new NotFoundException("Transação não encontrada"))
-                .onItem().transformToUni(transacao -> {
+                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Transação não encontrada"))
+                .onItem().invoke(transacao -> {
                     transacao.setDescricao(transacaoRequest.getDescricao());
                     transacao.setValor(transacaoRequest.getValor());
                     transacao.setTipoMovimento(transacaoRequest.getTipoMovimento());
                     transacao.setTipoDePagamento(transacaoRequest.getTipoDePagamento());
-                    return transacaoRepository.persist(transacao);
                 })
-                .onItem().transform(TransacaoResponse::toResponse)
+                .onItem().transform(TransacaoResumeResponse::toResponse)
         );
     }
 
     @Override
-    public Uni<PanachePage<TransacaoResponse>> findPaginated(
+    public Uni<PanachePage<TransacaoResumeResponse>> findPaginated(
             Page page,
             String sort,
             List<String> filterFields,
@@ -108,7 +101,7 @@ public class TransacaoServiceImpl implements TransacaoService {
             String field = split[0].trim();
 
             if (!SORT_FIELDS_ALLOWED.contains(field)) {
-                throw new IllegalArgumentException(
+                throw new BadRequestBusinessException(
                         "Campo de ordenação invalido: " + field
                 );
             }
@@ -131,11 +124,11 @@ public class TransacaoServiceImpl implements TransacaoService {
                         query.page(page).list(),
                         query.count()
                 ).asTuple()
-                .map(tuple -> PanachePage.<TransacaoResponse>builder()
+                .map(tuple -> PanachePage.<TransacaoResumeResponse>builder()
                         .content(
                                 tuple.getItem1()
                                         .stream()
-                                        .map(TransacaoResponse::toResponse)
+                                        .map(TransacaoResumeResponse::toResponse)
                                         .toList()
                         )
                         .page(page)

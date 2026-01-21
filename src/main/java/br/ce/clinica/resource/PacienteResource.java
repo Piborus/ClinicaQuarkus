@@ -10,9 +10,9 @@ import io.quarkus.panache.common.Page;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestResponse;
 
@@ -33,23 +33,23 @@ public class PacienteResource {
     @POST
     @Operation(summary = "Cria paciente", description = "Cria um novo paciente no sistema")
     public Uni<RestResponse<PacienteResponse>> salvar(
-            @RequestBody PacienteRequest pacienteRequest
+           @Valid PacienteRequest pacienteRequest
     ) {
       return pacienteService.save(pacienteRequest)
               .onItem()
-              .transform( pessoa -> RestResponse.ok(pessoa))
-              .onFailure().recoverWithItem( RestResponse.serverError());
+              .transform(pessoa -> RestResponse
+                      .ResponseBuilder.create(RestResponse.Status.CREATED, pessoa).build());
+
     }
 
     @GET
     @Operation(summary = "Paciente por id", description = "Retorna um paciente pelo id")
     @Path("/{id}")
-    public Uni<RestResponse<PacienteResponse>> buscarPorId(
+    public Uni<RestResponse<PacienteResumeResponse>> buscarPorId(
             @PathParam("id") Long id
     ) {
         return pacienteService.findById(id)
-                .onItem().transform( pessoa -> RestResponse.ok(pessoa))
-                .onFailure().recoverWithItem( RestResponse.notFound());
+                .onItem().transform(RestResponse::ok);
     }
 
     @DELETE
@@ -65,9 +65,9 @@ public class PacienteResource {
     @PUT
     @Operation(summary = "Atualiza Paciente", description = "Atualiza um paciente pelo id")
     @Path("/{id}")
-    public Uni<RestResponse<PacienteResponse>> atualizar(
+    public Uni<RestResponse<PacienteResumeResponse>> atualizar(
             @PathParam("id") Long id,
-            @RequestBody PacienteRequest pacienteRequest
+            @Valid PacienteRequest pacienteRequest
     ){
         return pacienteService.update(id, pacienteRequest)
                 .onItem().transform( pessoa -> RestResponse.ok(pessoa));

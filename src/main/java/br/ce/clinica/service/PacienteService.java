@@ -13,11 +13,11 @@ public interface PacienteService {
 
      Uni<PacienteResponse> save(PacienteRequest pacienteRequest);
 
-     Uni<PacienteResponse> findById(Long id);
+     Uni<PacienteResumeResponse> findById(Long id);
 
      Uni<Boolean> deleteById(Long id);
 
-     Uni<PacienteResponse> update(Long id, PacienteRequest pacienteRequest);
+     Uni<PacienteResumeResponse> update(Long id, PacienteRequest pacienteRequest);
 
      Uni<PanachePage<PacienteResumeResponse>> findPaginated(
              Page page,
