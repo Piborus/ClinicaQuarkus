@@ -1,6 +1,9 @@
 package br.ce.clinica.dto.request;
 
 import br.ce.clinica.enums.TipoDePagamento;
+import br.ce.clinica.enums.TipoMovimento;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -11,14 +14,16 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @NoArgsConstructor
 public class TransacaoRequest {
 
-    @Schema(name = "caixaEntrada", description = "Valor de entrada no caixa", examples = { "1500" })
-    private Integer caixaEntrada;
-
-    @Schema(name = "caixaSaida", description = "Valor de saída no caixa", examples = { "500" })
-    private Integer caixaSaida;
+    @Schema(name = "valor", description = "Valor da transação", examples = { "150.75" })
+    @NotNull
+    private Double valor;
 
     @Schema(name = "descricao", description = "Descrição da transação", examples = { "Pagamento de consulta médica" })
+    @NotBlank
     private String descricao;
+
+    @Schema(name = "tipoMovimento", description = "Tipo de movimento", examples = { "ENTRADA" })
+    private TipoMovimento tipoMovimento;
 
     @Schema(name = "tipoDePagamento", description = "Tipo de pagamento", examples = { "DINHEIRO" })
     private TipoDePagamento tipoDePagamento;
