@@ -8,6 +8,7 @@ import lombok.*;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -43,6 +44,8 @@ public class PacienteRequest {
     @Schema(name = "email", description = "Email do paciente", examples = {"jj@gmail.com"})
     @Email
     private String email;
+
+    private List<FiliacaoRequest> filiacao;
 
     private EnderecoRequest endereco;
 }

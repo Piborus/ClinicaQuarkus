@@ -17,10 +17,11 @@ public class AuditListener {
         baseAuditEntity.setDataCriacao(agora);
         baseAuditEntity.setDataAtualizacao(agora);
         baseAuditEntity.setStatus(true);
-        baseAuditEntity.setDeletado(false);
+//        baseAuditEntity.setDeletado(false);
 
         baseAuditEntity.setCriadoPor("SYSTEM");
         baseAuditEntity.setAtualizadoPor("SYSTEM");
+
     }
 
     @PreUpdate
@@ -28,5 +29,12 @@ public class AuditListener {
         baseAuditEntity.setDataAtualizacao(OffsetDateTime.now());
         baseAuditEntity.setAtualizadoPor("SYSTEM");
     }
+
+//    @PreUpdate
+//    public void setDeleteDate(BaseAuditEntity baseAuditEntity) {
+//        baseAuditEntity.setDataDelecao(OffsetDateTime.now());
+//        baseAuditEntity.setDeletadoPor("SYSTEM");
+////        baseAuditEntity.setStatus(false);
+//    }
 
 }

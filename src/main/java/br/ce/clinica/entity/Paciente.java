@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
+import org.hibernate.validator.constraints.br.CPF;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -36,6 +37,7 @@ public class Paciente extends BaseAuditEntity {
     @Column(name = "data_nascimento", nullable = false)
     private LocalDate dataNascimento;
 
+    @CPF
     @Column(name = "cpf", unique = true)
     private String cpf;
 
@@ -56,5 +58,8 @@ public class Paciente extends BaseAuditEntity {
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Transacao> transacao;
+
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Filiacao> responsaveis;
 
 }

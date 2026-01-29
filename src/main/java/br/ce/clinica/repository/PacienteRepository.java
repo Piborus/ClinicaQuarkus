@@ -28,6 +28,7 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
             FROM Paciente p
             LEFT JOIN FETCH p.relatorioDoPaciente
             LEFT JOIN FETCH p.transacao
+            LEFT JOIN FETCH p.responsaveis
             WHERE p.id = ?1
             """;
 

@@ -1,14 +1,17 @@
 package br.ce.clinica.service.impl;
 
+import br.ce.clinica.dto.request.FiliacaoRequest;
 import br.ce.clinica.dto.request.PacienteRequest;
 import br.ce.clinica.dto.response.PacienteResponse;
 import br.ce.clinica.dto.response.PacienteResumeResponse;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.entity.Endereco;
+import br.ce.clinica.entity.Filiacao;
 import br.ce.clinica.entity.Paciente;
 import br.ce.clinica.exception.BadRequestBusinessException;
 import br.ce.clinica.exception.ConflictBusinessException;
 import br.ce.clinica.exception.NotFoundBusinessException;
+import br.ce.clinica.repository.FiliacaoRepository;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.repository.RelatorioRepository;
 import br.ce.clinica.repository.TransacaoRepository;
@@ -17,11 +20,14 @@ import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import java.util.List;
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @ApplicationScoped
@@ -35,6 +41,9 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Inject
     RelatorioRepository relatorioRepository;
+
+    @Inject
+    FiliacaoRepository filiacaoRepository;
 
     private static final List<String> SORT_FIELDS_ALLOWED = List.of(
             "id",
@@ -83,10 +92,12 @@ public class PacienteServiceImpl implements PacienteService {
                     }
 
                     return paciente;
-                })
-                .onItem().transformToUni(paciente -> pacienteRepository.persist(paciente))
-                .onItem().transformToUni(paciente -> pacienteRepository.findByIdWithCollections(paciente.getId()))
-                .onItem().transform(PacienteResponse::toResponse));
+                }).onItem().transformToUni(paciente -> pacienteRepository.persist(paciente))
+                .onItem().transform(PacienteResponse::toResponse)
+        );
+//                .onItem().transformToUni(paciente -> pacienteRepository.persist(paciente))
+//                .onItem().transformToUni(paciente -> pacienteRepository.findByIdWithCollections(paciente.getId()))
+//                .onItem().transform(PacienteResponse::toResponse));
     }
 
     @Override
@@ -226,4 +237,34 @@ public class PacienteServiceImpl implements PacienteService {
                 .build()
         );
     }
+
+//    private Uni<Paciente> updateFiliacao(Paciente paciente, PacienteRequest pacienteRequest) {
+//        if (pacienteRequest.getFiliacao() == null || pacienteRequest.getFiliacao().isEmpty()) {
+//            return Uni.createFrom().item(paciente);
+//        }
+//
+//        return Multi.createFrom().iterable(pacienteRequest.getFiliacao())
+//                .onItem().transformToUniAndConcatenate(filiacaoRequest ->
+//                        filiacaoRepository.find("cpf", filiacaoRequest.getCpf())
+//                                .firstResult()
+//                                .onItem().ifNotNull()
+//                                .failWith(() -> new ConflictBusinessException("CPF já existente!"))
+//                                .onItem().ifNull().continueWith(() -> {
+//                                    Filiacao filiacao = new Filiacao();
+//                                    filiacao.setNome(filiacaoRequest.getNome());
+//                                    filiacao.setIdade(filiacaoRequest.getIdade());
+//                                    filiacao.setCpf(filiacaoRequest.getCpf());
+//                                    filiacao.setEmail(filiacaoRequest.getEmail());
+//                                    filiacao.setTelefone(filiacaoRequest.getTelefone());
+//                                    filiacao.setGrauDeParentesco(filiacaoRequest.getGrauDeParentesco());
+//                                    filiacao.setPaciente(paciente.getId());
+//                                    return filiacao;
+//                                })
+//                                .onItem().transformToUni(filiacao ->
+//                                        filiacaoRepository.persist(filiacao)
+//         )
+//                 )
+//                 .collect().asList()
+//                 .replaceWith(paciente);
+//    }
 }
