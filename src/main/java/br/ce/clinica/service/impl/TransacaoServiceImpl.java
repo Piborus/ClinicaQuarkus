@@ -109,8 +109,8 @@ public class TransacaoServiceImpl implements TransacaoService {
             boolean asc = split.length < 2 || split[1].equalsIgnoreCase("asc");
 
             panacheSort = asc
-                    ? Sort.by(field).ascending()
-                    : Sort.by(field).descending();
+                    ? Sort.by("t." + field).ascending()
+                    : Sort.by("t." + field).descending();
         }
 
         PanacheQuery<Transacao> query =

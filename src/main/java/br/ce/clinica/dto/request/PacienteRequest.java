@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.hibernate.validator.constraints.br.CPF;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,6 +34,7 @@ public class PacienteRequest {
     private LocalDate dataNascimento;
 
     @Schema(name = "cpf", description = "CPF do paciente", examples = {"123.456.789-00"})
+    @CPF
     private String cpf;
 
     @Schema(name = "rg", description = "RG do paciente", examples = {"200312312334"})
@@ -45,8 +47,9 @@ public class PacienteRequest {
     @Email
     private String email;
 
-    private List<FiliacaoRequest> filiacao;
-
     private EnderecoRequest endereco;
+
+    private List<FiliacaoRequest> responsaveis;
+
 }
 

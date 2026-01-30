@@ -17,7 +17,7 @@ public class AuditListener {
         baseAuditEntity.setDataCriacao(agora);
         baseAuditEntity.setDataAtualizacao(agora);
         baseAuditEntity.setStatus(true);
-//        baseAuditEntity.setDeletado(false);
+        baseAuditEntity.setDeletado(false);
 
         baseAuditEntity.setCriadoPor("SYSTEM");
         baseAuditEntity.setAtualizadoPor("SYSTEM");

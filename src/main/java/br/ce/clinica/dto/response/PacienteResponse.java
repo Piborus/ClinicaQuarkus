@@ -7,7 +7,6 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -68,13 +67,13 @@ public class PacienteResponse {
                                 .map(RelatorioResponse::toResponse)
                                 .toList()
                 )
-//                .responsaveis(
-//                        paciente.getResponsaveis() == null
-//                        ? Collections.emptyList()
-//                                : paciente.getResponsaveis().stream()
-//                                .map(FiliacaoResponse::toResponse)
-//                                .toList();
-//                )
+                .responsaveis(
+                        paciente.getResponsaveis() == null
+                        ? Collections.emptyList()
+                                : paciente.getResponsaveis().stream()
+                                .map(FiliacaoResponse::toResponse)
+                                .toList()
+                )
                 .build();
     }
 }

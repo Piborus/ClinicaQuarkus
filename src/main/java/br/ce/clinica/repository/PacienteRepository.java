@@ -20,6 +20,7 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
             FROM Paciente p
             LEFT JOIN FETCH p.relatorioDoPaciente
             LEFT JOIN FETCH p.transacao
+            LEFT JOIN FETCH p.responsaveis
             WHERE 1 = 1
             """;
 
@@ -57,13 +58,13 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
                 String value = values.get(i);
 
                 if (isStringValue(value)) {
-                    query.append(" AND LOWER(")
+                    query.append(" AND LOWER(p.")
                             .append(field)
                             .append(") LIKE ?")
                             .append(i + 1);
                     params.add("%" + value.toLowerCase() + "%");
                 } else {
-                    query.append(" AND ")
+                    query.append(" AND p.")
                             .append(field)
                             .append(" = ?")
                             .append(i + 1);
