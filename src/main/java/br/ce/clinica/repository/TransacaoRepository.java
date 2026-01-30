@@ -56,7 +56,7 @@ public class TransacaoRepository implements PanacheRepository<Transacao> {
                 String value = values.get(i);
 
                 if (isStringValue(value)) {
-                    query.append(" AND LOWER(")
+                    query.append(" AND LOWER(t.")
                             .append(field)
                             .append(") LIKE ?")
                             .append(i + 1);
@@ -64,7 +64,7 @@ public class TransacaoRepository implements PanacheRepository<Transacao> {
                     params.add("%" + value.toLowerCase() + "%");
 
                 } else {
-                    query.append(" AND ")
+                    query.append(" AND t.")
                             .append(field)
                             .append(" = ?")
                             .append(i + 1);

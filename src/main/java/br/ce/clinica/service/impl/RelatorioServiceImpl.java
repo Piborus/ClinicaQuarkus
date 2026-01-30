@@ -112,8 +112,8 @@ public class RelatorioServiceImpl implements RelatorioService {
             boolean asc = split.length < 2 || split[1].equalsIgnoreCase("asc");
 
             panacheSort = asc
-                    ? Sort.by(field).ascending()
-                    : Sort.by(field).descending();
+                    ? Sort.by("r." + field).ascending()
+                    : Sort.by("r." + field).descending();
         }
 
         PanacheQuery<Relatorio> query =

@@ -47,7 +47,7 @@ public class PacienteResource {
     @GET
     @Operation(summary = "Paciente por id", description = "Retorna um paciente pelo id")
     @Path("/{id}")
-    public Uni<RestResponse<PacienteResumeResponse>> buscarPorId(
+    public Uni<RestResponse<PacienteResponse>> buscarPorId(
             @PathParam("id") Long id
     ) {
         return pacienteService.findById(id)
@@ -77,7 +77,7 @@ public class PacienteResource {
 
     @GET
     @Operation(summary = "Lista Pacientes", description = "Retorna uma lista paginada de pacientes" )
-    public Uni<RestResponse<PanachePage<PacienteResumeResponse>>> listarPacientePag(
+    public Uni<RestResponse<PanachePage<PacienteResponse>>> listarPacientePag(
             @QueryParam("page") @DefaultValue("1") Integer page,
             @QueryParam("size") @DefaultValue("10") Integer size,
             @QueryParam("sort") String sort,

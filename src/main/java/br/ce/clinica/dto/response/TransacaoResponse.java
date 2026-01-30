@@ -22,7 +22,7 @@ public class TransacaoResponse {
 
     private TipoDePagamento tipoDePagamento;
 
-    private PacienteResponse paciente;
+//    private PacienteResponse paciente;
 
     public static TransacaoResponse toResponse(Transacao transacao) {
         return TransacaoResponse.builder()
@@ -31,7 +31,7 @@ public class TransacaoResponse {
                 .descricao(transacao.getDescricao())
                 .tipoMovimento(transacao.getTipoMovimento())
                 .tipoDePagamento(transacao.getTipoDePagamento())
-                .paciente(PacienteResponse.toResponse(transacao.getPaciente()))
+//                .paciente(PacienteResponse.toResponse(transacao.getPaciente()))
                 .build();
     }
 }

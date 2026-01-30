@@ -55,7 +55,7 @@ public class RelatorioRepository implements PanacheRepository<Relatorio> {
                 String value = values.get(i);
 
                 if (isStringValue(value)) {
-                    query.append(" AND LOWER(")
+                    query.append(" AND LOWER(r.")
                             .append(field)
                             .append(") LIKE ?")
                             .append(i + 1);
@@ -63,7 +63,7 @@ public class RelatorioRepository implements PanacheRepository<Relatorio> {
                     params.add("%" + value.toLowerCase() + "%");
 
                 } else {
-                    query.append(" AND ")
+                    query.append(" AND r.")
                             .append(field)
                             .append(" = ?")
                             .append(i + 1);

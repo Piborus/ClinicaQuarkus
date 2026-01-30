@@ -14,16 +14,16 @@ public class RelatorioResponse {
 
     private String texto;
 
-    private Long pacienteId;
-
-    private String pacienteNome;
+//    private Long pacienteId;
+//
+//    private String pacienteNome;
 
     public static RelatorioResponse toResponse(Relatorio entity) {
         return RelatorioResponse.builder()
                 .id(entity.getId())
                 .texto(entity.getTexto())
-                .pacienteId((entity.getPaciente() != null ? entity.getPaciente().getId() : null))
-                .pacienteNome((entity.getPaciente() != null ? entity.getPaciente().getNome() : null))
+//                .pacienteId((entity.getPaciente() != null ? entity.getPaciente().getId() : null))
+//                .pacienteNome((entity.getPaciente() != null ? entity.getPaciente().getNome() : null))
                 .build();
     }
 }

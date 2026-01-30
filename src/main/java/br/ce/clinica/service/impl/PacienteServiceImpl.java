@@ -5,10 +5,12 @@ import br.ce.clinica.dto.response.PacienteResponse;
 import br.ce.clinica.dto.response.PacienteResumeResponse;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.entity.Endereco;
+import br.ce.clinica.entity.Filiacao;
 import br.ce.clinica.entity.Paciente;
 import br.ce.clinica.exception.BadRequestBusinessException;
 import br.ce.clinica.exception.ConflictBusinessException;
 import br.ce.clinica.exception.NotFoundBusinessException;
+import br.ce.clinica.repository.FiliacaoRepository;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.repository.RelatorioRepository;
 import br.ce.clinica.repository.TransacaoRepository;
@@ -17,13 +19,15 @@ import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
+import java.util.*;
 
-
+@Slf4j
 @ApplicationScoped
 public class PacienteServiceImpl implements PacienteService {
 
@@ -35,6 +39,9 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Inject
     RelatorioRepository relatorioRepository;
+
+    @Inject
+    FiliacaoRepository filiacaoRepository;
 
     private static final List<String> SORT_FIELDS_ALLOWED = List.of(
             "id",
@@ -50,50 +57,53 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Override
     public Uni<PacienteResponse> save(PacienteRequest pacienteRequest) {
-        return Panache.withTransaction(() -> pacienteRepository.find("cpf", pacienteRequest.getCpf())
-                .firstResult()
-                .onItem().ifNotNull().failWith(() -> new ConflictBusinessException("CPF ja existente!") {
-                })
-                .onItem().ifNull().switchTo(
-                        pacienteRepository.find("rg", pacienteRequest.getRg()).firstResult()
-                                .onItem().ifNotNull().failWith(() -> new ConflictBusinessException("RG ja existente!"))
-                )
-                .onItem().ifNull().continueWith(() -> {
-                    Paciente paciente = new Paciente();
-                    paciente.setNome(pacienteRequest.getNome());
-                    paciente.setCpf(pacienteRequest.getCpf());
-                    paciente.setRg(pacienteRequest.getRg());
-                    paciente.setDataNascimento(pacienteRequest.getDataNascimento());
-                    paciente.setSexo(pacienteRequest.getSexo());
-                    paciente.setTelefone(pacienteRequest.getTelefone());
-                    paciente.setEmail(pacienteRequest.getEmail());
-                    paciente.setIdade(pacienteRequest.getIdade());
+        return Panache.withTransaction(() ->
+                pacienteRepository.find("cpf", pacienteRequest.getCpf())
+                        .firstResult()
+                        .onItem().ifNotNull().failWith(() -> new ConflictBusinessException("CPF ja existente!"))
+                        .onItem().ifNull().switchTo(
+                                pacienteRepository.find("rg", pacienteRequest.getRg())
+                                        .firstResult()
+                                        .onItem().ifNotNull().failWith(() -> new ConflictBusinessException("RG ja existente!"))
+                        )
+                        .onItem().ifNull().continueWith(() -> {
+                            Paciente paciente = new Paciente();
+                            paciente.setNome(pacienteRequest.getNome());
+                            paciente.setCpf(pacienteRequest.getCpf());
+                            paciente.setRg(pacienteRequest.getRg());
+                            paciente.setDataNascimento(pacienteRequest.getDataNascimento());
+                            paciente.setSexo(pacienteRequest.getSexo());
+                            paciente.setTelefone(pacienteRequest.getTelefone());
+                            paciente.setEmail(pacienteRequest.getEmail());
+                            paciente.setIdade(pacienteRequest.getIdade());
 
-                    if (pacienteRequest.getEndereco() != null) {
-                        Endereco endereco = new Endereco();
-                        endereco.setLogradouro(pacienteRequest.getEndereco().getLogradouro());
-                        endereco.setNumero(pacienteRequest.getEndereco().getNumero());
-                        endereco.setBairro(pacienteRequest.getEndereco().getBairro());
-                        endereco.setCep(pacienteRequest.getEndereco().getCep());
-                        endereco.setComplemento(pacienteRequest.getEndereco().getComplemento());
-                        endereco.setCidade(pacienteRequest.getEndereco().getCidade());
-                        endereco.setEstado(pacienteRequest.getEndereco().getEstado());
-                        endereco.setPais(pacienteRequest.getEndereco().getPais());
-                        paciente.setEndereco(endereco);
-                    }
+                            if (pacienteRequest.getEndereco() != null) {
+                                Endereco endereco = new Endereco();
+                                endereco.setLogradouro(pacienteRequest.getEndereco().getLogradouro());
+                                endereco.setNumero(pacienteRequest.getEndereco().getNumero());
+                                endereco.setBairro(pacienteRequest.getEndereco().getBairro());
+                                endereco.setCep(pacienteRequest.getEndereco().getCep());
+                                endereco.setComplemento(pacienteRequest.getEndereco().getComplemento());
+                                endereco.setCidade(pacienteRequest.getEndereco().getCidade());
+                                endereco.setEstado(pacienteRequest.getEndereco().getEstado());
+                                endereco.setPais(pacienteRequest.getEndereco().getPais());
+                                paciente.setEndereco(endereco);
+                            }
 
-                    return paciente;
-                })
-                .onItem().transformToUni(paciente -> pacienteRepository.persist(paciente))
-                .onItem().transformToUni(paciente -> pacienteRepository.findByIdWithCollections(paciente.getId()))
-                .onItem().transform(PacienteResponse::toResponse));
+                            return paciente;
+                        })
+                        .onItem().transformToUni(paciente -> pacienteRepository.persist(paciente))
+                        .chain(paciente -> updateFiliacao(paciente, pacienteRequest))
+//                        .chain(paciente -> pacienteRepository.findByIdWithCollections(paciente.getId()))
+                        .onItem().transform(PacienteResponse::toResponse)
+        );
     }
 
     @Override
-    public Uni<PacienteResumeResponse> findById(Long id) {
+    public Uni<PacienteResponse> findById(Long id) {
         return pacienteRepository.findByIdWithCollections(id)
                 .onItem().ifNull().failWith(() ->  new NotFoundBusinessException("Paciente não encontrado!"))
-                .onItem().transform(PacienteResumeResponse::toResponse);
+                .onItem().transform(PacienteResponse::toResponse);
     }
 
     @Override
@@ -109,6 +119,9 @@ public class PacienteServiceImpl implements PacienteService {
                         )
                         .chain(transacoes ->
                                 transacaoRepository.deleteByPacienteId(id)
+                        )
+                        .chain(filiacoes ->
+                                filiacaoRepository.deleteById(id)
                         )
                         .chain( paciente ->
                                 pacienteRepository.deleteById(id)
@@ -176,12 +189,14 @@ public class PacienteServiceImpl implements PacienteService {
                             return paciente;
                         })
                         .onItem().transformToUni(paciente -> pacienteRepository.findByIdWithCollections(paciente.getId()))
+                        .chain(paciente -> updateFiliacao(paciente, pacienteRequest))
                         .onItem().transform(PacienteResumeResponse::toResponse)
         );
     }
 
+
     @Override
-    public Uni<PanachePage<PacienteResumeResponse>> findPaginated(
+    public Uni<PanachePage<PacienteResponse>> findPaginated(
             Page page,
             String sort,
             List<String> filterFields,
@@ -189,41 +204,94 @@ public class PacienteServiceImpl implements PacienteService {
 
         Sort panacheSort = null;
 
-        if (sort != null && !sort.isBlank()) {
-            String[] split = sort.split(",");
-            String field = split[0].trim();
+            if (sort != null && !sort.isBlank()) {
+                String[] split = sort.split(",");
+                String field = split[0].trim();
 
-            if (!SORT_FIELDS_ALLOWED.contains(field)) {
-                throw new BadRequestBusinessException(
-                        "Campo de ordenação invalido: " + field
-                );
+                if (!SORT_FIELDS_ALLOWED.contains(field)) {
+                    throw new BadRequestBusinessException(
+                            "Campo de ordenação invalido: " + field
+                    );
+                }
+
+                boolean asc = split.length < 2 || split[1].equalsIgnoreCase("asc");
+                panacheSort = asc ? Sort.by("p." + field).ascending() : Sort.by("p." + field).descending();
             }
+            PanacheQuery<Paciente> query =
+                    pacienteRepository.findPaginated(
+                            panacheSort,
+                            filterFields,
+                            filterValues
+                    );
+            return Uni.combine().all().unis(
+                            query.page(page).list(),
+                            query.count()
+                    ).asTuple()
+                    .map(tuple -> {
+                        return PanachePage.<PacienteResponse>builder()
+                                .content(
+                                        tuple.getItem1()
+                                                .stream()
+                                                .map(PacienteResponse::toResponse)
+                                                .toList()
+                                )
+                                .page(page)
+                                .totalCount(tuple.getItem2())
+                                .build();
+                    });
+    }
 
-            boolean asc = split.length < 2 || split[1].equalsIgnoreCase("asc");
-
-            panacheSort = asc ? Sort.by(field).ascending() : Sort.by(field).descending();
-
+    private Uni<Paciente> updateFiliacao(Paciente paciente, PacienteRequest pacienteRequest) {
+        if (pacienteRequest.getResponsaveis() == null || pacienteRequest.getResponsaveis().isEmpty()) {
+            return Uni.createFrom().item(paciente);
         }
-        PanacheQuery<Paciente> query =
-                pacienteRepository.findPaginated(
-                        panacheSort,
-                        filterFields,
-                        filterValues
-                );
 
-        return Uni.combine().all().unis(
-                query.page(page).list(),
-                query.count()
-        ).asTuple().map(tuple -> PanachePage.<PacienteResumeResponse>builder()
-                .content(
-                        tuple.getItem1()
-                                .stream()
-                                .map(PacienteResumeResponse::toResponse)
-                                .toList()
+        if (paciente.getResponsaveis() == null) {
+            paciente.setResponsaveis(new HashSet<>());
+        }
+
+        return Multi.createFrom().iterable(pacienteRequest.getResponsaveis())
+                .onItem().transformToUniAndConcatenate(filiacaoRequest ->
+                        filiacaoRepository.find("cpf", filiacaoRequest.getCpf())
+                                .firstResult()
+                                .onItem().transformToUni(existing -> {
+                                    if (existing != null) {
+                                        boolean alreadyLinkedToPaciente =
+                                                paciente.getResponsaveis().stream()
+                                                        .anyMatch(r -> Objects.equals(r.getId(), existing.getId()));
+
+                                        if (!alreadyLinkedToPaciente) {
+                                            return Uni.createFrom().failure(new ConflictBusinessException("CPF já existente!"));
+                                        }
+
+                                        existing.setNome(filiacaoRequest.getNome());
+                                        existing.setIdade(filiacaoRequest.getIdade());
+                                        existing.setEmail(filiacaoRequest.getEmail());
+                                        existing.setTelefone(filiacaoRequest.getTelefone());
+                                        existing.setGrauDeParentesco(filiacaoRequest.getGrauDeParentesco());
+                                        existing.setPaciente(paciente);
+
+                                        return filiacaoRepository.persist(existing)
+                                                .invoke(persisted -> paciente.getResponsaveis().add(persisted))
+                                                .replaceWith(existing);
+                                    }
+
+                                    Filiacao filiacao = new Filiacao();
+                                    filiacao.setNome(filiacaoRequest.getNome());
+                                    filiacao.setIdade(filiacaoRequest.getIdade());
+                                    filiacao.setCpf(filiacaoRequest.getCpf());
+                                    filiacao.setEmail(filiacaoRequest.getEmail());
+                                    filiacao.setTelefone(filiacaoRequest.getTelefone());
+                                    filiacao.setGrauDeParentesco(filiacaoRequest.getGrauDeParentesco());
+                                    filiacao.setPaciente(paciente);
+
+                                    return filiacaoRepository.persist(filiacao)
+                                            .invoke(persisted -> paciente.getResponsaveis().add(persisted))
+                                            .replaceWith(filiacao);
+                                })
                 )
-                .page(page)
-                .totalCount(tuple.getItem2())
-                .build()
-        );
+                .collect().asList()
+                .replaceWith(paciente);
     }
 }
+

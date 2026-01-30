@@ -7,7 +7,6 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -40,6 +39,8 @@ public class PacienteResponse {
 
     private List<RelatorioResponse> relatorios;
 
+    private List<FiliacaoResponse> responsaveis;
+
     public static PacienteResponse toResponse(Paciente paciente) {
         return PacienteResponse.builder()
                 .id(paciente.getId())
@@ -64,6 +65,13 @@ public class PacienteResponse {
                                 ? Collections.emptyList()
                                 : paciente.getRelatorioDoPaciente().stream()
                                 .map(RelatorioResponse::toResponse)
+                                .toList()
+                )
+                .responsaveis(
+                        paciente.getResponsaveis() == null
+                        ? Collections.emptyList()
+                                : paciente.getResponsaveis().stream()
+                                .map(FiliacaoResponse::toResponse)
                                 .toList()
                 )
                 .build();
