@@ -13,7 +13,7 @@ import br.ce.clinica.exception.NotFoundBusinessException;
 import br.ce.clinica.repository.FiliacaoRepository;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.repository.RelatorioRepository;
-import br.ce.clinica.repository.TransacaoRepository;
+import br.ce.clinica.repository.CarteiraRepository;
 import br.ce.clinica.service.PacienteService;
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
@@ -35,7 +35,7 @@ public class PacienteServiceImpl implements PacienteService {
     PacienteRepository pacienteRepository;
 
     @Inject
-    TransacaoRepository transacaoRepository;
+    CarteiraRepository carteiraRepository;
 
     @Inject
     RelatorioRepository relatorioRepository;
@@ -118,7 +118,7 @@ public class PacienteServiceImpl implements PacienteService {
                                 relatorioRepository.deleteByPacienteId(id)
                         )
                         .chain(transacoes ->
-                                transacaoRepository.deleteByPacienteId(id)
+                                carteiraRepository.deleteByPacienteId(id)
                         )
                         .chain(filiacoes ->
                                 filiacaoRepository.deleteById(id)
@@ -204,31 +204,31 @@ public class PacienteServiceImpl implements PacienteService {
 
         Sort panacheSort = null;
 
-            if (sort != null && !sort.isBlank()) {
-                String[] split = sort.split(",");
-                String field = split[0].trim();
+        if (sort != null && !sort.isBlank()) {
+            String[] split = sort.split(",");
+            String field = split[0].trim();
 
-                if (!SORT_FIELDS_ALLOWED.contains(field)) {
-                    throw new BadRequestBusinessException(
-                            "Campo de ordenação invalido: " + field
-                    );
-                }
-
-                boolean asc = split.length < 2 || split[1].equalsIgnoreCase("asc");
-                panacheSort = asc ? Sort.by("p." + field).ascending() : Sort.by("p." + field).descending();
+            if (!SORT_FIELDS_ALLOWED.contains(field)) {
+                throw new BadRequestBusinessException(
+                        "Campo de ordenação invalido: " + field
+                );
             }
-            PanacheQuery<Paciente> query =
-                    pacienteRepository.findPaginated(
-                            panacheSort,
-                            filterFields,
-                            filterValues
-                    );
-            return Uni.combine().all().unis(
-                            query.page(page).list(),
-                            query.count()
-                    ).asTuple()
-                    .map(tuple -> {
-                        return PanachePage.<PacienteResponse>builder()
+
+            boolean asc = split.length < 2 || split[1].equalsIgnoreCase("asc");
+            panacheSort = asc ? Sort.by("p." + field).ascending() : Sort.by("p." + field).descending();
+        }
+        PanacheQuery<Paciente> query =
+                pacienteRepository.findPaginated(
+                        panacheSort,
+                        filterFields,
+                        filterValues
+                );
+        return Uni.combine().all().unis(
+                        query.page(page).list(),
+                        query.count()
+                ).asTuple()
+                .map(tuple ->
+                        PanachePage.<PacienteResponse>builder()
                                 .content(
                                         tuple.getItem1()
                                                 .stream()
@@ -237,8 +237,8 @@ public class PacienteServiceImpl implements PacienteService {
                                 )
                                 .page(page)
                                 .totalCount(tuple.getItem2())
-                                .build();
-                    });
+                                .build()
+                );
     }
 
     private Uni<Paciente> updateFiliacao(Paciente paciente, PacienteRequest pacienteRequest) {

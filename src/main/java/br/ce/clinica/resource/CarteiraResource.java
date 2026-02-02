@@ -1,10 +1,10 @@
 package br.ce.clinica.resource;
 
-import br.ce.clinica.dto.request.TransacaoRequest;
+import br.ce.clinica.dto.request.CarteiraRequest;
+import br.ce.clinica.dto.response.CarteiraResumeResponse;
 import br.ce.clinica.dto.response.PanachePage;
-import br.ce.clinica.dto.response.TransacaoResumeResponse;
 import br.ce.clinica.openapi.ApiDocumentation;
-import br.ce.clinica.service.TransacaoService;
+import br.ce.clinica.service.CarteiraService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.panache.common.Page;
 import io.smallrye.mutiny.Uni;
@@ -13,32 +13,31 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestResponse;
 
 import java.util.List;
 
-@Path("/transacao")
+@Path("/carteira")
 @Consumes("application/json")
 @Produces("application/json")
 @ApplicationScoped
 @WithSession
-@Tag(name = "Transaçoes"
+@Tag(name = "Carteira"
         , description = "Controlador para gerenciar " +
         "as transaçoes dos paciente no sistema")
 @ApiDocumentation
-public class TransacaoResource {
+public class CarteiraResource {
 
     @Inject
-    TransacaoService transacaoService;
+    CarteiraService carteiraService;
 
     @POST
     @Operation(summary = "Cria uma Transação", description = "Cria uma transação para um paciente no sistema")
-    public Uni<RestResponse<TransacaoResumeResponse>> salvar (
-            @Valid TransacaoRequest transacaoRequest
+    public Uni<RestResponse<CarteiraResumeResponse>> salvar (
+            @Valid CarteiraRequest carteiraRequest
     ){
-        return transacaoService.save(transacaoRequest)
+        return carteiraService.save(carteiraRequest)
                 .onItem()
                 .transform(transacaoResumeResponse -> RestResponse
                         .ResponseBuilder.create(RestResponse.Status.CREATED, transacaoResumeResponse).build());
@@ -48,10 +47,10 @@ public class TransacaoResource {
     @Path("/{id}")
     @Operation(summary = "Busca Transação por id",
             description = "Busca uma transação pelo id no sistema")
-    public Uni<RestResponse<TransacaoResumeResponse>> buscarPorId(
+    public Uni<RestResponse<CarteiraResumeResponse>> buscarPorId(
             @PathParam("id") Long id
     ) {
-        return transacaoService.findById(id)
+        return carteiraService.findById(id)
                 .onItem().transform(RestResponse::ok);
 
     }
@@ -63,18 +62,18 @@ public class TransacaoResource {
     public Uni<RestResponse<Boolean>> deletarPorId(
             @PathParam("id") Long id
     ){
-        return transacaoService.deleteById(id)
+        return carteiraService.deleteById(id)
                 .onItem()
                 .transform(transacao -> RestResponse.noContent());
     }
 
     @PUT
     @Path("/{id}")
-    public Uni<RestResponse<TransacaoResumeResponse>> atualizar(
+    public Uni<RestResponse<CarteiraResumeResponse>> atualizar(
             @PathParam("id") Long id,
-            @Valid TransacaoRequest transacaoRequest
+            @Valid CarteiraRequest carteiraRequest
     ) {
-        return transacaoService.update(id, transacaoRequest)
+        return carteiraService.update(id, carteiraRequest)
                 .onItem()
                 .transform(RestResponse::ok);
     }
@@ -82,7 +81,7 @@ public class TransacaoResource {
     @GET
     @Operation(summary = "Lista transações paginadas",
             description = "Lista as transações com paginação, ordenação e filtros opcionais")
-    public Uni<RestResponse<PanachePage<TransacaoResumeResponse>>> listarRegistrosPag(
+    public Uni<RestResponse<PanachePage<CarteiraResumeResponse>>> listarRegistrosPag(
             @QueryParam("page") @DefaultValue("1") Integer page,
             @QueryParam("size") @DefaultValue("10") Integer size,
             @QueryParam("sort") String sort,
@@ -90,7 +89,7 @@ public class TransacaoResource {
             @QueryParam("filterValues") List<String> filterValues
     ) {
         Page panachePage = Page.of(page - 1,size);
-        return transacaoService.findPaginated(
+        return carteiraService.findPaginated(
                 panachePage,
                 sort,
                 filterFields,

@@ -35,7 +35,7 @@ public class PacienteResponse {
 
     private EnderecoResponse endereco;
 
-    private List<TransacaoResponse> transacoes;
+    private List<CarteiraResponse> transacoes;
 
     private List<RelatorioResponse> relatorios;
 
@@ -57,7 +57,7 @@ public class PacienteResponse {
                         paciente.getTransacao() == null
                                 ? Collections.emptyList()
                                 : paciente.getTransacao().stream()
-                                .map(TransacaoResponse::toResponse)
+                                .map(CarteiraResponse::toResponse)
                                 .toList()
                 )
                 .relatorios(

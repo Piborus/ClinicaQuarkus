@@ -8,11 +8,11 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "transacao", schema = "clinica")
+@Table(name = "carteira", schema = "clinica")
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class Transacao extends BaseAuditEntity{
+public class Carteira extends BaseAuditEntity{
 
     @Column(name = "valor", nullable = false)
     private Double valor;
