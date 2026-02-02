@@ -1,14 +1,14 @@
 package br.ce.clinica.service.impl;
 
-import br.ce.clinica.dto.request.TransacaoRequest;
+import br.ce.clinica.dto.request.CarteiraRequest;
+import br.ce.clinica.dto.response.CarteiraResumeResponse;
 import br.ce.clinica.dto.response.PanachePage;
-import br.ce.clinica.dto.response.TransacaoResumeResponse;
-import br.ce.clinica.entity.Transacao;
+import br.ce.clinica.entity.Carteira;
 import br.ce.clinica.exception.BadRequestBusinessException;
 import br.ce.clinica.exception.NotFoundBusinessException;
 import br.ce.clinica.repository.PacienteRepository;
-import br.ce.clinica.repository.TransacaoRepository;
-import br.ce.clinica.service.TransacaoService;
+import br.ce.clinica.repository.CarteiraRepository;
+import br.ce.clinica.service.CarteiraService;
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.Set;
 
 @ApplicationScoped
-public class TransacaoServiceImpl implements TransacaoService {
+public class CarteiraServiceImpl implements CarteiraService {
 
     @Inject
-    TransacaoRepository transacaoRepository;
+    CarteiraRepository carteiraRepository;
 
     @Inject
     PacienteRepository pacienteRepository;
@@ -38,57 +38,57 @@ public class TransacaoServiceImpl implements TransacaoService {
     );
 
     @Override
-    public Uni<TransacaoResumeResponse> save(TransacaoRequest transacaoRequest) {
-        return Panache.withTransaction(() -> pacienteRepository.find("id", transacaoRequest.getPacienteId())
+    public Uni<CarteiraResumeResponse> save(CarteiraRequest carteiraRequest) {
+        return Panache.withTransaction(() -> pacienteRepository.find("id", carteiraRequest.getPacienteId())
                 .firstResult()
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado"))
                 .onItem().transformToUni(paciente -> {
-                    Transacao transacao = new Transacao();
-                    transacao.setDescricao(transacaoRequest.getDescricao());
-                    transacao.setValor(transacaoRequest.getValor());
-                    transacao.setTipoMovimento(transacaoRequest.getTipoMovimento());
-                    transacao.setTipoDePagamento(transacaoRequest.getTipoDePagamento());
-                    transacao.setPaciente(paciente);
-                    return transacaoRepository.persist(transacao)
-                            .onItem().transform(TransacaoResumeResponse::toResponse);
+                    Carteira carteira = new Carteira();
+                    carteira.setDescricao(carteiraRequest.getDescricao());
+                    carteira.setValor(carteiraRequest.getValor());
+                    carteira.setTipoMovimento(carteiraRequest.getTipoMovimento());
+                    carteira.setTipoDePagamento(carteiraRequest.getTipoDePagamento());
+                    carteira.setPaciente(paciente);
+                    return carteiraRepository.persist(carteira)
+                            .onItem().transform(CarteiraResumeResponse::toResponse);
                 })
         );
     }
 
     @Override
-    public Uni<TransacaoResumeResponse> findById(Long id) {
-        return transacaoRepository.findByIdWithPaciente(id)
+    public Uni<CarteiraResumeResponse> findById(Long id) {
+        return carteiraRepository.findByIdWithPaciente(id)
                 .onItem().ifNull().failWith(
                         () -> new NotFoundBusinessException("Transação não encontrada")
                 )
-                .onItem().transform(TransacaoResumeResponse::toResponse);
+                .onItem().transform(CarteiraResumeResponse::toResponse);
     }
 
     @Override
     public Uni<Boolean> deleteById(Long id) {
-        return Panache.withTransaction(() -> transacaoRepository.find("id", id)
+        return Panache.withTransaction(() -> carteiraRepository.find("id", id)
                 .firstResult()
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Transação não encontrada"))
-                .onItem().ifNotNull().transformToUni(transacao -> transacaoRepository.deleteById(id)));
+                .onItem().ifNotNull().transformToUni(transacao -> carteiraRepository.deleteById(id)));
     }
 
     @Override
-    public Uni<TransacaoResumeResponse> update(Long id, TransacaoRequest transacaoRequest) {
-        return Panache.withTransaction(() -> transacaoRepository.find("id", id)
+    public Uni<CarteiraResumeResponse> update(Long id, CarteiraRequest carteiraRequest) {
+        return Panache.withTransaction(() -> carteiraRepository.find("id", id)
                 .firstResult()
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Transação não encontrada"))
                 .onItem().invoke(transacao -> {
-                    transacao.setDescricao(transacaoRequest.getDescricao());
-                    transacao.setValor(transacaoRequest.getValor());
-                    transacao.setTipoMovimento(transacaoRequest.getTipoMovimento());
-                    transacao.setTipoDePagamento(transacaoRequest.getTipoDePagamento());
+                    transacao.setDescricao(carteiraRequest.getDescricao());
+                    transacao.setValor(carteiraRequest.getValor());
+                    transacao.setTipoMovimento(carteiraRequest.getTipoMovimento());
+                    transacao.setTipoDePagamento(carteiraRequest.getTipoDePagamento());
                 })
-                .onItem().transform(TransacaoResumeResponse::toResponse)
+                .onItem().transform(CarteiraResumeResponse::toResponse)
         );
     }
 
     @Override
-    public Uni<PanachePage<TransacaoResumeResponse>> findPaginated(
+    public Uni<PanachePage<CarteiraResumeResponse>> findPaginated(
             Page page,
             String sort,
             List<String> filterFields,
@@ -113,8 +113,8 @@ public class TransacaoServiceImpl implements TransacaoService {
                     : Sort.by("t." + field).descending();
         }
 
-        PanacheQuery<Transacao> query =
-                transacaoRepository.findPaginated(
+        PanacheQuery<Carteira> query =
+                carteiraRepository.findPaginated(
                         panacheSort,
                         filterFields,
                         filterValues
@@ -124,11 +124,11 @@ public class TransacaoServiceImpl implements TransacaoService {
                         query.page(page).list(),
                         query.count()
                 ).asTuple()
-                .map(tuple -> PanachePage.<TransacaoResumeResponse>builder()
+                .map(tuple -> PanachePage.<CarteiraResumeResponse>builder()
                         .content(
                                 tuple.getItem1()
                                         .stream()
-                                        .map(TransacaoResumeResponse::toResponse)
+                                        .map(CarteiraResumeResponse::toResponse)
                                         .toList()
                         )
                         .page(page)

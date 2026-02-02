@@ -13,7 +13,7 @@ import br.ce.clinica.exception.NotFoundBusinessException;
 import br.ce.clinica.repository.FiliacaoRepository;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.repository.RelatorioRepository;
-import br.ce.clinica.repository.TransacaoRepository;
+import br.ce.clinica.repository.CarteiraRepository;
 import br.ce.clinica.service.PacienteService;
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
@@ -35,7 +35,7 @@ public class PacienteServiceImpl implements PacienteService {
     PacienteRepository pacienteRepository;
 
     @Inject
-    TransacaoRepository transacaoRepository;
+    CarteiraRepository carteiraRepository;
 
     @Inject
     RelatorioRepository relatorioRepository;
@@ -118,7 +118,7 @@ public class PacienteServiceImpl implements PacienteService {
                                 relatorioRepository.deleteByPacienteId(id)
                         )
                         .chain(transacoes ->
-                                transacaoRepository.deleteByPacienteId(id)
+                                carteiraRepository.deleteByPacienteId(id)
                         )
                         .chain(filiacoes ->
                                 filiacaoRepository.deleteById(id)

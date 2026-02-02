@@ -1,6 +1,6 @@
 package br.ce.clinica.repository;
 
-import br.ce.clinica.entity.Transacao;
+import br.ce.clinica.entity.Carteira;
 import br.ce.clinica.exception.BadRequestBusinessException;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
 import io.quarkus.hibernate.reactive.panache.PanacheRepository;
@@ -12,20 +12,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
-public class TransacaoRepository implements PanacheRepository<Transacao> {
+public class CarteiraRepository implements PanacheRepository<Carteira> {
 
 
     private static final String JPQL_BASE = """
             SELECT DISTINCT t
-            FROM Transacao t
+            FROM Carteira t
             JOIN FETCH t.paciente
             WHERE 1 = 1
             """;
 
-    public Uni<Transacao> findByIdWithPaciente(Long id) {
+    public Uni<Carteira> findByIdWithPaciente(Long id) {
         return find("""
                 SELECT t
-                FROM Transacao t
+                FROM Carteira t
                 LEFT JOIN FETCH t.paciente
                 WHERE t.id = ?1
                 """, id).firstResult();
@@ -35,7 +35,7 @@ public class TransacaoRepository implements PanacheRepository<Transacao> {
         return delete("paciente.id", pacienteId);
     }
 
-    public PanacheQuery<Transacao> findPaginated(
+    public PanacheQuery<Carteira> findPaginated(
             Sort sort,
             List<String> fields,
             List<String> values

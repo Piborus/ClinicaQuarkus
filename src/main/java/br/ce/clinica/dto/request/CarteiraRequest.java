@@ -12,7 +12,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransacaoRequest {
+public class CarteiraRequest {
 
     @Schema(name = "valor", description = "Valor da transação", examples = { "150.75" })
     @NotNull

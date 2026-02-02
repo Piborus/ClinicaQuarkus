@@ -34,7 +34,7 @@ public class PacienteResumeResponse {
 
     private EnderecoResponse endereco;
 
-    private List<TransacaoResumeResponse> transacoes;
+    private List<CarteiraResumeResponse> transacoes;
 
     private List<RelatorioResumeResponse> relatorios;
 
@@ -51,7 +51,7 @@ public class PacienteResumeResponse {
                 .email(paciente.getEmail())
                 .endereco(EnderecoResponse.toResponse(paciente.getEndereco()))
                 .transacoes(paciente.getTransacao().stream()
-                        .map(TransacaoResumeResponse::toResponse)
+                        .map(CarteiraResumeResponse::toResponse)
                         .toList())
                 .relatorios(paciente.getRelatorioDoPaciente().stream()
                         .map(RelatorioResumeResponse::toResponse)
