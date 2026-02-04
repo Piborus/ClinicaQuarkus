@@ -36,7 +36,7 @@ public class PacienteResumeResponse {
 
     private List<CarteiraResumeResponse> transacoes;
 
-    private List<RelatorioResumeResponse> relatorios;
+    private List<ProntuarioResumeResponse> prontuarios;
 
     public static PacienteResumeResponse toResponse(Paciente paciente) {
         return PacienteResumeResponse.builder()
@@ -53,8 +53,8 @@ public class PacienteResumeResponse {
                 .transacoes(paciente.getTransacao().stream()
                         .map(CarteiraResumeResponse::toResponse)
                         .toList())
-                .relatorios(paciente.getRelatorioDoPaciente().stream()
-                        .map(RelatorioResumeResponse::toResponse)
+                .prontuarios(paciente.getProntuarioDoPaciente().stream()
+                        .map(ProntuarioResumeResponse::toResponse)
                         .toList())
                 .build();
     }

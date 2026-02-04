@@ -2,5 +2,5 @@ package br.ce.clinica.enums;
 
 public enum TipoAnamnese {
     INICIAL,
-    REAVALICAO
+    REAVALIACAO
 }

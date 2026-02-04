@@ -16,19 +16,19 @@ import java.util.Set;
 @EqualsAndHashCode(of = "id")
 public class AntecedenteFamiliar extends BaseAuditEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "anamnese_id", nullable = false)
     private Anamnese anamnese;
 
-    @ElementCollection(targetClass = TipoAntecedenteFamiliar.class)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
             name = "antecedente_familiar_tipo",
             schema = "clinica",
             joinColumns = @JoinColumn(name = "antecedente_familiar_id")
     )
-    @Column(name = "tipo_antecedente_familiar")
     @Enumerated(EnumType.STRING)
-    private Set<TipoAntecedenteFamiliar> tipoAntecedenteFamiliar;
+    @Column(name = "tipo_antecedente_familiar")
+    private Set<TipoAntecedenteFamiliar> tiposAntecedentes;
 
     @Column(name = "descricao", columnDefinition = "TEXT")
     private String descricao;

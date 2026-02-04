@@ -45,8 +45,8 @@ public class AnamneseDesenvolvimento extends BaseAuditEntity {
     @Column(name = "etilista")
     private Boolean etilista;
 
-    @Column(name = "uso_medicamentos")
-    private Boolean usoMedicamentos;
+    @Column(name = "uso_medicamento")
+    private Boolean usoMedicamento;
 
     @Column(name = "descricao_medicamentos", columnDefinition = "TEXT")
     private String descricaoMedicamentos;
@@ -55,6 +55,6 @@ public class AnamneseDesenvolvimento extends BaseAuditEntity {
     private String rotina;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "anamnese_id", nullable = false, unique = true)
+    @JoinColumn(name = "anamnese_id", nullable = false)
     private Anamnese anamnese;
 }

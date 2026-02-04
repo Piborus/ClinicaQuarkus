@@ -4,8 +4,6 @@ import br.ce.clinica.enums.TipoAnamnese;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Set;
-
 @Entity
 @Getter
 @Setter
@@ -35,8 +33,8 @@ public class Anamnese extends BaseAuditEntity {
     @OneToOne(mappedBy = "anamnese", cascade = CascadeType.ALL, orphanRemoval = true)
     private AnamneseDesenvolvimento desenvolvimento;
 
-    @OneToMany(mappedBy = "anamnese", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<AntecedenteFamiliar> antecedentesFamiliares;
+    @OneToOne(mappedBy = "anamnese", cascade = CascadeType.ALL, orphanRemoval = true)
+    private AntecedenteFamiliar antecedenteFamiliar;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id", nullable = false)

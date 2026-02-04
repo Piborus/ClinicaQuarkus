@@ -1,6 +1,6 @@
 package br.ce.clinica.dto.response;
 
-import br.ce.clinica.entity.Relatorio;
+import br.ce.clinica.entity.Prontuario;
 import lombok.*;
 
 @Getter
@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RelatorioResponse {
+public class ProntuarioResponse {
 
     private Long id;
 
@@ -18,8 +18,8 @@ public class RelatorioResponse {
 //
 //    private String pacienteNome;
 
-    public static RelatorioResponse toResponse(Relatorio entity) {
-        return RelatorioResponse.builder()
+    public static ProntuarioResponse toResponse(Prontuario entity) {
+        return ProntuarioResponse.builder()
                 .id(entity.getId())
                 .texto(entity.getTexto())
 //                .pacienteId((entity.getPaciente() != null ? entity.getPaciente().getId() : null))

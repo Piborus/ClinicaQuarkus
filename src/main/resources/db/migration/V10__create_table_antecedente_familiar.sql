@@ -1,5 +1,6 @@
-CREATE TABLE clinica.relatorio (
+CREATE TABLE clinica.antecedente_familiar (
     id BIGSERIAL PRIMARY KEY,
+    descricao TEXT,
     dt_criacao TIMESTAMP WITH TIME ZONE NOT NULL,
     dt_alteracao TIMESTAMP WITH TIME ZONE,
     dt_delecao TIMESTAMP WITH TIME ZONE,
@@ -7,6 +8,9 @@ CREATE TABLE clinica.relatorio (
     atualizado_por VARCHAR(100),
     status BOOLEAN NOT NULL,
     deletado BOOLEAN NOT NULL,
-    paciente_id BIGSERIAL NOT NULL REFERENCES clinica.paciente(id),
-    texto TEXT
-)
+    anamnese_id BIGINT NOT NULL UNIQUE,
+    CONSTRAINT fk_antecedente_familiar_anamnese
+        FOREIGN KEY (anamnese_id)
+        REFERENCES clinica.anamnese(id)
+        ON DELETE CASCADE
+);
