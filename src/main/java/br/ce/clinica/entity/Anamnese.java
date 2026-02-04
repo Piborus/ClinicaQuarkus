@@ -36,7 +36,7 @@ public class Anamnese extends BaseAuditEntity {
     @OneToOne(mappedBy = "anamnese", cascade = CascadeType.ALL, orphanRemoval = true)
     private AntecedenteFamiliar antecedenteFamiliar;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id", nullable = false)
     private Paciente paciente;
 }
