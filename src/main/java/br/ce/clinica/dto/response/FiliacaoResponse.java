@@ -4,7 +4,6 @@ import br.ce.clinica.entity.Filiacao;
 import lombok.*;
 
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

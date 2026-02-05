@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PacienteResumeResponse {
+public class PacienterResponse{
 
     private Long id;
 
@@ -33,12 +33,14 @@ public class PacienteResumeResponse {
 
     private EnderecoResponse endereco;
 
-    private List<CarteiraResumeResponse> transacoes;
+    private List<FiliacaoResponse> responsaveis;
 
-    private List<ProntuarioResumeResponse> prontuarios;
+    //private List<CarteiraResumeResponse> transacoes;
 
-    public static PacienteResumeResponse toResponse(Paciente paciente) {
-        return PacienteResumeResponse.builder()
+    //private List<ProntuarioResumeResponse> prontuarios;
+
+    public static PacienterResponse toResponse(Paciente paciente) {
+        return PacienterResponse.builder()
                 .id(paciente.getId())
                 .nome(paciente.getNome())
                 .idade(paciente.getIdade())
@@ -49,12 +51,15 @@ public class PacienteResumeResponse {
                 .telefone(paciente.getTelefone())
                 .email(paciente.getEmail())
                 .endereco(EnderecoResponse.toResponse(paciente.getEndereco()))
-                .transacoes(paciente.getTransacao().stream()
-                        .map(CarteiraResumeResponse::toResponse)
+                .responsaveis(paciente.getResponsaveis().stream()
+                        .map(FiliacaoResponse::toResponse)
                         .toList())
-                .prontuarios(paciente.getProntuarioDoPaciente().stream()
-                        .map(ProntuarioResumeResponse::toResponse)
-                        .toList())
+//                .transacoes(paciente.getTransacao().stream()
+//                        .map(CarteiraResumeResponse::toResponse)
+//                        .toList())
+//                .prontuarios(paciente.getProntuarioDoPaciente().stream()
+//                        .map(ProntuarioResumeResponse::toResponse)
+//                        .toList())
                 .build();
     }
 }

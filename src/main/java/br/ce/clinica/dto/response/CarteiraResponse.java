@@ -6,7 +6,6 @@ import br.ce.clinica.enums.TipoMovimento;
 import lombok.*;
 
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
