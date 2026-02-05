@@ -8,9 +8,9 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "relatorio", schema = "clinica")
+@Table(name = "prontuario", schema = "clinica")
 @EqualsAndHashCode(of = "id")
-public class Relatorio extends BaseAuditEntity {
+public class Prontuario extends BaseAuditEntity {
 
     @Column(name = "texto", columnDefinition = "TEXT")
     private String texto;

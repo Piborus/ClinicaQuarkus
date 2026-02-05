@@ -72,8 +72,11 @@ public class Paciente extends BaseAuditEntity {
     @Embedded
     private Endereco endereco;
 
+    @OneToOne(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Anamnese anamnese;
+
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Relatorio> relatorioDoPaciente;
+    private Set<Prontuario> prontuarioDoPaciente;
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Carteira> transacao;

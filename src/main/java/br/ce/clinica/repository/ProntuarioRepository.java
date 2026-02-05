@@ -1,6 +1,6 @@
 package br.ce.clinica.repository;
 
-import br.ce.clinica.entity.Relatorio;
+import br.ce.clinica.entity.Prontuario;
 import br.ce.clinica.exception.BadRequestBusinessException;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
 import io.quarkus.hibernate.reactive.panache.PanacheRepository;
@@ -12,21 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
-public class RelatorioRepository implements PanacheRepository<Relatorio> {
+public class ProntuarioRepository implements PanacheRepository<Prontuario> {
 
     private static final String JPQL_BASE = """
-            SELECT DISTINCT r
-            FROM Relatorio r
-            JOIN FETCH r.paciente
-            WHERE 1 = 1 
+            SELECT DISTINCT p
+            FROM Prontuario p
+            JOIN FETCH p.paciente
+            WHERE 1 = 1
             """;
 
-    public Uni<Relatorio> findByIdWithPaciente(Long id) {
+    public Uni<Prontuario> findByIdWithPaciente(Long id) {
         return find("""
-            SELECT r
-            FROM Relatorio r
-            JOIN FETCH r.paciente
-            WHERE r.id = ?1
+            SELECT p
+            FROM Prontuario p
+            JOIN FETCH p.paciente
+            WHERE p.id = ?1
         """, id).firstResult();
     }
 
@@ -34,7 +34,7 @@ public class RelatorioRepository implements PanacheRepository<Relatorio> {
         return delete("paciente.id", pacienteId);
     }
 
-    public PanacheQuery<Relatorio> findPaginated(
+    public PanacheQuery<Prontuario> findPaginated(
             Sort sort,
             List<String> fields,
             List<String> values
@@ -55,7 +55,7 @@ public class RelatorioRepository implements PanacheRepository<Relatorio> {
                 String value = values.get(i);
 
                 if (isStringValue(value)) {
-                    query.append(" AND LOWER(r.")
+                    query.append(" AND LOWER(p.")
                             .append(field)
                             .append(") LIKE ?")
                             .append(i + 1);
@@ -63,7 +63,7 @@ public class RelatorioRepository implements PanacheRepository<Relatorio> {
                     params.add("%" + value.toLowerCase() + "%");
 
                 } else {
-                    query.append(" AND r.")
+                    query.append(" AND p.")
                             .append(field)
                             .append(" = ?")
                             .append(i + 1);

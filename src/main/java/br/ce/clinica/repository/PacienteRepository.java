@@ -18,7 +18,7 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
     private static final String JPQL_BASE = """
             SELECT DISTINCT p
             FROM Paciente p
-            LEFT JOIN FETCH p.relatorioDoPaciente
+            LEFT JOIN FETCH p.prontuarioDoPaciente
             LEFT JOIN FETCH p.transacao
             LEFT JOIN FETCH p.responsaveis
             WHERE 1 = 1
@@ -27,7 +27,7 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
     private static final String JPQL_FIND_BY_ID = """
             SELECT DISTINCT p
             FROM Paciente p
-            LEFT JOIN FETCH p.relatorioDoPaciente
+            LEFT JOIN FETCH p.prontuarioDoPaciente
             LEFT JOIN FETCH p.transacao
             LEFT JOIN FETCH p.responsaveis
             WHERE p.id = ?1
