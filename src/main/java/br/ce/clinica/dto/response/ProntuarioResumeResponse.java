@@ -13,10 +13,13 @@ public class ProntuarioResumeResponse {
 
     private String texto;
 
+    private PacienteResponse paciente;
+
     public static ProntuarioResumeResponse toResponse(Prontuario prontuario) {
         return ProntuarioResumeResponse.builder()
                 .id(prontuario.getId())
                 .texto(prontuario.getTexto())
+                .paciente(PacienteResponse.toResponse(prontuario.getPaciente()))
                 .build();
     }
 }

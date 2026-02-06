@@ -21,8 +21,6 @@ public class CarteiraResponse {
 
     private TipoDePagamento tipoDePagamento;
 
-//    private PacienteResponse paciente;
-
     public static CarteiraResponse toResponse(Carteira carteira) {
         return CarteiraResponse.builder()
                 .id(carteira.getId())
@@ -30,7 +28,6 @@ public class CarteiraResponse {
                 .descricao(carteira.getDescricao())
                 .tipoMovimento(carteira.getTipoMovimento())
                 .tipoDePagamento(carteira.getTipoDePagamento())
-//                .paciente(PacienteResponse.toResponse(transacao.getPaciente()))
                 .build();
     }
 }

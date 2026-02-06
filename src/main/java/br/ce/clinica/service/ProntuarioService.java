@@ -19,7 +19,7 @@ public interface ProntuarioService {
 
      Uni<ProntuarioResumeResponse> update(Long id, ProntuarioRequest prontuarioRequest);
 
-     Uni<ProntuarioResponse> findByIdWithPaciente(Long id);
+     //Uni<ProntuarioResponse> findById(Long id);
 
      Uni<PanachePage<ProntuarioResponse>> findPaginated(
             Page page,

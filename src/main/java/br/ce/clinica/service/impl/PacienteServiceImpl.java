@@ -100,10 +100,16 @@ public class PacienteServiceImpl implements PacienteService {
     }
 
     @Override
-    public Uni<PacienteResponse> findById(Long id) {
+    public Uni<PacienteResumeResponse> findById(Long id) {
+        log.info("Buscando paciente por ID: {}", id);
         return pacienteRepository.findByIdWithCollections(id)
-                .onItem().ifNull().failWith(() ->  new NotFoundBusinessException("Paciente não encontrado!"))
-                .onItem().transform(PacienteResponse::toResponse);
+                .onItem().ifNull().failWith(() -> {
+                    log.warn("Paciente com ID {} não encontrado", id);
+                    return new NotFoundBusinessException("Paciente não encontrado!");
+                })
+                .onItem().invoke(paciente -> log.info("Paciente encontrado: {}", paciente.getNome()))
+                .onItem().transform(PacienteResumeResponse::toResponse)
+                .onFailure().invoke(throwable -> log.error("Erro ao buscar paciente por ID {}: {}", id, throwable.getMessage(), throwable));
     }
 
     @Override
@@ -132,7 +138,7 @@ public class PacienteServiceImpl implements PacienteService {
 
 
     @Override
-    public Uni<PacienteResumeResponse> update(Long id, PacienteRequest pacienteRequest) {
+    public Uni<PacienteResponse> update(Long id, PacienteRequest pacienteRequest) {
         return Panache.withTransaction(() ->
                 pacienteRepository.findById(id)
                         .onItem().ifNull().failWith(() ->
@@ -190,7 +196,7 @@ public class PacienteServiceImpl implements PacienteService {
                         })
                         .onItem().transformToUni(paciente -> pacienteRepository.findByIdWithCollections(paciente.getId()))
                         .chain(paciente -> updateFiliacao(paciente, pacienteRequest))
-                        .onItem().transform(PacienteResumeResponse::toResponse)
+                        .onItem().transform(PacienteResponse::toResponse)
         );
     }
 
@@ -242,38 +248,29 @@ public class PacienteServiceImpl implements PacienteService {
     }
 
     private Uni<Paciente> updateFiliacao(Paciente paciente, PacienteRequest pacienteRequest) {
+
         if (pacienteRequest.getResponsaveis() == null || pacienteRequest.getResponsaveis().isEmpty()) {
             return Uni.createFrom().item(paciente);
         }
 
-        if (paciente.getResponsaveis() == null) {
-            paciente.setResponsaveis(new HashSet<>());
-        }
-
         return Multi.createFrom().iterable(pacienteRequest.getResponsaveis())
                 .onItem().transformToUniAndConcatenate(filiacaoRequest ->
-                        filiacaoRepository.find("cpf", filiacaoRequest.getCpf())
+
+                        filiacaoRepository.find(
+                                        "cpf = ?1 and paciente.id = ?2",
+                                        filiacaoRequest.getCpf(),
+                                        paciente.getId()
+                                )
                                 .firstResult()
                                 .onItem().transformToUni(existing -> {
+
                                     if (existing != null) {
-                                        boolean alreadyLinkedToPaciente =
-                                                paciente.getResponsaveis().stream()
-                                                        .anyMatch(r -> Objects.equals(r.getId(), existing.getId()));
-
-                                        if (!alreadyLinkedToPaciente) {
-                                            return Uni.createFrom().failure(new ConflictBusinessException("CPF já existente!"));
-                                        }
-
                                         existing.setNome(filiacaoRequest.getNome());
                                         existing.setIdade(filiacaoRequest.getIdade());
                                         existing.setEmail(filiacaoRequest.getEmail());
                                         existing.setTelefone(filiacaoRequest.getTelefone());
                                         existing.setGrauDeParentesco(filiacaoRequest.getGrauDeParentesco());
-                                        existing.setPaciente(paciente);
-
-                                        return filiacaoRepository.persist(existing)
-                                                .invoke(persisted -> paciente.getResponsaveis().add(persisted))
-                                                .replaceWith(existing);
+                                        return filiacaoRepository.persist(existing);
                                     }
 
                                     Filiacao filiacao = new Filiacao();
@@ -285,9 +282,7 @@ public class PacienteServiceImpl implements PacienteService {
                                     filiacao.setGrauDeParentesco(filiacaoRequest.getGrauDeParentesco());
                                     filiacao.setPaciente(paciente);
 
-                                    return filiacaoRepository.persist(filiacao)
-                                            .invoke(persisted -> paciente.getResponsaveis().add(persisted))
-                                            .replaceWith(filiacao);
+                                    return filiacaoRepository.persist(filiacao);
                                 })
                 )
                 .collect().asList()

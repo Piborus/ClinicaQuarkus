@@ -21,14 +21,17 @@ public class ProntuarioRepository implements PanacheRepository<Prontuario> {
             WHERE 1 = 1
             """;
 
-    public Uni<Prontuario> findByIdWithPaciente(Long id) {
+    public Uni<Prontuario> findByIdWithCollections(Long id) {
         return find("""
-            SELECT p
-            FROM Prontuario p
-            JOIN FETCH p.paciente
-            WHERE p.id = ?1
-        """, id).firstResult();
+        SELECT DISTINCT p
+        FROM Prontuario p
+        LEFT JOIN FETCH p.paciente pa
+        LEFT JOIN FETCH pa.endereco
+        LEFT JOIN FETCH pa.responsaveis
+        WHERE p.id = ?1
+    """, id).firstResult();
     }
+
 
     public Uni<Long> deleteByPacienteId(Long pacienteId) {
         return delete("paciente.id", pacienteId);

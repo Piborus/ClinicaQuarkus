@@ -47,7 +47,7 @@ public class PacienteResource {
     @GET
     @Operation(summary = "Paciente por id", description = "Retorna um paciente pelo id")
     @Path("/{id}")
-    public Uni<RestResponse<PacienteResponse>> buscarPorId(
+    public Uni<RestResponse<PacienteResumeResponse>> buscarPorId(
             @PathParam("id") Long id
     ) {
         return pacienteService.findById(id)
@@ -67,12 +67,12 @@ public class PacienteResource {
     @PUT
     @Operation(summary = "Atualiza Paciente", description = "Atualiza um paciente pelo id")
     @Path("/{id}")
-    public Uni<RestResponse<PacienteResumeResponse>> atualizar(
+    public Uni<RestResponse<PacienteResponse>> atualizar(
             @PathParam("id") Long id,
             @Valid PacienteRequest pacienteRequest
     ){
         return pacienteService.update(id, pacienteRequest)
-                .onItem().transform( pessoa -> RestResponse.ok());
+                .onItem().transform(RestResponse::ok);
     }
 
     @GET

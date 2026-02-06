@@ -1,6 +1,7 @@
 package br.ce.clinica.resource;
 
 import br.ce.clinica.dto.request.CarteiraRequest;
+import br.ce.clinica.dto.response.CarteiraResponse;
 import br.ce.clinica.dto.response.CarteiraResumeResponse;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.openapi.ApiDocumentation;
@@ -34,13 +35,13 @@ public class CarteiraResource {
 
     @POST
     @Operation(summary = "Cria uma Transação", description = "Cria uma transação para um paciente no sistema")
-    public Uni<RestResponse<CarteiraResumeResponse>> salvar (
+    public Uni<RestResponse<CarteiraResponse>> salvar (
             @Valid CarteiraRequest carteiraRequest
     ){
         return carteiraService.save(carteiraRequest)
                 .onItem()
-                .transform(transacaoResumeResponse -> RestResponse
-                        .ResponseBuilder.create(RestResponse.Status.CREATED, transacaoResumeResponse).build());
+                .transform(response -> RestResponse
+                        .ResponseBuilder.create(RestResponse.Status.CREATED, response).build());
     }
 
     @GET
@@ -69,7 +70,7 @@ public class CarteiraResource {
 
     @PUT
     @Path("/{id}")
-    public Uni<RestResponse<CarteiraResumeResponse>> atualizar(
+    public Uni<RestResponse<CarteiraResponse>> atualizar(
             @PathParam("id") Long id,
             @Valid CarteiraRequest carteiraRequest
     ) {
@@ -81,7 +82,7 @@ public class CarteiraResource {
     @GET
     @Operation(summary = "Lista transações paginadas",
             description = "Lista as transações com paginação, ordenação e filtros opcionais")
-    public Uni<RestResponse<PanachePage<CarteiraResumeResponse>>> listarRegistrosPag(
+    public Uni<RestResponse<PanachePage<CarteiraResponse>>> listarRegistrosPag(
             @QueryParam("page") @DefaultValue("1") Integer page,
             @QueryParam("size") @DefaultValue("10") Integer size,
             @QueryParam("sort") String sort,
@@ -94,6 +95,6 @@ public class CarteiraResource {
                 sort,
                 filterFields,
                 filterValues
-        ).onItem().transform(RestResponse :: ok);
+        ).onItem().transform(RestResponse::ok);
     }
 }

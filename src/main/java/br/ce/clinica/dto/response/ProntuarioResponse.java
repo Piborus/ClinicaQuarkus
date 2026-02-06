@@ -13,16 +13,10 @@ public class ProntuarioResponse {
 
     private String texto;
 
-//    private Long pacienteId;
-//
-//    private String pacienteNome;
-
     public static ProntuarioResponse toResponse(Prontuario entity) {
         return ProntuarioResponse.builder()
                 .id(entity.getId())
                 .texto(entity.getTexto())
-//                .pacienteId((entity.getPaciente() != null ? entity.getPaciente().getId() : null))
-//                .pacienteNome((entity.getPaciente() != null ? entity.getPaciente().getNome() : null))
                 .build();
     }
 }

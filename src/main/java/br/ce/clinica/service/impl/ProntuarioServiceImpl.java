@@ -54,7 +54,7 @@ public class ProntuarioServiceImpl implements ProntuarioService {
 
     @Override
     public Uni<ProntuarioResumeResponse> findById(Long id) {
-        return prontuarioRepository.findById(id)
+        return prontuarioRepository.findByIdWithCollections(id)
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Prontuario nao encontrado"))
                 .onItem().transform(ProntuarioResumeResponse::toResponse);
     }
@@ -83,12 +83,12 @@ public class ProntuarioServiceImpl implements ProntuarioService {
                 .onItem().transform(ProntuarioResumeResponse::toResponse);
     }
 
-    @Override
-    public Uni<ProntuarioResponse> findByIdWithPaciente(Long id) {
-        return prontuarioRepository.findByIdWithPaciente(id)
-                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Prontuario nao encontrado"))
-                .onItem().transform(ProntuarioResponse::toResponse);
-    }
+//    @Override
+//    public Uni<ProntuarioResponse> findBy(Long id) {
+//        return prontuarioRepository.findByIdWithCollections(id)
+//                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Prontuario nao encontrado"))
+//                .onItem().transform(ProntuarioResponse::toResponse);
+//    }
 
     @Override
     public Uni<PanachePage<ProntuarioResponse>> findPaginated(

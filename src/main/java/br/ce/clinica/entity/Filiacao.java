@@ -2,7 +2,6 @@ package br.ce.clinica.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.validator.constraints.br.CPF;
 
@@ -13,7 +12,6 @@ import org.hibernate.validator.constraints.br.CPF;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "filiacao", schema = "clinica")
-@EqualsAndHashCode(of = "id")
 public class Filiacao extends BaseAuditEntity {
 
     @Column(name = "nome")

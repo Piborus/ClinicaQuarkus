@@ -1,6 +1,7 @@
 package br.ce.clinica.service.impl;
 
 import br.ce.clinica.dto.request.CarteiraRequest;
+import br.ce.clinica.dto.response.CarteiraResponse;
 import br.ce.clinica.dto.response.CarteiraResumeResponse;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.entity.Carteira;
@@ -38,7 +39,7 @@ public class CarteiraServiceImpl implements CarteiraService {
     );
 
     @Override
-    public Uni<CarteiraResumeResponse> save(CarteiraRequest carteiraRequest) {
+    public Uni<CarteiraResponse> save(CarteiraRequest carteiraRequest) {
         return Panache.withTransaction(() -> pacienteRepository.find("id", carteiraRequest.getPacienteId())
                 .firstResult()
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado"))
@@ -50,7 +51,7 @@ public class CarteiraServiceImpl implements CarteiraService {
                     carteira.setTipoDePagamento(carteiraRequest.getTipoDePagamento());
                     carteira.setPaciente(paciente);
                     return carteiraRepository.persist(carteira)
-                            .onItem().transform(CarteiraResumeResponse::toResponse);
+                            .onItem().transform(CarteiraResponse::toResponse);
                 })
         );
     }
@@ -73,7 +74,7 @@ public class CarteiraServiceImpl implements CarteiraService {
     }
 
     @Override
-    public Uni<CarteiraResumeResponse> update(Long id, CarteiraRequest carteiraRequest) {
+    public Uni<CarteiraResponse> update(Long id, CarteiraRequest carteiraRequest) {
         return Panache.withTransaction(() -> carteiraRepository.find("id", id)
                 .firstResult()
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Transação não encontrada"))
@@ -83,12 +84,12 @@ public class CarteiraServiceImpl implements CarteiraService {
                     transacao.setTipoMovimento(carteiraRequest.getTipoMovimento());
                     transacao.setTipoDePagamento(carteiraRequest.getTipoDePagamento());
                 })
-                .onItem().transform(CarteiraResumeResponse::toResponse)
+                .onItem().transform(CarteiraResponse::toResponse)
         );
     }
 
     @Override
-    public Uni<PanachePage<CarteiraResumeResponse>> findPaginated(
+    public Uni<PanachePage<CarteiraResponse>> findPaginated(
             Page page,
             String sort,
             List<String> filterFields,
@@ -124,11 +125,11 @@ public class CarteiraServiceImpl implements CarteiraService {
                         query.page(page).list(),
                         query.count()
                 ).asTuple()
-                .map(tuple -> PanachePage.<CarteiraResumeResponse>builder()
+                .map(tuple -> PanachePage.<CarteiraResponse>builder()
                         .content(
                                 tuple.getItem1()
                                         .stream()
-                                        .map(CarteiraResumeResponse::toResponse)
+                                        .map(CarteiraResponse::toResponse)
                                         .toList()
                         )
                         .page(page)

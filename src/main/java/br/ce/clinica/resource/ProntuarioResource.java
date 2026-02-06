@@ -76,20 +76,20 @@ public class ProntuarioResource {
             @Valid ProntuarioRequest prontuarioRequest
     ) {
         return prontuarioService.update(id, prontuarioRequest)
-                .onItem().transform(prontuario -> RestResponse.ok(prontuario));
-    }
-
-    @GET
-    @Path("/{id}/paciente")
-    @Operation(summary = "Buscar o prontuario com o paciente",
-            description = "Busca um prontuario com o paciente pelo id")
-    public Uni<RestResponse<ProntuarioResponse>> findByIdWithPaciente(
-            @PathParam("id") Long id
-    ) {
-        return prontuarioService.findByIdWithPaciente(id)
                 .onItem().transform(RestResponse::ok);
-
     }
+
+//    @GET
+//    @Path("/{id}/paciente")
+//    @Operation(summary = "Buscar o prontuario com o paciente",
+//            description = "Busca um prontuario com o paciente pelo id")
+//    public Uni<RestResponse<ProntuarioResponse>> findByIdWithPaciente(
+//            @PathParam("id") Long id
+//    ) {
+//        return prontuarioService.findByIdWithPaciente(id)
+//                .onItem().transform(RestResponse::ok);
+//
+//    }
 
     @GET
     @Operation(summary = "Busca prontuarios do paciente paginados",

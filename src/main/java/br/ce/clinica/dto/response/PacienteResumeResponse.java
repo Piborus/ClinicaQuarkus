@@ -5,6 +5,7 @@ import br.ce.clinica.enums.Sexo;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -33,9 +34,13 @@ public class PacienteResumeResponse {
 
     private EnderecoResponse endereco;
 
-    private List<CarteiraResumeResponse> transacoes;
+    private AnamneseResponse anamnese;
 
-    private List<ProntuarioResumeResponse> prontuarios;
+    private List<CarteiraResponse> transacoes;
+
+    private List<ProntuarioResponse> prontuarios;
+
+    private List<FiliacaoResponse> responsaveis;
 
     public static PacienteResumeResponse toResponse(Paciente paciente) {
         return PacienteResumeResponse.builder()
@@ -49,12 +54,30 @@ public class PacienteResumeResponse {
                 .telefone(paciente.getTelefone())
                 .email(paciente.getEmail())
                 .endereco(EnderecoResponse.toResponse(paciente.getEndereco()))
-                .transacoes(paciente.getTransacao().stream()
-                        .map(CarteiraResumeResponse::toResponse)
-                        .toList())
-                .prontuarios(paciente.getProntuarioDoPaciente().stream()
-                        .map(ProntuarioResumeResponse::toResponse)
-                        .toList())
+                .anamnese(paciente.getAnamnese() != null
+                        ?  AnamneseResponse.toResponse(paciente.getAnamnese())
+                        : null)
+                .transacoes(
+                        paciente.getTransacao() == null
+                                ? Collections.emptyList()
+                                : paciente.getTransacao().stream()
+                                .map(CarteiraResponse::toResponse)
+                                .toList()
+                )
+                .prontuarios(
+                        paciente.getProntuarioDoPaciente() == null
+                                ? Collections.emptyList()
+                                : paciente.getProntuarioDoPaciente().stream()
+                                .map(ProntuarioResponse::toResponse)
+                                .toList()
+                )
+                .responsaveis(
+                        paciente.getResponsaveis() == null
+                                ? Collections.emptyList()
+                                : paciente.getResponsaveis().stream()
+                                .map(FiliacaoResponse::toResponse)
+                                .toList()
+                )
                 .build();
     }
 }

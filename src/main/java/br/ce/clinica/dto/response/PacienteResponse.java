@@ -34,10 +34,6 @@ public class PacienteResponse {
 
     private EnderecoResponse endereco;
 
-    private List<CarteiraResponse> transacoes;
-
-    private List<ProntuarioResponse> prontuarios;
-
     private List<FiliacaoResponse> responsaveis;
 
     public static PacienteResponse toResponse(Paciente paciente) {
@@ -52,23 +48,9 @@ public class PacienteResponse {
                 .telefone(paciente.getTelefone())
                 .email(paciente.getEmail())
                 .endereco(EnderecoResponse.toResponse(paciente.getEndereco()))
-                .transacoes(
-                        paciente.getTransacao() == null
-                                ? Collections.emptyList()
-                                : paciente.getTransacao().stream()
-                                .map(CarteiraResponse::toResponse)
-                                .toList()
-                )
-                .prontuarios(
-                        paciente.getProntuarioDoPaciente() == null
-                                ? Collections.emptyList()
-                                : paciente.getProntuarioDoPaciente().stream()
-                                .map(ProntuarioResponse::toResponse)
-                                .toList()
-                )
                 .responsaveis(
                         paciente.getResponsaveis() == null
-                        ? Collections.emptyList()
+                                ? Collections.emptyList()
                                 : paciente.getResponsaveis().stream()
                                 .map(FiliacaoResponse::toResponse)
                                 .toList()

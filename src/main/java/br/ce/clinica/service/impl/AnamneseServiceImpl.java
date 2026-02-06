@@ -17,7 +17,6 @@ import io.quarkus.hibernate.reactive.panache.Panache;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Request;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
@@ -38,8 +37,6 @@ public class AnamneseServiceImpl implements AnamneseService {
 
     @Inject
     AntecedenteFamiliarRepository familiarRepository;
-    @Inject
-    Request request;
 
     @Override
     public Uni<AnamneseResponse> save(AnamneseRequest request) {
@@ -73,7 +70,7 @@ public class AnamneseServiceImpl implements AnamneseService {
     }
 
     @Override
-    public Uni<AnamneseResponse> updade(Long id, AnamneseRequest anamneseRequest) {
+    public Uni<AnamneseResponse> update(Long id, AnamneseRequest anamneseRequest) {
         return Panache.withTransaction(() -> anamneseRepository.find("id", id)
                 .firstResult()
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Anamnese não encontrada."))

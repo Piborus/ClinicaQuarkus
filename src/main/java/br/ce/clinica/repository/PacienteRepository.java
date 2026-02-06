@@ -9,9 +9,11 @@ import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @ApplicationScoped
 public class PacienteRepository implements PanacheRepository<Paciente> {
 
@@ -30,11 +32,14 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
             LEFT JOIN FETCH p.prontuarioDoPaciente
             LEFT JOIN FETCH p.transacao
             LEFT JOIN FETCH p.responsaveis
+            LEFT JOIN FETCH p.anamnese
             WHERE p.id = ?1
             """;
 
     public Uni<Paciente> findByIdWithCollections(Long id) {
-        return find(JPQL_FIND_BY_ID, id).firstResult();
+        log.debug("Executando findByIdWithCollections para o ID: {}", id);
+        return find(JPQL_FIND_BY_ID, id).firstResult()
+                .onFailure().invoke(throwable -> log.error("Erro ao executar consulta JPQL_FIND_BY_ID para o ID {}: {}", id, throwable.getMessage()));
     }
 
     public PanacheQuery<Paciente> findPaginated(
