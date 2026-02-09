@@ -50,7 +50,9 @@ public class AnamneseServiceImpl implements AnamneseService {
             "encaminhamento",
             "historicoAcompanhamento",
             "psicodinamicaFamiliar",
-            "observacao"
+            "observacao",
+            "dataCriacao",
+            "dataAtualizacao"
     );
 
 
