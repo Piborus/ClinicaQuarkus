@@ -85,7 +85,8 @@ public class AnamneseResource {
     }
 
     @GET
-    @Operation(summary = "Busca anamnese paginada", description = "Busca uma lista paginada de anamnese no sistema")
+    @Operation(summary = "Busca anamnese paginada",
+            description = "Busca uma lista paginada de anamnese no sistema")
     public Uni<RestResponse<PanachePage<AnamneseResponse>>> buscarPaginado(
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("10") int size,
