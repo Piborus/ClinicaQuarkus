@@ -114,6 +114,16 @@ public class AnamneseServiceImpl implements AnamneseService {
     }
 
     @Override
+    public Uni<AnamneseResponse> findByPacienteId(Long pacienteId) {
+
+        return anamneseRepository.findByPacienteIdWithCollections(pacienteId)
+                .onItem().ifNull().failWith(
+                        () -> new NotFoundBusinessException("Anamnese não encontrada para o paciente informado.")
+                )
+                .onItem().transform(AnamneseResponse::toResponse);
+    }
+
+    @Override
     public Uni<Boolean> deleteById(Long id) {
         return Panache.withTransaction(
                 () -> anamneseRepository.findById(id)
@@ -143,7 +153,9 @@ public class AnamneseServiceImpl implements AnamneseService {
             }
 
             boolean asc = split.length < 2 || split[1].equalsIgnoreCase("asc");
-            panacheSort = asc ? Sort.by("p." + field).ascending() : Sort.by("p." + field).descending();
+            panacheSort = asc
+                    ? Sort.by("a." + field).ascending()
+                    : Sort.by("a." + field).descending();
         }
         PanacheQuery<Anamnese> query =
                 anamneseRepository.findPaginated(
@@ -168,25 +180,6 @@ public class AnamneseServiceImpl implements AnamneseService {
                                 .build()
                 );
     }
-
-
-    @Override
-    public Uni<AnamneseResponse> findByPacienteId(Long pacienteId) {
-        log.info("Buscando Anamnese por pacienteId={}", pacienteId);
-
-        return anamneseRepository.findByPacienteIdWithCollections(pacienteId)
-                .onItem().invoke(() ->
-                        log.warn("Anamnese não encontrada para pacienteId={}", pacienteId)
-                )
-                .onItem().ifNull().failWith(
-                        () -> new NotFoundBusinessException("Anamnese não encontrada para o paciente informado.")
-                )
-                .onItem().transform(AnamneseResponse::toResponse)
-                .onFailure().invoke(ex ->
-                        log.error("Erro ao buscar Anamnese pacienteId={}", pacienteId, ex)
-                );
-    }
-
 
     private Uni<Anamnese> updateDesenvolvimento(
             Anamnese anamnese,
