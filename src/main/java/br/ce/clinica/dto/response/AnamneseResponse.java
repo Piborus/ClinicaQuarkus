@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AnamneseResponse {
 
-    private PacienterResponse paciente;
+    private PacienteResponse paciente;
 
     private Long id;
 
@@ -40,9 +40,21 @@ public class AnamneseResponse {
                 .historicoAcompanhamento(anamnese.getHistoricoAcompanhamento())
                 .psicodinamicaFamiliar(anamnese.getPsicodinamicaFamiliar())
                 .observacao(anamnese.getObservacao())
-                .paciente(PacienterResponse.toResponse(anamnese.getPaciente()))
-                .desenvolvimento(AnamneseDesenvolvimentoResponse.toResponse(anamnese.getDesenvolvimento()))
-                .antecedenteFamiliar(AntecedenteFamiliarResponse.toResponse(anamnese.getAntecedenteFamiliar()))
+                .paciente(
+                        anamnese.getPaciente() != null
+                                ? PacienteResponse.toResponse(anamnese.getPaciente())
+                                : null
+                )
+                .desenvolvimento(
+                        anamnese.getDesenvolvimento() != null
+                                ? AnamneseDesenvolvimentoResponse.toResponse(anamnese.getDesenvolvimento())
+                                : null
+                )
+                .antecedenteFamiliar(
+                        anamnese.getAntecedenteFamiliar() != null
+                                ? AntecedenteFamiliarResponse.toResponse(anamnese.getAntecedenteFamiliar())
+                                : null
+                )
                 .build();
     }
 
