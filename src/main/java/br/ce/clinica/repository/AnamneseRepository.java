@@ -8,9 +8,27 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
+import java.util.Set;
 
 @ApplicationScoped
 public class AnamneseRepository implements PanacheRepository<Anamnese> {
+
+    private static final Set<String> ALLOWED_FILTER_FIELDS = Set.of(
+            "id",
+            "tipoAnamnese",
+            "encaminhamento",
+            "historicoAcompanhamento",
+            "psicodinamicaFamiliar",
+            "observacao",
+            "dataCriacao",
+            "dataAtualizacao",
+            "dataDelecao",
+            "criadoPor",
+            "atualizadoPor",
+            "status",
+            "deletado",
+            "paciente.id"
+    );
 
     private static final String JPQL_FIND_BY_ID = """
     SELECT DISTINCT a FROM Anamnese a
@@ -73,7 +91,14 @@ public class AnamneseRepository implements PanacheRepository<Anamnese> {
             }
 
             for (int i = 0; i < fields.size(); i++) {
-                String field = fields.get(i);
+                String field = normalizeField(fields.get(i));
+
+                if (!isAllowedFilterField(field)) {
+                    throw new IllegalArgumentException(
+                            "Campo de filtro inválido: " + field
+                    );
+                }
+
                 String value = values.get(i);
 
                 if (isStringValue(value)) {
@@ -127,5 +152,16 @@ public class AnamneseRepository implements PanacheRepository<Anamnese> {
         } catch (NumberFormatException ex) {
             return true;
         }
+    }
+
+    private boolean isAllowedFilterField(String field) {
+        if (field == null || field.isBlank()) {
+            return false;
+        }
+        return ALLOWED_FILTER_FIELDS.contains(field);
+    }
+
+    private String normalizeField(String field) {
+        return field == null ? null : field.trim();
     }
 }
