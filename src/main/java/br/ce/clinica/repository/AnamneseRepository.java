@@ -1,6 +1,7 @@
 package br.ce.clinica.repository;
 
 import br.ce.clinica.entity.Anamnese;
+import br.ce.clinica.exception.BadRequestBusinessException;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
 import io.quarkus.hibernate.reactive.panache.PanacheRepository;
 import io.quarkus.panache.common.Sort;
@@ -85,7 +86,7 @@ public class AnamneseRepository implements PanacheRepository<Anamnese> {
         if (fields != null && values != null) {
 
             if (fields.size() != values.size()) {
-                throw new IllegalArgumentException(
+                throw new BadRequestBusinessException(
                         "fields e values devem ter o mesmo tamanho"
                 );
             }
@@ -94,7 +95,7 @@ public class AnamneseRepository implements PanacheRepository<Anamnese> {
                 String field = normalizeField(fields.get(i));
 
                 if (!isAllowedFilterField(field)) {
-                    throw new IllegalArgumentException(
+                    throw new BadRequestBusinessException(
                             "Campo de filtro inválido: " + field
                     );
                 }
