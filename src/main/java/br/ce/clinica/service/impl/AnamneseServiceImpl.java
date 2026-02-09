@@ -105,25 +105,11 @@ public class AnamneseServiceImpl implements AnamneseService {
 
     @Override
     public Uni<AnamneseResponse> findById(Long id) {
-            log.info("Buscando Anamnese por id={}", id);
-
-            return anamneseRepository.findByIdWithCollections(id)
-                    .onItem().invoke(() ->
-                            log.warn("Anamnese não encontrada para id={}", id)
-                    )
+        return anamneseRepository.findByIdWithCollections(id)
                     .onItem().ifNull().failWith(
                             () -> new NotFoundBusinessException("Anamnese não encontrada.")
                     )
-                    .onItem().invoke(anamnese -> {
-                        log.info("Anamnese encontrada id={}", anamnese.getId());
-                        log.debug("Paciente presente? {}", anamnese.getPaciente() != null);
-                        log.debug("Desenvolvimento presente? {}", anamnese.getDesenvolvimento() != null);
-                        log.debug("Antecedente familiar presente? {}", anamnese.getAntecedenteFamiliar() != null);
-                    })
-                    .onItem().transform(AnamneseResponse::toResponse)
-                    .onFailure().invoke(ex ->
-                            log.error("Erro ao buscar Anamnese id={}", id, ex)
-                    );
+                    .onItem().transform(AnamneseResponse::toResponse);
 
     }
 
