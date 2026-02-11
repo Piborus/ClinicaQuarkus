@@ -8,6 +8,7 @@ import br.ce.clinica.service.AnamneseService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.panache.common.Page;
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -32,6 +33,7 @@ public class AnamneseResource {
     AnamneseService anamneseService;
 
     @POST
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Salva anamnese", description = "Salva uma nova anamnese no sistema")
     public Uni<RestResponse<AnamneseResponse>> salvar(
            @Valid AnamneseRequest anamneseRequest
@@ -43,6 +45,7 @@ public class AnamneseResource {
     }
 
     @PUT
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Path("/{id}")
     @Operation(summary = "Atualiza anamnese", description = "Atualiza uma anamnese no sistema")
     public Uni<RestResponse<AnamneseResponse>> atualizar(
@@ -55,6 +58,7 @@ public class AnamneseResource {
     }
 
     @GET
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Path("/{id}")
     @Operation(summary = "Busca anamnese por id", description = "Busca uma anamnese pelo id no sistema")
     public Uni<RestResponse<AnamneseResponse>> buscarPorId(
@@ -65,6 +69,7 @@ public class AnamneseResource {
     }
 
     @DELETE
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Path("/{id}")
     @Operation(summary = "Deleta anamnese", description = "Deleta uma anamnese pelo id")
     public Uni<RestResponse<Void>> deletaPorId(
@@ -75,6 +80,7 @@ public class AnamneseResource {
     }
 
     @GET
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Path("/paciente/{pacienteId}")
     @Operation(summary = "Busca anamnese por id do paciente", description = "Busca uma anamnese pelo id do paciente no sistema")
     public Uni<RestResponse<AnamneseResponse>> buscarPorPacienteId(
@@ -85,6 +91,7 @@ public class AnamneseResource {
     }
 
     @GET
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Busca anamnese paginada",
             description = "Busca uma lista paginada de anamnese no sistema")
     public Uni<RestResponse<PanachePage<AnamneseResponse>>> buscarPaginado(

@@ -7,6 +7,7 @@ import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.service.FiliacaoService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -30,6 +31,7 @@ public class FiliacaoResource {
     FiliacaoService filiacaoService;
 
     @GET
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Path("paciente/{id}")
     @Operation(summary = "Filiacões por paciente id"
             , description = "Retorna as filiações pelo id do paciente")

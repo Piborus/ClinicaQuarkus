@@ -2,7 +2,6 @@ package br.ce.clinica.security;
 
 import br.ce.clinica.entity.Usuario;
 import io.smallrye.jwt.build.Jwt;
-import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -15,7 +14,7 @@ public class GenerateToken {
     @ConfigProperty(name = "mp.jwt.verify.issuer", defaultValue = "clinica-api")
     String issuer;
 
-    @ConfigProperty(name = "jwt.expiration.hours", defaultValue = "24")
+    @ConfigProperty(name = "jwt.expiration.hours", defaultValue = "4")
     Long expirationHours;
 
 
