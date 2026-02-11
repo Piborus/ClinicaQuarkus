@@ -8,6 +8,7 @@ import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.service.ProntuarioService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.panache.common.Page;
+import io.quarkus.security.PermissionsAllowed;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -27,6 +28,7 @@ import java.util.List;
 @Tag(name = "ProntuarioDoPaciente",
         description = "Controlador para gerenciar prontuario do paciente no sistema")
 @ApiDocumentation
+@PermissionsAllowed({"ADMINISTRADOR", "PSICOLOGO"})
 public class ProntuarioResource {
 
     @Inject

@@ -8,6 +8,7 @@ import br.ce.clinica.service.CarteiraService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.panache.common.Page;
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -33,6 +34,7 @@ public class CarteiraResource {
     CarteiraService carteiraService;
 
     @POST
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Cria uma Transação", description = "Cria uma transação para um paciente no sistema")
     public Uni<RestResponse<CarteiraResumeResponse>> salvar (
             @Valid CarteiraRequest carteiraRequest
@@ -44,6 +46,7 @@ public class CarteiraResource {
     }
 
     @GET
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Path("/{id}")
     @Operation(summary = "Busca Transação por id",
             description = "Busca uma transação pelo id no sistema")
@@ -56,6 +59,7 @@ public class CarteiraResource {
     }
 
     @DELETE
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Path("/{id}")
     @Operation(summary = "Deleta uma transação pelo id",
             description = "Deleta uma transação pelo id no sistema")
@@ -68,6 +72,7 @@ public class CarteiraResource {
     }
 
     @PUT
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Path("/{id}")
     public Uni<RestResponse<CarteiraResumeResponse>> atualizar(
             @PathParam("id") Long id,
@@ -79,6 +84,7 @@ public class CarteiraResource {
     }
 
     @GET
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Lista transações paginadas",
             description = "Lista as transações com paginação, ordenação e filtros opcionais")
     public Uni<RestResponse<PanachePage<CarteiraResumeResponse>>> listarRegistrosPag(

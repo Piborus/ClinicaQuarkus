@@ -9,6 +9,7 @@ import br.ce.clinica.service.PacienteService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.panache.common.Page;
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -33,6 +34,7 @@ public class PacienteResource {
     PacienteService pacienteService;
 
     @POST
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Cria paciente", description = "Cria um novo paciente no sistema")
     public Uni<RestResponse<PacienteResponse>> salvar(
            @Valid PacienteRequest pacienteRequest
@@ -45,6 +47,7 @@ public class PacienteResource {
     }
 
     @GET
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Paciente por id", description = "Retorna um paciente pelo id")
     @Path("/{id}")
     public Uni<RestResponse<PacienteResponse>> buscarPorId(
@@ -55,6 +58,7 @@ public class PacienteResource {
     }
 
     @DELETE
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Deleta Paciente", description = "Deleta um paciente pelo id")
     @Path("/{id}")
     public Uni<RestResponse<Boolean>> deletarPorId(
@@ -64,9 +68,10 @@ public class PacienteResource {
                 .onItem().transform( pessoa -> RestResponse.noContent());
     }
 
-    @PUT
-    @Operation(summary = "Atualiza Paciente", description = "Atualiza um paciente pelo id")
     @Path("/{id}")
+    @PUT
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
+    @Operation(summary = "Atualiza Paciente", description = "Atualiza um paciente pelo id")
     public Uni<RestResponse<PacienteResumeResponse>> atualizar(
             @PathParam("id") Long id,
             @Valid PacienteRequest pacienteRequest
@@ -76,6 +81,7 @@ public class PacienteResource {
     }
 
     @GET
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Lista Pacientes", description = "Retorna uma lista paginada de pacientes" )
     public Uni<RestResponse<PanachePage<PacienteResponse>>> listarPacientePag(
             @QueryParam("page") @DefaultValue("1") Integer page,
