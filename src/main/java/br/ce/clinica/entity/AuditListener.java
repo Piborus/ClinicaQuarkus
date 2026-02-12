@@ -33,8 +33,8 @@ public class AuditListener {
 //    @PreUpdate
 //    public void setDeleteDate(BaseAuditEntity baseAuditEntity) {
 //        baseAuditEntity.setDataDelecao(OffsetDateTime.now());
-//        baseAuditEntity.setDeletadoPor("SYSTEM");
-////        baseAuditEntity.setStatus(false);
+//        baseAuditEntity.setDeletado(true);
+//        baseAuditEntity.setStatus(false);
 //    }
 
 }

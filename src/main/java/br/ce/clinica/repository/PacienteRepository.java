@@ -37,6 +37,10 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
         return find(JPQL_FIND_BY_ID, id).firstResult();
     }
 
+    public Uni<Paciente> existePacienteAtivoComId(Long id) {
+        return find("SELECT p FROM Paciente p WHERE p.id = ?1 AND p.ativo = true", id).firstResult();
+    }
+
     public PanacheQuery<Paciente> findPaginated(
            Sort sort,
            List<String> fields,

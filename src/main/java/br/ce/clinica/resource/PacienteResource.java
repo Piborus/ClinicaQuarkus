@@ -57,19 +57,30 @@ public class PacienteResource {
                 .onItem().transform(RestResponse::ok);
     }
 
-    @DELETE
+    @PATCH
+    @Path("delete/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Deleta Paciente", description = "Deleta um paciente pelo id")
-    @Path("/{id}")
     public Uni<RestResponse<Boolean>> deletarPorId(
             @PathParam("id") Long id
     ) {
-        return pacienteService.deleteById(id)
+        return pacienteService.softDelete(id)
                 .onItem().transform( pessoa -> RestResponse.noContent());
     }
 
-    @Path("/{id}")
+    @PATCH
+    @Path("restore/{id}")
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
+    @Operation(summary = "Recupera Paciente", description = "Recupera um paciente pelo id")
+    public Uni<RestResponse<Boolean>> restauraPorId(
+            @PathParam("id") Long id
+    ) {
+        return pacienteService.restore(id)
+                .onItem().transform(RestResponse::ok);
+    }
+
     @PUT
+    @Path("/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Atualiza Paciente", description = "Atualiza um paciente pelo id")
     public Uni<RestResponse<PacienteResumeResponse>> atualizar(

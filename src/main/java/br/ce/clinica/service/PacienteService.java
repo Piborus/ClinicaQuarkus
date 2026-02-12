@@ -15,7 +15,9 @@ public interface PacienteService {
 
      Uni<PacienteResponse> findById(Long id);
 
-     Uni<Boolean> deleteById(Long id);
+     Uni<Boolean> softDelete(Long id);
+
+     Uni<Boolean> restore(Long id);
 
      Uni<PacienteResumeResponse> update(Long id, PacienteRequest pacienteRequest);
 
