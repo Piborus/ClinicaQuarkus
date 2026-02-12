@@ -14,7 +14,7 @@ public interface CarteiraService {
 
     Uni<CarteiraResumeResponse> findById(Long id);
 
-    Uni<Boolean> deleteById(Long id);
+//    Uni<Boolean> deleteById(Long id);
 
     Uni<CarteiraResumeResponse> update(Long id, CarteiraRequest carteiraRequest);
 

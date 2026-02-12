@@ -42,6 +42,11 @@ public class CarteiraServiceImpl implements CarteiraService {
         return Panache.withTransaction(() -> pacienteRepository.find("id", carteiraRequest.getPacienteId())
                 .firstResult()
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado"))
+                .onItem().ifNotNull().invoke(paciente -> {
+                    if(Boolean.FALSE.equals(paciente.getStatus())){
+                        throw new BadRequestBusinessException("Paciente inativo, não é possível realizar transações");
+                    }
+                })
                 .onItem().transformToUni(paciente -> {
                     Carteira carteira = new Carteira();
                     carteira.setDescricao(carteiraRequest.getDescricao());
@@ -61,16 +66,21 @@ public class CarteiraServiceImpl implements CarteiraService {
                 .onItem().ifNull().failWith(
                         () -> new NotFoundBusinessException("Transação não encontrada")
                 )
+                .onItem().ifNotNull().invoke(carteira -> {
+                    if(Boolean.FALSE.equals(carteira.getStatus())){
+                        throw new BadRequestBusinessException("Paciente inativo, não é possível realizar transações");
+                    }
+                })
                 .onItem().transform(CarteiraResumeResponse::toResponse);
     }
 
-    @Override
-    public Uni<Boolean> deleteById(Long id) {
-        return Panache.withTransaction(() -> carteiraRepository.find("id", id)
-                .firstResult()
-                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Transação não encontrada"))
-                .onItem().ifNotNull().transformToUni(transacao -> carteiraRepository.deleteById(id)));
-    }
+//    @Override
+//    public Uni<Boolean> deleteById(Long id) {
+//        return Panache.withTransaction(() -> carteiraRepository.find("id", id)
+//                .firstResult()
+//                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Transação não encontrada"))
+//                .onItem().ifNotNull().transformToUni(transacao -> carteiraRepository.deleteById(id)));
+//    }
 
     @Override
     public Uni<CarteiraResumeResponse> update(Long id, CarteiraRequest carteiraRequest) {

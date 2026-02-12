@@ -12,5 +12,5 @@ public interface FiliacaoService {
 
     Uni<FiliacaoResponse> update(Long id, FiliacaoRequest filiacaoRequest);
 
-    Uni<Void> deleteById(Long id);
+//    Uni<Void> deleteById(Long id);
 }

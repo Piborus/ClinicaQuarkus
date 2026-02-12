@@ -62,6 +62,11 @@ public class AnamneseServiceImpl implements AnamneseService {
                 pacienteRepository.findByIdWithCollections(request.getPacienteId())
                         .onItem().ifNull()
                         .failWith(() -> new NotFoundBusinessException("Paciente não encontrado."))
+                        .onItem().ifNotNull().invoke(paciente -> {
+                            if (Boolean.FALSE.equals(paciente.getStatus())) {
+                                throw new ConflictBusinessException("Paciente inativo. Não é possível cadastrar anamnese para paciente inativo.");
+                            }
+                        })
                         .chain(paciente ->
                                 anamneseRepository.find("paciente.id", paciente.getId())
                                         .firstResult()
@@ -89,21 +94,33 @@ public class AnamneseServiceImpl implements AnamneseService {
 
     @Override
     public Uni<AnamneseResponse> updade(Long id, AnamneseRequest anamneseRequest) {
-        return Panache.withTransaction(() -> anamneseRepository.find("id", id)
-                .firstResult()
-                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Anamnese não encontrada."))
-                .onItem().invoke(anamnese -> {
-                    anamnese.setTipoAnamnese(TipoAnamnese.REAVALIACAO);
-                    anamnese.setEncaminhamento(anamneseRequest.getEncaminhamento());
-                    anamnese.setHistoricoAcompanhamento(anamneseRequest.getHistoricoAcompanhamento());
-                    anamnese.setPsicodinamicaFamiliar(anamneseRequest.getPsicodinamicaFamiliar());
-                    anamnese.setObservacao(anamneseRequest.getObservacao());
-                })
-                .chain(anamnese -> updateDesenvolvimento(anamnese, anamneseRequest))
-                .chain(anamnese ->  updateAntecedenteFamiliar(anamnese, anamneseRequest))
-                .onItem().transform(AnamneseResponse::toResponse)
+        return Panache.withTransaction(() ->
+                anamneseRepository.find("id", id)
+                        .firstResult()
+                        .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Anamnese não encontrada."))
+                        .onItem().ifNotNull().transformToUni(anamnese ->
+                                pacienteRepository.findById(anamnese.getPaciente().getId())
+                                        .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado."))
+                                        .invoke(paciente -> {
+                                            if (Boolean.FALSE.equals(paciente.getStatus())) {
+                                                throw new ConflictBusinessException("Paciente inativo. Não é possível atualizar anamnese para paciente inativo.");
+                                            }
+                                        })
+                                        .replaceWith(anamnese)
+                        )
+                        .invoke(anamnese -> {
+                            anamnese.setTipoAnamnese(TipoAnamnese.REAVALIACAO);
+                            anamnese.setEncaminhamento(anamneseRequest.getEncaminhamento());
+                            anamnese.setHistoricoAcompanhamento(anamneseRequest.getHistoricoAcompanhamento());
+                            anamnese.setPsicodinamicaFamiliar(anamneseRequest.getPsicodinamicaFamiliar());
+                            anamnese.setObservacao(anamneseRequest.getObservacao());
+                        })
+                        .chain(anamnese -> updateDesenvolvimento(anamnese, anamneseRequest))
+                        .chain(anamnese -> updateAntecedenteFamiliar(anamnese, anamneseRequest))
+                        .onItem().transform(AnamneseResponse::toResponse)
         );
     }
+
 
     @Override
     public Uni<AnamneseResponse> findById(Long id) {
@@ -111,6 +128,11 @@ public class AnamneseServiceImpl implements AnamneseService {
                     .onItem().ifNull().failWith(
                             () -> new NotFoundBusinessException("Anamnese não encontrada.")
                     )
+                .onItem().ifNotNull().invoke(anamnese -> {
+                    if (Boolean.FALSE.equals(anamnese.getStatus())) {
+                        throw new ConflictBusinessException("Paciente inativo. Não é possível consultar anamnese para paciente inativo.");
+                    }
+                })
                     .onItem().transform(AnamneseResponse::toResponse);
 
     }
@@ -124,16 +146,16 @@ public class AnamneseServiceImpl implements AnamneseService {
                 )
                 .onItem().transform(AnamneseResponse::toResponse);
     }
-
-    @Override
-    public Uni<Boolean> deleteById(Long id) {
-        return Panache.withTransaction(
-                () -> anamneseRepository.findById(id)
-                        .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Anamnese não encontrada."))
-                        .onItem().ifNotNull().transformToUni(anamnese -> anamneseRepository.deleteById(id))
-                        .replaceWith(true)
-        );
-    }
+//
+//    @Override
+//    public Uni<Boolean> deleteById(Long id) {
+//        return Panache.withTransaction(
+//                () -> anamneseRepository.findById(id)
+//                        .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Anamnese não encontrada."))
+//                        .onItem().ifNotNull().transformToUni(anamnese -> anamneseRepository.deleteById(id))
+//                        .replaceWith(true)
+//        );
+//    }
 
     @Override
     public Uni<PanachePage<AnamneseResponse>> findPaginated(

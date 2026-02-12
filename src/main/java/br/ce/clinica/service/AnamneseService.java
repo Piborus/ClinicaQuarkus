@@ -18,7 +18,7 @@ public interface AnamneseService {
 
     Uni<AnamneseResponse> findByPacienteId(Long pacienteId);
 
-    Uni<Boolean> deleteById(Long id);
+//    Uni<Boolean> deleteById(Long id);
 
     Uni<PanachePage<AnamneseResponse>> findPaginated(
             Page page,

@@ -2,6 +2,7 @@ package br.ce.clinica.service.impl;
 
 import br.ce.clinica.dto.request.FiliacaoRequest;
 import br.ce.clinica.dto.response.FiliacaoResponse;
+import br.ce.clinica.exception.ConflictBusinessException;
 import br.ce.clinica.exception.NotFoundBusinessException;
 import br.ce.clinica.repository.FiliacaoRepository;
 import br.ce.clinica.repository.PacienteRepository;
@@ -27,6 +28,11 @@ public class FiliacaoSeriveImpl implements FiliacaoService {
         return pacienteRepository.find("id", pacienteId)
                 .firstResult()
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado."))
+                .onItem().ifNotNull().invoke( paciente -> {
+                    if (Boolean.FALSE.equals(paciente.getStatus())) {
+                            throw new ConflictBusinessException("Paciente inativo, não é possível consultar as filiações.");
+                    }
+                })
                 .onItem().ifNotNull().transformToUni(paciente -> filiacaoRepository.findByPacienteId(pacienteId)
                         .onItem().ifNull().failWith(
                                 () -> new NotFoundBusinessException("Filiacões não encontradas para o paciente informado."))
@@ -42,6 +48,11 @@ public class FiliacaoSeriveImpl implements FiliacaoService {
         return Panache.withTransaction(() -> filiacaoRepository.find("id", id)
                         .firstResult()
                         .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Filiação não encontrada."))
+                        .onItem().ifNotNull().invoke( filiacao -> {
+                            if (Boolean.FALSE.equals(filiacao.getPaciente().getStatus())) {
+                                throw new ConflictBusinessException("Paciente inativo, não é possível atualizar as filiações.");
+                            }
+                        })
                         .onItem().invoke(filiacao -> {
                             filiacao.setNome(filiacaoRequest.getNome());
                             filiacao.setIdade(filiacaoRequest.getIdade());
@@ -54,14 +65,14 @@ public class FiliacaoSeriveImpl implements FiliacaoService {
                 );
     }
 
-    @Override
-    public Uni<Void> deleteById(Long id) {
-        return Panache.withTransaction(() -> filiacaoRepository.find("id", id)
-                .firstResult()
-                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Filiacão não encontrada.")))
-                .onItem().transformToUni(filiacao -> filiacaoRepository.delete(filiacao)
-        );
-    }
+//    @Override
+//    public Uni<Void> deleteById(Long id) {
+//        return Panache.withTransaction(() -> filiacaoRepository.find("id", id)
+//                .firstResult()
+//                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Filiacão não encontrada.")))
+//                .onItem().transformToUni(filiacao -> filiacaoRepository.delete(filiacao)
+//        );
+//    }
 
 
 }
