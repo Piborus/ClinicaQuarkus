@@ -73,4 +73,9 @@ public class AuthServiceImpl implements AuthService {
                 })
                 .map(UsuarioResponse::toResponse));
     }
+
+    @Override
+    public Uni<Void> logout() {
+        return null;
+    }
 }

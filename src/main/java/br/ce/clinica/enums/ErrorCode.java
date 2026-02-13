@@ -13,7 +13,8 @@ public enum ErrorCode {
     CONFLICT("CLN-409"),
     UNAUTHORIZED("CLN-401"),
     FORBIDDEN("CLN-403"),
-    INTERNAL_ERROR("CLN-500");
+    INTERNAL_ERROR("CLN-500"),
+    UNPROCESSABLE_ENTITY("CLN-422");
 
     private final String code;
 }

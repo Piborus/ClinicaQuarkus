@@ -6,6 +6,7 @@ import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.entity.Carteira;
 import br.ce.clinica.exception.BadRequestBusinessException;
 import br.ce.clinica.exception.NotFoundBusinessException;
+import br.ce.clinica.exception.UnprocessableEntityBusinessException;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.repository.CarteiraRepository;
 import br.ce.clinica.service.CarteiraService;
@@ -42,6 +43,11 @@ public class CarteiraServiceImpl implements CarteiraService {
         return Panache.withTransaction(() -> pacienteRepository.find("id", carteiraRequest.getPacienteId())
                 .firstResult()
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado"))
+                .onItem().ifNotNull().invoke(paciente -> {
+                    if(Boolean.FALSE.equals(paciente.getStatus())){
+                        throw new UnprocessableEntityBusinessException("Paciente inativo, não é possível realizar transações");
+                    }
+                })
                 .onItem().transformToUni(paciente -> {
                     Carteira carteira = new Carteira();
                     carteira.setDescricao(carteiraRequest.getDescricao());
@@ -64,28 +70,40 @@ public class CarteiraServiceImpl implements CarteiraService {
                 .onItem().transform(CarteiraResumeResponse::toResponse);
     }
 
-    @Override
-    public Uni<Boolean> deleteById(Long id) {
-        return Panache.withTransaction(() -> carteiraRepository.find("id", id)
-                .firstResult()
-                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Transação não encontrada"))
-                .onItem().ifNotNull().transformToUni(transacao -> carteiraRepository.deleteById(id)));
-    }
+//    @Override
+//    public Uni<Boolean> deleteById(Long id) {
+//        return Panache.withTransaction(() -> carteiraRepository.find("id", id)
+//                .firstResult()
+//                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Transação não encontrada"))
+//                .onItem().ifNotNull().transformToUni(transacao -> carteiraRepository.deleteById(id)));
+//    }
 
     @Override
     public Uni<CarteiraResumeResponse> update(Long id, CarteiraRequest carteiraRequest) {
-        return Panache.withTransaction(() -> carteiraRepository.find("id", id)
-                .firstResult()
-                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Transação não encontrada"))
-                .onItem().invoke(transacao -> {
-                    transacao.setDescricao(carteiraRequest.getDescricao());
-                    transacao.setValor(carteiraRequest.getValor());
-                    transacao.setTipoMovimento(carteiraRequest.getTipoMovimento());
-                    transacao.setTipoDePagamento(carteiraRequest.getTipoDePagamento());
-                })
-                .onItem().transform(CarteiraResumeResponse::toResponse)
+        return Panache.withTransaction(() ->
+                carteiraRepository.find("id", id)
+                        .firstResult()
+                        .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Transação não encontrada"))
+                        .chain(transacao ->
+                                pacienteRepository.findById(carteiraRequest.getPacienteId())
+                                        .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado"))
+                                        .onItem().ifNotNull().invoke(paciente -> {
+                                            if (Boolean.FALSE.equals(paciente.getStatus())) {
+                                                throw new UnprocessableEntityBusinessException("Paciente inativo, não é possível realizar transações");
+                                            }
+                                        })
+                                        .replaceWith(transacao)
+                        )
+                        .onItem().invoke(transacao -> {
+                            transacao.setDescricao(carteiraRequest.getDescricao());
+                            transacao.setValor(carteiraRequest.getValor());
+                            transacao.setTipoMovimento(carteiraRequest.getTipoMovimento());
+                            transacao.setTipoDePagamento(carteiraRequest.getTipoDePagamento());
+                        })
+                        .onItem().transform(CarteiraResumeResponse::toResponse)
         );
     }
+
 
     @Override
     public Uni<PanachePage<CarteiraResumeResponse>> findPaginated(

@@ -6,6 +6,7 @@ import br.ce.clinica.dto.response.ProntuarioResponse;
 import br.ce.clinica.dto.response.ProntuarioResumeResponse;
 import br.ce.clinica.entity.Prontuario;
 import br.ce.clinica.exception.BadRequestBusinessException;
+import br.ce.clinica.exception.ConflictBusinessException;
 import br.ce.clinica.exception.NotFoundBusinessException;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.repository.ProntuarioRepository;
@@ -40,6 +41,11 @@ public class ProntuarioServiceImpl implements ProntuarioService {
         return Panache.withTransaction(() -> pacienteRepository.find("id", prontuarioRequest.getPacienteId())
                 .firstResult()
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente nao encontrado"))
+                .onItem().ifNotNull().invoke(paciente -> {
+                    if(Boolean.FALSE.equals(paciente.getStatus())) {
+                        throw new ConflictBusinessException("Paciente inativo. Não é possível criar prontuario para paciente inativo.");
+                    }
+                })
                 .onItem()
                 .transformToUni(prontuarioDoPaciente -> {
                     Prontuario prontuario = new Prontuario();
@@ -56,6 +62,11 @@ public class ProntuarioServiceImpl implements ProntuarioService {
     public Uni<ProntuarioResumeResponse> findById(Long id) {
         return prontuarioRepository.findById(id)
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Prontuario nao encontrado"))
+                .onItem().ifNotNull().invoke(prontuario -> {
+                    if(Boolean.FALSE.equals(prontuario.getPaciente().getStatus())) {
+                        throw new ConflictBusinessException("Paciente inativo. Não é possível acessar prontuario de paciente inativo.");
+                    }
+                })
                 .onItem().transform(ProntuarioResumeResponse::toResponse);
     }
 
@@ -73,6 +84,11 @@ public class ProntuarioServiceImpl implements ProntuarioService {
         return Panache.withTransaction(() -> pacienteRepository.find("id", prontuarioRequest.getPacienteId())
                 .firstResult()
                         .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente nao encontrado"))
+                        .onItem().ifNotNull().invoke(paciente -> {
+                            if(Boolean.FALSE.equals(paciente.getStatus())) {
+                                throw new ConflictBusinessException("Paciente inativo. Não é possível atualizar prontuario de paciente inativo.");
+                            }
+                        })
                 .onItem()
                         .transformToUni(prontuario -> prontuarioRepository.findById(id))
                         .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Prontuario do paciente nao encontrado")))

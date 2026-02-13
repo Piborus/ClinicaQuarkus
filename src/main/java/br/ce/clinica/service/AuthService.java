@@ -11,4 +11,6 @@ public interface AuthService {
     Uni<TokenResponse> login(LoginRequest request);
 
     Uni<UsuarioResponse> save(UsuarioRequest request);
+
+    Uni<Void> logout();
 }

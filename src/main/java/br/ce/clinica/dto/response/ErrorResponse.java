@@ -28,14 +28,19 @@ public class ErrorResponse {
     private List<ErrorObject> messages;
 
     public static ErrorResponse from(BusinessException e) {
+        return from(e, null);
+    }
+
+    public static ErrorResponse from(BusinessException e, String path) {
+        List<ErrorObject> messages = e.getMessages() == null ? List.of() : e.getMessages();
         return new ErrorResponse(
                 e.getStatus(),
                 OffsetDateTime.now(),
                 e.getTitle(),
                 e.getMessage(),
                 e.getErrorCode().getCode(),
-                null,
-                e.getMessages()
+                path,
+                messages
         );
     }
 

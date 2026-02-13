@@ -8,8 +8,8 @@ import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.service.ProntuarioService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.panache.common.Page;
-import io.quarkus.security.PermissionsAllowed;
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -28,7 +28,6 @@ import java.util.List;
 @Tag(name = "ProntuarioDoPaciente",
         description = "Controlador para gerenciar prontuario do paciente no sistema")
 @ApiDocumentation
-@PermissionsAllowed({"ADMINISTRADOR", "PSICOLOGO"})
 public class ProntuarioResource {
 
     @Inject
@@ -37,6 +36,7 @@ public class ProntuarioResource {
     @POST
     @Operation(summary = "Cria um prontuario do paciente",
             description = "Cria um novo prontuario do paciente no sistema")
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     public Uni<RestResponse<ProntuarioResponse>> salvar(
             @Valid ProntuarioRequest prontuarioRequest
     ) {
@@ -50,6 +50,7 @@ public class ProntuarioResource {
     @Path("/{id}")
     @Operation(summary = "Busca o prontuario por id",
             description = "Busca um prontuario do paciente pelo id no sistema")
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     public Uni<RestResponse<ProntuarioResumeResponse>> buscarPorId(
             @PathParam("id") Long id
     ) {
@@ -62,6 +63,7 @@ public class ProntuarioResource {
     @Path("/{id}")
     @Operation(summary = "Deleta um prontuario do paciente pelo id",
             description = "Deleta um prontuario do paciente pelo id no sistema")
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     public Uni<RestResponse<Boolean>> deletarPorId(
             @PathParam("id") Long id
     ) {
@@ -73,6 +75,7 @@ public class ProntuarioResource {
     @Path("/{id}")
     @Operation(summary = "Atualiza um prontuario do paciente pelo id",
             description = "Atualiza um prontuario do paciente pelo id no sistema")
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     public Uni<RestResponse<ProntuarioResumeResponse>> atualizar(
             @PathParam("id") Long id,
             @Valid ProntuarioRequest prontuarioRequest
@@ -85,6 +88,7 @@ public class ProntuarioResource {
     @Path("/{id}/paciente")
     @Operation(summary = "Buscar o prontuario com o paciente",
             description = "Busca um prontuario com o paciente pelo id")
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     public Uni<RestResponse<ProntuarioResponse>> findByIdWithPaciente(
             @PathParam("id") Long id
     ) {
@@ -96,6 +100,7 @@ public class ProntuarioResource {
     @GET
     @Operation(summary = "Busca prontuarios do paciente paginados",
             description = "Busca prontuarios do paciente com paginacao, ordenacao e filtros")
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     public Uni<RestResponse<PanachePage<ProntuarioResponse>>> listarProntuarios(
             @QueryParam("page") @DefaultValue("1") Integer page,
             @QueryParam("size") @DefaultValue("20") Integer size,

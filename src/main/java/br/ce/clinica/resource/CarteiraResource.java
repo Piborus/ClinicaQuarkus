@@ -58,18 +58,18 @@ public class CarteiraResource {
 
     }
 
-    @DELETE
-    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
-    @Path("/{id}")
-    @Operation(summary = "Deleta uma transação pelo id",
-            description = "Deleta uma transação pelo id no sistema")
-    public Uni<RestResponse<Boolean>> deletarPorId(
-            @PathParam("id") Long id
-    ){
-        return carteiraService.deleteById(id)
-                .onItem()
-                .transform(transacao -> RestResponse.noContent());
-    }
+//    @DELETE
+//    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
+//    @Path("/{id}")
+//    @Operation(summary = "Deleta uma transação pelo id",
+//            description = "Deleta uma transação pelo id no sistema")
+//    public Uni<RestResponse<Boolean>> deletarPorId(
+//            @PathParam("id") Long id
+//    ){
+//        return carteiraService.deleteById(id)
+//                .onItem()
+//                .transform(transacao -> RestResponse.noContent());
+//    }
 
     @PUT
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})

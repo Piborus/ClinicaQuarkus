@@ -10,10 +10,8 @@ import br.ce.clinica.entity.Paciente;
 import br.ce.clinica.exception.BadRequestBusinessException;
 import br.ce.clinica.exception.ConflictBusinessException;
 import br.ce.clinica.exception.NotFoundBusinessException;
-import br.ce.clinica.repository.FiliacaoRepository;
-import br.ce.clinica.repository.PacienteRepository;
-import br.ce.clinica.repository.ProntuarioRepository;
-import br.ce.clinica.repository.CarteiraRepository;
+import br.ce.clinica.exception.UnprocessableEntityBusinessException;
+import br.ce.clinica.repository.*;
 import br.ce.clinica.service.PacienteService;
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheQuery;
@@ -25,6 +23,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @Slf4j
@@ -42,6 +41,9 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Inject
     FiliacaoRepository filiacaoRepository;
+
+    @Inject
+    AnamneseRepository anamneseRepository;
 
     private static final List<String> SORT_FIELDS_ALLOWED = List.of(
             "id",
@@ -106,30 +108,42 @@ public class PacienteServiceImpl implements PacienteService {
                 .onItem().transform(PacienteResponse::toResponse);
     }
 
-    @Override
-    public Uni<Boolean> deleteById(Long id) {
-
+    public Uni<Boolean> softDelete(Long id) {
         return Panache.withTransaction(() ->
                 pacienteRepository.findById(id)
-                        .onItem().ifNull().failWith(
-                                () -> new NotFoundBusinessException("Paciente não encontrado")
-                        )
-                        .chain(prontuarios ->
-                                prontuarioRepository.deleteByPacienteId(id)
-                        )
-                        .chain(transacoes ->
-                                carteiraRepository.deleteByPacienteId(id)
-                        )
-                        .chain(filiacoes ->
-                                filiacaoRepository.deleteById(id)
-                        )
-                        .chain( paciente ->
-                                pacienteRepository.deleteById(id)
-                        )
-                        .replaceWith(true)
+                        .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado"))
+                        .onItem().ifNotNull().invoke(paciente -> {
+                            if (Boolean.FALSE.equals(paciente.getStatus())) {
+                                throw new UnprocessableEntityBusinessException("Paciente já arquivado");
+                            }
+                        })
+                        .invoke(paciente -> {
+                            paciente.setStatus(false);
+                            paciente.setDeletado(true);
+                            paciente.setDataDelecao(OffsetDateTime.now());
+                        })
+                        .chain(() -> softDeleteRelacionados(id))
+                        .replaceWith(Boolean.TRUE)
         );
     }
 
+    @Override
+    public Uni<Boolean> restore(Long id) {
+        return Panache.withTransaction(() -> pacienteRepository.findById(id)
+                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado"))
+                .onItem().ifNotNull().invoke(paciente -> {
+                    if (Boolean.TRUE.equals(paciente.getStatus())){
+                        throw new ConflictBusinessException("Paciente já ativo");
+                    }
+                })
+                .invoke(paciente -> {
+                    paciente.setStatus(true);
+                    paciente.setDeletado(false);
+                    paciente.setDataDelecao(null);
+                })
+                .replaceWith(Boolean.TRUE)
+        );
+    }
 
     @Override
     public Uni<PacienteResumeResponse> update(Long id, PacienteRequest pacienteRequest) {
@@ -138,6 +152,11 @@ public class PacienteServiceImpl implements PacienteService {
                         .onItem().ifNull().failWith(() ->
                                 new NotFoundBusinessException("Paciente não encontrado")
                         )
+                        .onItem().ifNotNull().invoke(paciente -> {
+                            if (Boolean.FALSE.equals(paciente.getStatus())) {
+                                throw new UnprocessableEntityBusinessException("Paciente arquivado, não é possível atualizar!");
+                            }
+                        })
                         .onItem().transformToUni(paciente ->
                                 pacienteRepository.find(
                                                 "cpf = ?1 and id <> ?2",
@@ -293,5 +312,26 @@ public class PacienteServiceImpl implements PacienteService {
                 .collect().asList()
                 .replaceWith(paciente);
     }
+
+
+    private Uni<Void> softDeleteRelacionados(Long pacienteId) {
+        OffsetDateTime now = OffsetDateTime.now();
+        return Uni.combine().all().unis(
+                filiacaoRepository.update(
+                        "status = false, deletado = true, dataDelecao = ?1 where paciente.id = ?2",
+                        now, pacienteId),
+                carteiraRepository.update(
+                        "status = false, deletado = true, dataDelecao = ?1 where paciente.id = ?2",
+                        now, pacienteId),
+                prontuarioRepository.update(
+                        "status = false, deletado = true, dataDelecao = ?1 where paciente.id = ?2",
+                        now, pacienteId),
+                anamneseRepository.update(
+                        "status = false, deletado = true, dataDelecao = ?1 where paciente.id = ?2",
+                        now, pacienteId)
+
+        ).asTuple().replaceWithVoid();
+    }
+
 }
 

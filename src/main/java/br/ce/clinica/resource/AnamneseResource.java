@@ -52,7 +52,7 @@ public class AnamneseResource {
             @PathParam("id") Long id,
             @Valid AnamneseRequest anamneseRequest
     ){
-        return anamneseService.updade(id, anamneseRequest)
+        return anamneseService.update(id, anamneseRequest)
                 .onItem()
                 .transform(RestResponse::ok);
     }
@@ -68,16 +68,16 @@ public class AnamneseResource {
                 .onItem().transform(RestResponse::ok);
     }
 
-    @DELETE
-    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
-    @Path("/{id}")
-    @Operation(summary = "Deleta anamnese", description = "Deleta uma anamnese pelo id")
-    public Uni<RestResponse<Void>> deletaPorId(
-            @PathParam("id") Long id
-    ) {
-        return anamneseService.deleteById(id)
-                .onItem().transform(deleted -> RestResponse.noContent());
-    }
+//    @DELETE
+//    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
+//    @Path("/{id}")
+//    @Operation(summary = "Deleta anamnese", description = "Deleta uma anamnese pelo id")
+//    public Uni<RestResponse<Void>> deletaPorId(
+//            @PathParam("id") Long id
+//    ) {
+//        return anamneseService.deleteById(id)
+//                .onItem().transform(deleted -> RestResponse.noContent());
+//    }
 
     @GET
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
