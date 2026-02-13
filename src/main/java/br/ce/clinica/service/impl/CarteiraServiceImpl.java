@@ -6,6 +6,7 @@ import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.entity.Carteira;
 import br.ce.clinica.exception.BadRequestBusinessException;
 import br.ce.clinica.exception.NotFoundBusinessException;
+import br.ce.clinica.exception.UnprocessableEntityBusinessException;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.repository.CarteiraRepository;
 import br.ce.clinica.service.CarteiraService;
@@ -44,7 +45,7 @@ public class CarteiraServiceImpl implements CarteiraService {
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado"))
                 .onItem().ifNotNull().invoke(paciente -> {
                     if(Boolean.FALSE.equals(paciente.getStatus())){
-                        throw new BadRequestBusinessException("Paciente inativo, não é possível realizar transações");
+                        throw new UnprocessableEntityBusinessException("Paciente inativo, não é possível realizar transações");
                     }
                 })
                 .onItem().transformToUni(paciente -> {
@@ -66,11 +67,6 @@ public class CarteiraServiceImpl implements CarteiraService {
                 .onItem().ifNull().failWith(
                         () -> new NotFoundBusinessException("Transação não encontrada")
                 )
-                .onItem().ifNotNull().invoke(carteira -> {
-                    if(Boolean.FALSE.equals(carteira.getStatus())){
-                        throw new BadRequestBusinessException("Paciente inativo, não é possível realizar transações");
-                    }
-                })
                 .onItem().transform(CarteiraResumeResponse::toResponse);
     }
 
@@ -84,18 +80,30 @@ public class CarteiraServiceImpl implements CarteiraService {
 
     @Override
     public Uni<CarteiraResumeResponse> update(Long id, CarteiraRequest carteiraRequest) {
-        return Panache.withTransaction(() -> carteiraRepository.find("id", id)
-                .firstResult()
-                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Transação não encontrada"))
-                .onItem().invoke(transacao -> {
-                    transacao.setDescricao(carteiraRequest.getDescricao());
-                    transacao.setValor(carteiraRequest.getValor());
-                    transacao.setTipoMovimento(carteiraRequest.getTipoMovimento());
-                    transacao.setTipoDePagamento(carteiraRequest.getTipoDePagamento());
-                })
-                .onItem().transform(CarteiraResumeResponse::toResponse)
+        return Panache.withTransaction(() ->
+                carteiraRepository.find("id", id)
+                        .firstResult()
+                        .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Transação não encontrada"))
+                        .chain(transacao ->
+                                pacienteRepository.findById(carteiraRequest.getPacienteId())
+                                        .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado"))
+                                        .onItem().ifNotNull().invoke(paciente -> {
+                                            if (Boolean.FALSE.equals(paciente.getStatus())) {
+                                                throw new UnprocessableEntityBusinessException("Paciente inativo, não é possível realizar transações");
+                                            }
+                                        })
+                                        .replaceWith(transacao)
+                        )
+                        .onItem().invoke(transacao -> {
+                            transacao.setDescricao(carteiraRequest.getDescricao());
+                            transacao.setValor(carteiraRequest.getValor());
+                            transacao.setTipoMovimento(carteiraRequest.getTipoMovimento());
+                            transacao.setTipoDePagamento(carteiraRequest.getTipoDePagamento());
+                        })
+                        .onItem().transform(CarteiraResumeResponse::toResponse)
         );
     }
+
 
     @Override
     public Uni<PanachePage<CarteiraResumeResponse>> findPaginated(

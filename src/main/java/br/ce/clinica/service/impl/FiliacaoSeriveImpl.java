@@ -2,8 +2,8 @@ package br.ce.clinica.service.impl;
 
 import br.ce.clinica.dto.request.FiliacaoRequest;
 import br.ce.clinica.dto.response.FiliacaoResponse;
-import br.ce.clinica.exception.ConflictBusinessException;
 import br.ce.clinica.exception.NotFoundBusinessException;
+import br.ce.clinica.exception.UnprocessableEntityBusinessException;
 import br.ce.clinica.repository.FiliacaoRepository;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.service.FiliacaoService;
@@ -30,7 +30,7 @@ public class FiliacaoSeriveImpl implements FiliacaoService {
                 .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado."))
                 .onItem().ifNotNull().invoke( paciente -> {
                     if (Boolean.FALSE.equals(paciente.getStatus())) {
-                            throw new ConflictBusinessException("Paciente inativo, não é possível consultar as filiações.");
+                            throw new UnprocessableEntityBusinessException("Paciente inativo, não é possível consultar as filiações.");
                     }
                 })
                 .onItem().ifNotNull().transformToUni(paciente -> filiacaoRepository.findByPacienteId(pacienteId)
@@ -50,7 +50,7 @@ public class FiliacaoSeriveImpl implements FiliacaoService {
                         .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Filiação não encontrada."))
                         .onItem().ifNotNull().invoke( filiacao -> {
                             if (Boolean.FALSE.equals(filiacao.getPaciente().getStatus())) {
-                                throw new ConflictBusinessException("Paciente inativo, não é possível atualizar as filiações.");
+                                throw new UnprocessableEntityBusinessException("Paciente inativo, não é possível atualizar as filiações.");
                             }
                         })
                         .onItem().invoke(filiacao -> {

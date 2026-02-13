@@ -10,6 +10,7 @@ import br.ce.clinica.entity.Paciente;
 import br.ce.clinica.exception.BadRequestBusinessException;
 import br.ce.clinica.exception.ConflictBusinessException;
 import br.ce.clinica.exception.NotFoundBusinessException;
+import br.ce.clinica.exception.UnprocessableEntityBusinessException;
 import br.ce.clinica.repository.*;
 import br.ce.clinica.service.PacienteService;
 import io.quarkus.hibernate.reactive.panache.Panache;
@@ -104,11 +105,6 @@ public class PacienteServiceImpl implements PacienteService {
     public Uni<PacienteResponse> findById(Long id) {
         return pacienteRepository.findByIdWithCollections(id)
                 .onItem().ifNull().failWith(() ->  new NotFoundBusinessException("Paciente não encontrado!"))
-                .onItem().ifNotNull().invoke(paciente -> {
-                    if (Boolean.FALSE.equals(paciente.getStatus())) {
-                        throw new NotFoundBusinessException("Paciente não encontrado!");
-                    }
-                })
                 .onItem().transform(PacienteResponse::toResponse);
     }
 
@@ -118,7 +114,7 @@ public class PacienteServiceImpl implements PacienteService {
                         .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado"))
                         .onItem().ifNotNull().invoke(paciente -> {
                             if (Boolean.FALSE.equals(paciente.getStatus())) {
-                                throw new ConflictBusinessException("Paciente já arquivado");
+                                throw new UnprocessableEntityBusinessException("Paciente já arquivado");
                             }
                         })
                         .invoke(paciente -> {

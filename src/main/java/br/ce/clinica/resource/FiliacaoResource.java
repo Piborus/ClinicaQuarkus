@@ -54,13 +54,13 @@ public class FiliacaoResource {
                 .onItem().transform(RestResponse::ok);
     }
 
-    @DELETE
-    @Path("/{id}")
-    public Uni<RestResponse<Void>> deletaPorId(
-            @PathParam("id") Long id
-    ) {
-        return filiacaoService.deleteById(id)
-                .onItem().transform(filiacao -> RestResponse.noContent());
-    }
+//    @DELETE
+//    @Path("/{id}")
+//    public Uni<RestResponse<Void>> deletaPorId(
+//            @PathParam("id") Long id
+//    ) {
+//        return filiacaoService.deleteById(id)
+//                .onItem().transform(filiacao -> RestResponse.noContent());
+//    }
 
 }

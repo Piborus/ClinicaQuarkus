@@ -52,7 +52,7 @@ public class AnamneseResource {
             @PathParam("id") Long id,
             @Valid AnamneseRequest anamneseRequest
     ){
-        return anamneseService.updade(id, anamneseRequest)
+        return anamneseService.update(id, anamneseRequest)
                 .onItem()
                 .transform(RestResponse::ok);
     }

@@ -12,7 +12,7 @@ public interface AnamneseService {
 
     Uni<AnamneseResponse> save(AnamneseRequest anamneseRequest);
 
-    Uni<AnamneseResponse> updade(Long id, AnamneseRequest anamneseRequest);
+    Uni<AnamneseResponse> update(Long id, AnamneseRequest anamneseRequest);
 
     Uni<AnamneseResponse> findById(Long id);
 

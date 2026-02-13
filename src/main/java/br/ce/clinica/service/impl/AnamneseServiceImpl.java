@@ -10,6 +10,7 @@ import br.ce.clinica.enums.TipoAnamnese;
 import br.ce.clinica.exception.BadRequestBusinessException;
 import br.ce.clinica.exception.ConflictBusinessException;
 import br.ce.clinica.exception.NotFoundBusinessException;
+import br.ce.clinica.exception.UnprocessableEntityBusinessException;
 import br.ce.clinica.repository.AnamneseDesenvolvimentoRepository;
 import br.ce.clinica.repository.AnamneseRepository;
 import br.ce.clinica.repository.AntecedenteFamiliarRepository;
@@ -64,7 +65,7 @@ public class AnamneseServiceImpl implements AnamneseService {
                         .failWith(() -> new NotFoundBusinessException("Paciente não encontrado."))
                         .onItem().ifNotNull().invoke(paciente -> {
                             if (Boolean.FALSE.equals(paciente.getStatus())) {
-                                throw new ConflictBusinessException("Paciente inativo. Não é possível cadastrar anamnese para paciente inativo.");
+                                throw new UnprocessableEntityBusinessException("Paciente inativo. Não é possível cadastrar anamnese para paciente inativo.");
                             }
                         })
                         .chain(paciente ->
@@ -93,17 +94,17 @@ public class AnamneseServiceImpl implements AnamneseService {
     }
 
     @Override
-    public Uni<AnamneseResponse> updade(Long id, AnamneseRequest anamneseRequest) {
+    public Uni<AnamneseResponse> update(Long id, AnamneseRequest anamneseRequest) {
         return Panache.withTransaction(() ->
                 anamneseRepository.find("id", id)
                         .firstResult()
                         .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Anamnese não encontrada."))
-                        .onItem().ifNotNull().transformToUni(anamnese ->
+                        .chain(anamnese ->
                                 pacienteRepository.findById(anamnese.getPaciente().getId())
                                         .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado."))
                                         .invoke(paciente -> {
                                             if (Boolean.FALSE.equals(paciente.getStatus())) {
-                                                throw new ConflictBusinessException("Paciente inativo. Não é possível atualizar anamnese para paciente inativo.");
+                                                throw new UnprocessableEntityBusinessException("Paciente inativo. Não é possível atualizar anamnese para paciente inativo.");
                                             }
                                         })
                                         .replaceWith(anamnese)
@@ -128,11 +129,6 @@ public class AnamneseServiceImpl implements AnamneseService {
                     .onItem().ifNull().failWith(
                             () -> new NotFoundBusinessException("Anamnese não encontrada.")
                     )
-                .onItem().ifNotNull().invoke(anamnese -> {
-                    if (Boolean.FALSE.equals(anamnese.getStatus())) {
-                        throw new ConflictBusinessException("Paciente inativo. Não é possível consultar anamnese para paciente inativo.");
-                    }
-                })
                     .onItem().transform(AnamneseResponse::toResponse);
 
     }

@@ -4,6 +4,7 @@ import br.ce.clinica.enums.ErrorCode;
 import br.ce.clinica.exception.BusinessException;
 import br.ce.clinica.dto.response.ErrorObject;
 import br.ce.clinica.dto.response.ErrorResponse;
+import br.ce.clinica.exception.UnprocessableEntityBusinessException;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
 import io.quarkus.security.AuthenticationFailedException;
 import io.quarkus.security.ForbiddenException;
@@ -119,6 +120,34 @@ public class GlobalExceptionHandler {
     @ServerExceptionMapper(ForbiddenException.class)
     public Response handleForbidden(ForbiddenException e) {
         throw new ForbiddenException("Acesso negado");
+    }
+
+    @ServerExceptionMapper(UnauthorizedException.class)
+    public Response handleUnauthorized(UnauthorizedException e) {
+        throw new UnauthorizedException("Acesso não autorizado");
+    }
+
+    @ServerExceptionMapper(UnprocessableEntityBusinessException.class)
+    public Response handleUnprocessableEntity(UnprocessableEntityBusinessException e) {
+        LOG.warnf("API Error [%s] at %s: %s",
+                e.getErrorCode().getCode(),
+                uriInfo.getPath(),
+                e.getMessage());
+
+        List<ErrorObject> messages = e.getMessages() == null ? List.of() : e.getMessages();
+        ErrorResponse error = ErrorResponse.builder()
+                .status(e.getStatus())
+                .timestamp(OffsetDateTime.now())
+                .title(e.getTitle())
+                .detail(e.getMessage())
+                .errorCode(e.getErrorCode().getCode())
+                .path(uriInfo.getPath())
+                .messages(messages)
+                .build();
+
+        return Response.status(e.getStatus())
+                .entity(error)
+                .build();
     }
 
 
