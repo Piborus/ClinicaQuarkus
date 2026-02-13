@@ -16,6 +16,9 @@ import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
+import io.quarkus.test.vertx.RunOnVertxContext;
+import io.quarkus.test.vertx.UniAsserter;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 import jakarta.inject.Inject;
@@ -31,6 +34,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @QuarkusTest
+@TestProfile(br.ce.clinica.MockedTestProfile.class)
 class ProntuarioServiceImplTest {
 
     @Inject
@@ -66,7 +70,8 @@ class ProntuarioServiceImplTest {
     }
 
     @Test
-    void testSave_Success() {
+    @RunOnVertxContext
+    void testSave_Success(UniAsserter asserter) {
         @SuppressWarnings("unchecked")
         PanacheQuery<Paciente> pacienteQuery = mock(PanacheQuery.class);
         when(pacienteQuery.firstResult()).thenReturn(Uni.createFrom().item(paciente));
@@ -75,37 +80,34 @@ class ProntuarioServiceImplTest {
         when(prontuarioRepository.persist(any(Prontuario.class)))
                 .thenReturn(Uni.createFrom().item(prontuario));
 
-        ProntuarioResponse result = prontuarioService.save(prontuarioRequest)
-                .subscribe().withSubscriber(UniAssertSubscriber.create())
-                .awaitItem()
-                .getItem();
-
-        assertNotNull(result);
-        assertEquals(prontuario.getId(), result.getId());
-        assertEquals(prontuario.getTexto(), result.getTexto());
-        verify(pacienteRepository).find(eq("id"), eq(1L));
-        verify(prontuarioRepository).persist(any(Prontuario.class));
+        asserter.execute(() -> prontuarioService.save(prontuarioRequest))
+                .assertThat(result -> {
+                    assertNotNull(result);
+                    assertEquals(prontuario.getId(), result.getId());
+                    assertEquals(prontuario.getTexto(), result.getTexto());
+                    verify(pacienteRepository).find(eq("id"), eq(1L));
+                    verify(prontuarioRepository).persist(any(Prontuario.class));
+                });
     }
 
     @Test
-    void testSave_PacienteNotFound() {
+    @RunOnVertxContext
+    void testSave_PacienteNotFound(UniAsserter asserter) {
         @SuppressWarnings("unchecked")
         PanacheQuery<Paciente> pacienteQuery = mock(PanacheQuery.class);
         when(pacienteQuery.firstResult()).thenReturn(Uni.createFrom().nullItem());
         
         when(pacienteRepository.find(eq("id"), eq(1L))).thenReturn(pacienteQuery);
 
-        UniAssertSubscriber<ProntuarioResponse> subscriber = prontuarioService.save(prontuarioRequest)
-                .subscribe().withSubscriber(UniAssertSubscriber.create());
-
-        subscriber.awaitFailure();
-        Throwable failure = subscriber.getFailure();
-        assertInstanceOf(NotFoundBusinessException.class, failure);
-        assertEquals("Paciente nao encontrado", failure.getMessage());
+        asserter.execute(() -> prontuarioService.save(prontuarioRequest))
+                .assertFailedWith(NotFoundBusinessException.class, failure -> {
+                    assertEquals("Paciente nao encontrado", failure.getMessage());
+                });
     }
 
     @Test
-    void testSave_PacienteInativo() {
+    @RunOnVertxContext
+    void testSave_PacienteInativo(UniAsserter asserter) {
         paciente.setStatus(false);
         
         @SuppressWarnings("unchecked")
@@ -114,13 +116,10 @@ class ProntuarioServiceImplTest {
         
         when(pacienteRepository.find(eq("id"), eq(1L))).thenReturn(pacienteQuery);
 
-        UniAssertSubscriber<ProntuarioResponse> subscriber = prontuarioService.save(prontuarioRequest)
-                .subscribe().withSubscriber(UniAssertSubscriber.create());
-
-        subscriber.awaitFailure();
-        Throwable failure = subscriber.getFailure();
-        assertInstanceOf(ConflictBusinessException.class, failure);
-        assertEquals("Paciente inativo. Não é possível criar prontuario para paciente inativo.", failure.getMessage());
+        asserter.execute(() -> prontuarioService.save(prontuarioRequest))
+                .assertFailedWith(ConflictBusinessException.class, failure -> {
+                    assertEquals("Paciente inativo. Não é possível criar prontuario para paciente inativo.", failure.getMessage());
+                });
     }
 
     @Test
