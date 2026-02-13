@@ -35,16 +35,7 @@ public class GlobalExceptionHandler {
                 uriInfo.getPath(),
                 e.getMessage());
 
-        List<ErrorObject> messages = e.getMessages() == null ? List.of() : e.getMessages();
-        ErrorResponse error = ErrorResponse.builder()
-                .status(e.getStatus())
-                .timestamp(OffsetDateTime.now())
-                .title(e.getTitle())
-                .detail(e.getMessage())
-                .errorCode(e.getErrorCode().getCode())
-                .path(uriInfo.getPath())
-                .messages(messages)
-                .build();
+        ErrorResponse error = ErrorResponse.from(e, uriInfo.getPath());
 
         return Response.status(e.getStatus())
                 .entity(error)
@@ -134,16 +125,7 @@ public class GlobalExceptionHandler {
                 uriInfo.getPath(),
                 e.getMessage());
 
-        List<ErrorObject> messages = e.getMessages() == null ? List.of() : e.getMessages();
-        ErrorResponse error = ErrorResponse.builder()
-                .status(e.getStatus())
-                .timestamp(OffsetDateTime.now())
-                .title(e.getTitle())
-                .detail(e.getMessage())
-                .errorCode(e.getErrorCode().getCode())
-                .path(uriInfo.getPath())
-                .messages(messages)
-                .build();
+        ErrorResponse error = ErrorResponse.from(e, uriInfo.getPath());
 
         return Response.status(e.getStatus())
                 .entity(error)

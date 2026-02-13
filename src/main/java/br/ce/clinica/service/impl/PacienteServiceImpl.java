@@ -154,7 +154,7 @@ public class PacienteServiceImpl implements PacienteService {
                         )
                         .onItem().ifNotNull().invoke(paciente -> {
                             if (Boolean.FALSE.equals(paciente.getStatus())) {
-                                throw new ConflictBusinessException("Paciente arquivado, não é possível atualizar!");
+                                throw new UnprocessableEntityBusinessException("Paciente arquivado, não é possível atualizar!");
                             }
                         })
                         .onItem().transformToUni(paciente ->

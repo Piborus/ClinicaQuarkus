@@ -63,10 +63,15 @@ public class AnamneseServiceImpl implements AnamneseService {
                 pacienteRepository.findByIdWithCollections(request.getPacienteId())
                         .onItem().ifNull()
                         .failWith(() -> new NotFoundBusinessException("Paciente não encontrado."))
-                        .onItem().ifNotNull().invoke(paciente -> {
+                        .chain(paciente -> {
                             if (Boolean.FALSE.equals(paciente.getStatus())) {
-                                throw new UnprocessableEntityBusinessException("Paciente inativo. Não é possível cadastrar anamnese para paciente inativo.");
+                                return Uni.createFrom().failure(
+                                        new UnprocessableEntityBusinessException(
+                                                "Paciente inativo. Não é possível cadastrar anamnese para paciente inativo."
+                                        )
+                                );
                             }
+                            return Uni.createFrom().item(paciente);
                         })
                         .chain(paciente ->
                                 anamneseRepository.find("paciente.id", paciente.getId())
@@ -102,12 +107,16 @@ public class AnamneseServiceImpl implements AnamneseService {
                         .chain(anamnese ->
                                 pacienteRepository.findById(anamnese.getPaciente().getId())
                                         .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado."))
-                                        .invoke(paciente -> {
+                                        .chain(paciente -> {
                                             if (Boolean.FALSE.equals(paciente.getStatus())) {
-                                                throw new UnprocessableEntityBusinessException("Paciente inativo. Não é possível atualizar anamnese para paciente inativo.");
+                                                return Uni.createFrom().failure(
+                                                        new UnprocessableEntityBusinessException(
+                                                                "Paciente inativo. Não é possível atualizar anamnese para paciente inativo."
+                                                        )
+                                                );
                                             }
+                                            return Uni.createFrom().item(anamnese);
                                         })
-                                        .replaceWith(anamnese)
                         )
                         .invoke(anamnese -> {
                             anamnese.setTipoAnamnese(TipoAnamnese.REAVALIACAO);

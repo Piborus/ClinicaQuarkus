@@ -5,7 +5,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
-import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -17,15 +16,15 @@ import java.lang.annotation.Target;
 @APIResponses({
         @APIResponse(
                 responseCode = "200",
-                description = "Operação realizada com sucesso"
+                description = "Requisição bem-sucedida"
         ),
         @APIResponse(
                 responseCode = "201",
-                description = "Dados criados com sucesso"
+                description = "Recurso criado com sucesso"
         ),
         @APIResponse(
                 responseCode = "204",
-                description = "Dados deletados com sucesso"
+                description = "Recurso excluído com sucesso"
         ),
         @APIResponse(
                 responseCode = "400",
@@ -49,7 +48,7 @@ import java.lang.annotation.Target;
         ),
         @APIResponse(
                 responseCode = "422",
-                description = "Erro de negócio",
+                description = "Entidade não processável",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @APIResponse(
