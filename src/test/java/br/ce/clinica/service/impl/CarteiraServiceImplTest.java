@@ -42,7 +42,9 @@ class CarteiraServiceImplTest {
     CarteiraServiceImpl carteiraService;
 
     private Paciente paciente;
+
     private Carteira carteira;
+
     private CarteiraRequest carteiraRequest;
 
     @BeforeEach
