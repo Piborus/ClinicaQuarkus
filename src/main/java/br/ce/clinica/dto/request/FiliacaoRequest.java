@@ -7,6 +7,9 @@ import org.hibernate.validator.constraints.br.CPF;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class FiliacaoRequest {
 
     @Schema(name = "nome", description = "Nome da filiada", examples = { "Ana Clara" })
