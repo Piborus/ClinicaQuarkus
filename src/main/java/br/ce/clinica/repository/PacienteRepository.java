@@ -18,21 +18,27 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
     private static final String JPQL_BASE = """
             SELECT DISTINCT p
             FROM Paciente p
-            LEFT JOIN FETCH p.relatorioDoPaciente
+            LEFT JOIN FETCH p.prontuarioDoPaciente
             LEFT JOIN FETCH p.transacao
+            LEFT JOIN FETCH p.responsaveis
             WHERE 1 = 1
             """;
 
     private static final String JPQL_FIND_BY_ID = """
             SELECT DISTINCT p
             FROM Paciente p
-            LEFT JOIN FETCH p.relatorioDoPaciente
+            LEFT JOIN FETCH p.prontuarioDoPaciente
             LEFT JOIN FETCH p.transacao
+            LEFT JOIN FETCH p.responsaveis
             WHERE p.id = ?1
             """;
 
     public Uni<Paciente> findByIdWithCollections(Long id) {
         return find(JPQL_FIND_BY_ID, id).firstResult();
+    }
+
+    public Uni<Paciente> existePacienteAtivoComId(Long id) {
+        return find("SELECT p FROM Paciente p WHERE p.id = ?1 AND p.ativo = true", id).firstResult();
     }
 
     public PanacheQuery<Paciente> findPaginated(
@@ -56,13 +62,13 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
                 String value = values.get(i);
 
                 if (isStringValue(value)) {
-                    query.append(" AND LOWER(")
+                    query.append(" AND LOWER(p.")
                             .append(field)
                             .append(") LIKE ?")
                             .append(i + 1);
                     params.add("%" + value.toLowerCase() + "%");
                 } else {
-                    query.append(" AND ")
+                    query.append(" AND p.")
                             .append(field)
                             .append(" = ?")
                             .append(i + 1);

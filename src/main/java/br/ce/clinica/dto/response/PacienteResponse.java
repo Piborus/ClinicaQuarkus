@@ -7,10 +7,8 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,9 +34,11 @@ public class PacienteResponse {
 
     private EnderecoResponse endereco;
 
-    private List<TransacaoResponse> transacoes;
+    private List<CarteiraResponse> transacoes;
 
-    private List<RelatorioResponse> relatorios;
+    private List<ProntuarioResponse> prontuarios;
+
+    private List<FiliacaoResponse> responsaveis;
 
     public static PacienteResponse toResponse(Paciente paciente) {
         return PacienteResponse.builder()
@@ -56,14 +56,21 @@ public class PacienteResponse {
                         paciente.getTransacao() == null
                                 ? Collections.emptyList()
                                 : paciente.getTransacao().stream()
-                                .map(TransacaoResponse::toResponse)
+                                .map(CarteiraResponse::toResponse)
                                 .toList()
                 )
-                .relatorios(
-                        paciente.getRelatorioDoPaciente() == null
+                .prontuarios(
+                        paciente.getProntuarioDoPaciente() == null
                                 ? Collections.emptyList()
-                                : paciente.getRelatorioDoPaciente().stream()
-                                .map(RelatorioResponse::toResponse)
+                                : paciente.getProntuarioDoPaciente().stream()
+                                .map(ProntuarioResponse::toResponse)
+                                .toList()
+                )
+                .responsaveis(
+                        paciente.getResponsaveis() == null
+                        ? Collections.emptyList()
+                                : paciente.getResponsaveis().stream()
+                                .map(FiliacaoResponse::toResponse)
                                 .toList()
                 )
                 .build();

@@ -1,13 +1,12 @@
 package br.ce.clinica.dto.response;
 
 import br.ce.clinica.entity.Endereco;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
-@Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class EnderecoResponse {
 
     private String rua;

@@ -34,6 +34,9 @@ public abstract class BaseAuditEntity extends PanacheEntityBase {
     @Column(name = "atualizado_por", length = 100)
     private String atualizadoPor;
 
+//    @Column(name = "deletado_por", length = 100)
+//    private String deletadoPor;
+
     @Column(name = "status", nullable = false)
     private Boolean status;
 

@@ -21,6 +21,7 @@ public class AuditListener {
 
         baseAuditEntity.setCriadoPor("SYSTEM");
         baseAuditEntity.setAtualizadoPor("SYSTEM");
+
     }
 
     @PreUpdate
@@ -28,5 +29,12 @@ public class AuditListener {
         baseAuditEntity.setDataAtualizacao(OffsetDateTime.now());
         baseAuditEntity.setAtualizadoPor("SYSTEM");
     }
+
+//    @PreUpdate
+//    public void setDeleteDate(BaseAuditEntity baseAuditEntity) {
+//        baseAuditEntity.setDataDelecao(OffsetDateTime.now());
+//        baseAuditEntity.setDeletado(true);
+//        baseAuditEntity.setStatus(false);
+//    }
 
 }

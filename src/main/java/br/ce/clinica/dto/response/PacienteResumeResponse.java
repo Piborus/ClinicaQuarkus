@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,9 +33,9 @@ public class PacienteResumeResponse {
 
     private EnderecoResponse endereco;
 
-    private List<TransacaoResumeResponse> transacoes;
+    private List<CarteiraResumeResponse> transacoes;
 
-    private List<RelatorioResumeResponse> relatorios;
+    private List<ProntuarioResumeResponse> prontuarios;
 
     public static PacienteResumeResponse toResponse(Paciente paciente) {
         return PacienteResumeResponse.builder()
@@ -51,10 +50,10 @@ public class PacienteResumeResponse {
                 .email(paciente.getEmail())
                 .endereco(EnderecoResponse.toResponse(paciente.getEndereco()))
                 .transacoes(paciente.getTransacao().stream()
-                        .map(TransacaoResumeResponse::toResponse)
+                        .map(CarteiraResumeResponse::toResponse)
                         .toList())
-                .relatorios(paciente.getRelatorioDoPaciente().stream()
-                        .map(RelatorioResumeResponse::toResponse)
+                .prontuarios(paciente.getProntuarioDoPaciente().stream()
+                        .map(ProntuarioResumeResponse::toResponse)
                         .toList())
                 .build();
     }
