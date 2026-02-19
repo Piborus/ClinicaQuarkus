@@ -2,12 +2,14 @@ package br.ce.clinica.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class EnderecoRequest {
 
     @Schema(name = "logradouro", description = "Rua do paciente", examples = { "Av. Paulista" })

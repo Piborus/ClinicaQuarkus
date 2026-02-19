@@ -1,5 +1,6 @@
 package br.ce.clinica.dto.request;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -11,6 +12,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 public class AnamneseRequest {
 
     @Schema(name = "pacienteId", description = "Id do paciente", examples = {"1"})
+    @NotNull(message = "O pacienteId é obrigatório")
     private Long pacienteId;
 
     //private TipoAnamnese tipoAnamnese;
