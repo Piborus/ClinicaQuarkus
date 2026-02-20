@@ -14,7 +14,7 @@ public class GenerateToken {
     @ConfigProperty(name = "mp.jwt.verify.issuer", defaultValue = "clinica-api")
     String issuer;
 
-    @ConfigProperty(name = "jwt.expiration.hours", defaultValue = "4")
+    @ConfigProperty(name = "jwt.expiration.hours")
     Long expirationHours;
 
 

@@ -79,16 +79,16 @@ public class AnamneseResource {
 //                .onItem().transform(deleted -> RestResponse.noContent());
 //    }
 
-    @GET
-    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
-    @Path("/paciente/{pacienteId}")
-    @Operation(summary = "Busca anamnese por id do paciente", description = "Busca uma anamnese pelo id do paciente no sistema")
-    public Uni<RestResponse<AnamneseResponse>> buscarPorPacienteId(
-            @PathParam("pacienteId") Long pacienteId
-    ) {
-        return anamneseService.findByPacienteId(pacienteId)
-                .onItem().transform(RestResponse::ok);
-    }
+//    @GET
+//    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
+//    @Path("/paciente/{pacienteId}")
+//    @Operation(summary = "Busca anamnese por id do paciente", description = "Busca uma anamnese pelo id do paciente no sistema")
+//    public Uni<RestResponse<AnamneseResponse>> buscarPorPacienteId(
+//            @PathParam("pacienteId") Long pacienteId
+//    ) {
+//        return anamneseService.findByPacienteId(pacienteId)
+//                .onItem().transform(RestResponse::ok);
+//    }
 
     @GET
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})

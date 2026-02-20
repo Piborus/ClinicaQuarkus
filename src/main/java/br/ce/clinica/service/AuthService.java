@@ -12,5 +12,4 @@ public interface AuthService {
 
     Uni<UsuarioResponse> save(UsuarioRequest request);
 
-    Uni<Void> logout();
 }
