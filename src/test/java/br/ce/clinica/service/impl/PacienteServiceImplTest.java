@@ -279,10 +279,10 @@ class PacienteServiceImplTest {
     void softDeleteComSucesso(UniAsserter asserter) {
         asserter.execute(() -> {
             when(pacienteRepository.findById(1L)).thenReturn(Uni.createFrom().item(paciente));
-            when(filiacaoRepository.update(anyString(), any(Object[].class))).thenReturn(Uni.createFrom().item(1));
-            when(carteiraRepository.update(anyString(), any(Object[].class))).thenReturn(Uni.createFrom().item(1));
-            when(prontuarioRepository.update(anyString(), any(Object[].class))).thenReturn(Uni.createFrom().item(1));
-            when(anamneseRepository.update(anyString(), any(Object[].class))).thenReturn(Uni.createFrom().item(1));
+            when(filiacaoRepository.update(anyString(), any(), any())).thenReturn(Uni.createFrom().item(1));
+            when(carteiraRepository.update(anyString(), any(), any())).thenReturn(Uni.createFrom().item(1));
+            when(prontuarioRepository.update(anyString(), any(), any())).thenReturn(Uni.createFrom().item(1));
+            when(anamneseRepository.update(anyString(), any(), any())).thenReturn(Uni.createFrom().item(1));
         });
 
         asserter.assertThat(

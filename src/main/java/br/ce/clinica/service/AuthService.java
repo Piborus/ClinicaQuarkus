@@ -12,4 +12,8 @@ public interface AuthService {
 
     Uni<UsuarioResponse> save(UsuarioRequest request);
 
+    Uni<TokenResponse> refreshToken(String refreshToken);
+
+    Uni<Void> logout(String token);
+
 }

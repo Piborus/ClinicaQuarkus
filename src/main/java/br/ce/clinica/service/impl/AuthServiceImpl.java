@@ -11,6 +11,7 @@ import br.ce.clinica.exception.UnauthorizedBusinessException;
 import br.ce.clinica.repository.UsuarioRepository;
 import br.ce.clinica.security.GenerateToken;
 import br.ce.clinica.security.PasswordEnconder;
+import br.ce.clinica.security.RefreshToken;
 import br.ce.clinica.service.AuthService;
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.smallrye.mutiny.Uni;
@@ -29,6 +30,9 @@ public class AuthServiceImpl implements AuthService {
     @Inject
     PasswordEnconder passwordEncoder;
 
+    @Inject
+    RefreshToken refreshToken;
+
 
 
     @Override
@@ -45,11 +49,9 @@ public class AuthServiceImpl implements AuthService {
                         );
                     }
 
-                    String token = generateToken.generateToken(usuario);
-
-                    return Uni.createFrom().item(
-                            TokenResponse.tokenResponse(token)
-                    );
+                    String accessToken = generateToken.generateToken(usuario);
+                    return refreshToken.generateRefreshToken(usuario.getId())
+                            .map(refresh -> TokenResponse.tokenResponse(accessToken, refresh));
                 }));
     }
 
@@ -72,6 +74,24 @@ public class AuthServiceImpl implements AuthService {
                     return usuarioRepository.persist(usuario);
                 })
                 .map(UsuarioResponse::toResponse));
+    }
+
+    @Override
+    public Uni<TokenResponse> refreshToken(String refreshTokenValue) {
+        return Panache.withTransaction(() -> refreshToken.validateRefreshToken(refreshTokenValue)
+                .flatMap(userId -> usuarioRepository.findById(userId))
+                .onItem().ifNull().failWith(
+                        new UnauthorizedBusinessException("Usuário não encontrado")
+                )
+                .map(usuario -> {
+                    String accessToken = generateToken.generateToken(usuario);
+                    return TokenResponse.tokenResponse(accessToken, refreshTokenValue);
+                }));
+    }
+
+    @Override
+    public Uni<Void> logout(String token) {
+        return refreshToken.revokeRefreshToken(token);
     }
 
 }
