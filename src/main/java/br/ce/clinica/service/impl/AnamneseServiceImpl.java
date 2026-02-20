@@ -142,15 +142,15 @@ public class AnamneseServiceImpl implements AnamneseService {
 
     }
 
-    @Override
-    public Uni<AnamneseResponse> findByPacienteId(Long pacienteId) {
-
-        return anamneseRepository.findByPacienteIdWithCollections(pacienteId)
-                .onItem().ifNull().failWith(
-                        () -> new NotFoundBusinessException("Anamnese não encontrada para o paciente informado.")
-                )
-                .onItem().transform(AnamneseResponse::toResponse);
-    }
+//    @Override
+//    public Uni<AnamneseResponse> findByPacienteId(Long pacienteId) {
+//
+//        return anamneseRepository.findByPacienteIdWithCollections(pacienteId)
+//                .onItem().ifNull().failWith(
+//                        () -> new NotFoundBusinessException("Anamnese não encontrada para o paciente informado.")
+//                )
+//                .onItem().transform(AnamneseResponse::toResponse);
+//    }
 //
 //    @Override
 //    public Uni<Boolean> deleteById(Long id) {

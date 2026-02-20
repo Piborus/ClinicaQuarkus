@@ -16,7 +16,7 @@ public interface AnamneseService {
 
     Uni<AnamneseResponse> findById(Long id);
 
-    Uni<AnamneseResponse> findByPacienteId(Long pacienteId);
+//    Uni<AnamneseResponse> findByPacienteId(Long pacienteId);
 
 //    Uni<Boolean> deleteById(Long id);
 

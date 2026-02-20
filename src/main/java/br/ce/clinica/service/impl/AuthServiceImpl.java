@@ -33,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Uni<TokenResponse> login(LoginRequest request) {
-        return Panache.withTransaction(() ->usuarioRepository.findByEmail(request.getEmail())
+        return Panache.withTransaction(() -> usuarioRepository.findByEmail(request.getEmail())
                 .onItem().ifNull().failWith(
                         new UnauthorizedBusinessException("Usuário ou senha inválidos")
                 )
@@ -56,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Uni<UsuarioResponse> save(UsuarioRequest request) {
-        return Panache.withTransaction(() ->usuarioRepository.findByEmail(request.getEmail())
+        return Panache.withTransaction(() -> usuarioRepository.findByEmail(request.getEmail())
                 .onItem().ifNotNull().failWith(
                         new BadRequestBusinessException("Email já cadastrado")
                 )
@@ -74,8 +74,4 @@ public class AuthServiceImpl implements AuthService {
                 .map(UsuarioResponse::toResponse));
     }
 
-    @Override
-    public Uni<Void> logout() {
-        return null;
-    }
 }
