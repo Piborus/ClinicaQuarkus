@@ -272,18 +272,6 @@ class AuthServiceImplTest {
         );
     }
 
-    @Test
-    @DisplayName("Deve retornar null ao chamar logout")
-    @RunOnVertxContext
-    void logoutRetornaNull(UniAsserter asserter) {
-        asserter.assertThat(
-            () -> {
-                Uni<Void> result = authService.logout();
-                return Uni.createFrom().item(result);
-            },
-            result -> assertNull(result)
-        );
-    }
 
     @Test
     @DisplayName("Deve persistir usuário com dados corretos")

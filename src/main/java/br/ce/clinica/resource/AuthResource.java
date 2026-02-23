@@ -1,6 +1,7 @@
 package br.ce.clinica.resource;
 
 import br.ce.clinica.dto.request.LoginRequest;
+import br.ce.clinica.dto.request.RefreshTokenRequest;
 import br.ce.clinica.dto.request.UsuarioRequest;
 import br.ce.clinica.dto.response.TokenResponse;
 import br.ce.clinica.dto.response.UsuarioResponse;
@@ -51,5 +52,26 @@ public class AuthResource {
         return authService.login(request)
                 .onItem().transform(usuario -> RestResponse
                         .ResponseBuilder.create(RestResponse.Status.CREATED, usuario).build());
+    }
+
+    @POST
+    @Path("/refresh")
+    @Operation(summary = "Refresh Token", description = "Atualiza o token de acesso")
+    public Uni<RestResponse<TokenResponse>> refreshToken(
+            @Valid RefreshTokenRequest request
+    ) {
+        return authService.refreshToken(request.getToken())
+                .onItem().transform(usuario -> RestResponse
+                        .ResponseBuilder.create(RestResponse.Status.CREATED, usuario).build());
+    }
+
+    @POST
+    @Path("/logout")
+    @Operation(summary = "Logout", description = "Realiza o logout do usuário no sistema")
+    public Uni<RestResponse<Void>> logout(
+            @Valid RefreshTokenRequest token
+    ) {
+        return authService.logout(token)
+                .onItem().transform(refreshToken -> RestResponse.noContent());
     }
 }

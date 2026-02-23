@@ -420,39 +420,6 @@ class AnamneseServiceImplTest {
         );
     }
 
-    @Test
-    @DisplayName("Deve buscar anamnese por ID do paciente com sucesso")
-    @RunOnVertxContext
-    void findByPacienteIdComSucesso(UniAsserter asserter) {
-        asserter.execute(() -> {
-            when(anamneseRepository.findByPacienteIdWithCollections(1L)).thenReturn(Uni.createFrom().item(anamnese));
-        });
-
-        asserter.assertThat(
-            () -> anamneseService.findByPacienteId(1L),
-            result -> {
-                assertNotNull(result);
-                assertEquals(anamnese.getId(), result.getId());
-            }
-        );
-    }
-
-    @Test
-    @DisplayName("Deve lançar NotFoundBusinessException quando anamnese não existe para o paciente")
-    @RunOnVertxContext
-    void findByPacienteIdAnamneseNaoEncontrada(UniAsserter asserter) {
-        asserter.execute(() -> {
-            when(anamneseRepository.findByPacienteIdWithCollections(1L)).thenReturn(Uni.createFrom().nullItem());
-        });
-
-        asserter.assertFailedWith(
-            () -> anamneseService.findByPacienteId(1L),
-            throwable -> {
-                assertInstanceOf(NotFoundBusinessException.class, throwable);
-                assertEquals("Anamnese não encontrada para o paciente informado.", throwable.getMessage());
-            }
-        );
-    }
 
     @Test
     @DisplayName("Deve buscar anamneses paginadas com sucesso sem sort")

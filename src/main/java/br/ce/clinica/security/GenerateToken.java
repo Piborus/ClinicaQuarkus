@@ -14,13 +14,13 @@ public class GenerateToken {
     @ConfigProperty(name = "mp.jwt.verify.issuer", defaultValue = "clinica-api")
     String issuer;
 
-    @ConfigProperty(name = "jwt.expiration.hours")
+    @ConfigProperty(name = "jwt.expiration.minutes")
     Long expirationHours;
 
 
     public String generateToken(Usuario usuario) {
 
-        long expiredAt = Duration.ofHours(expirationHours).getSeconds();
+        long expiredAt = Duration.ofMinutes(expirationHours).getSeconds();
 
         return Jwt.issuer(issuer)
                 .subject(usuario.getId().toString())

@@ -1,7 +1,8 @@
 services:
   quarkus-db:
-    image: postgres:16-alpine
     container_name: quarkus-db
+    image: postgres:16-alpine
+    restart: unless-stopped
     ports:
       - "5432:5432"
     volumes:
@@ -13,8 +14,21 @@ services:
     networks:
       - quarkus-network
 
+  redis:
+    container_name: quarkus-redis
+    image: redis:8.2.4-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - quarkus-network
+
 volumes:
   quarkus-db-data:
+  redis-data:
+
 networks:
     quarkus-network:
       driver: bridge

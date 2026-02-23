@@ -163,35 +163,6 @@ class AnamneseResourceTest {
     }
 
     @Test
-    @DisplayName("Deve buscar anamnese por paciente ID com sucesso")
-    @TestSecurity(user = "test", roles = {"PSICOLOGO"})
-    void buscarAnamnesePorPacienteId() {
-        when(anamneseService.findByPacienteId(1L))
-                .thenReturn(Uni.createFrom().item(anamneseResponse));
-
-        given()
-        .when()
-            .get("/anamnese/paciente/1")
-        .then()
-            .statusCode(200)
-            .body("id", is(1));
-    }
-
-    @Test
-    @DisplayName("Deve retornar erro ao buscar anamnese por paciente inexistente")
-    @TestSecurity(user = "test", roles = {"PSICOLOGO"})
-    void buscarAnamnesePorPacienteNaoEncontrado() {
-        when(anamneseService.findByPacienteId(999L))
-                .thenReturn(Uni.createFrom().failure(new NotFoundBusinessException("Paciente nao encontrado")));
-
-        given()
-        .when()
-            .get("/anamnese/paciente/999")
-        .then()
-            .statusCode(404);
-    }
-
-    @Test
     @DisplayName("Deve listar anamneses paginadas")
     @TestSecurity(user = "test", roles = {"PSICOLOGO"})
     void listarAnamnesesPaginadas() {

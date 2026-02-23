@@ -1,6 +1,7 @@
 package br.ce.clinica.service;
 
 import br.ce.clinica.dto.request.LoginRequest;
+import br.ce.clinica.dto.request.RefreshTokenRequest;
 import br.ce.clinica.dto.request.UsuarioRequest;
 import br.ce.clinica.dto.response.TokenResponse;
 import br.ce.clinica.dto.response.UsuarioResponse;
@@ -11,5 +12,9 @@ public interface AuthService {
     Uni<TokenResponse> login(LoginRequest request);
 
     Uni<UsuarioResponse> save(UsuarioRequest request);
+
+    Uni<TokenResponse> refreshToken(String refreshToken);
+
+    Uni<Void> logout(RefreshTokenRequest token);
 
 }
