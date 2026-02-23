@@ -92,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Uni<Void> logout(RefreshTokenRequest token) {
-        return refreshToken.revokeRefreshToken(token);
+        return refreshToken.revokeRefreshToken(token.getToken());
     }
 
 }
