@@ -1,6 +1,5 @@
 package br.ce.clinica.security;
 
-import br.ce.clinica.dto.request.RefreshTokenRequest;
 import io.quarkus.redis.datasource.ReactiveRedisDataSource;
 import io.quarkus.redis.datasource.keys.ReactiveKeyCommands;
 import io.quarkus.redis.datasource.value.ReactiveValueCommands;
@@ -47,7 +46,7 @@ public class RefreshToken {
                 .map(Long::valueOf);
     }
 
-    public Uni<Void> revokeRefreshToken(RefreshTokenRequest token) {
+    public Uni<Void> revokeRefreshToken(String token) {
 
         ReactiveKeyCommands<String> keys =
                 redisDataSource.key(String.class);
