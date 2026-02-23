@@ -69,7 +69,7 @@ public class AuthResource {
     @Path("/logout")
     @Operation(summary = "Logout", description = "Realiza o logout do usuário no sistema")
     public Uni<RestResponse<Void>> logout(
-            @Valid String token
+            @Valid RefreshTokenRequest token
     ) {
         return authService.logout(token)
                 .onItem().transform(refreshToken -> RestResponse.noContent());

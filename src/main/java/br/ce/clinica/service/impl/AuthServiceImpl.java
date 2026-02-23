@@ -1,6 +1,7 @@
 package br.ce.clinica.service.impl;
 
 import br.ce.clinica.dto.request.LoginRequest;
+import br.ce.clinica.dto.request.RefreshTokenRequest;
 import br.ce.clinica.dto.request.UsuarioRequest;
 import br.ce.clinica.dto.response.TokenResponse;
 import br.ce.clinica.dto.response.UsuarioResponse;
@@ -90,7 +91,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Uni<Void> logout(String token) {
+    public Uni<Void> logout(RefreshTokenRequest token) {
         return refreshToken.revokeRefreshToken(token);
     }
 

@@ -1,5 +1,6 @@
 package br.ce.clinica.security;
 
+import br.ce.clinica.dto.request.RefreshTokenRequest;
 import io.quarkus.redis.datasource.ReactiveRedisDataSource;
 import io.quarkus.redis.datasource.keys.ReactiveKeyCommands;
 import io.quarkus.redis.datasource.value.ReactiveValueCommands;
@@ -7,13 +8,16 @@ import io.quarkus.security.UnauthorizedException;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.UUID;
 
 @ApplicationScoped
 public class RefreshToken {
 
-    private static final long REFRESH_TOKEN_TTL = 604800;
+
+    @ConfigProperty(name = "refresh.token.ttl")
+    Long refreshTokenTTL;
 
     @Inject
     ReactiveRedisDataSource redisDataSource;
@@ -27,7 +31,7 @@ public class RefreshToken {
 
         return values.setex(
                 "refresh:" + refreshToken,
-                REFRESH_TOKEN_TTL,
+                refreshTokenTTL,
                 usuarioId.toString()
         ).replaceWith(refreshToken);
     }
@@ -43,7 +47,7 @@ public class RefreshToken {
                 .map(Long::valueOf);
     }
 
-    public Uni<Void> revokeRefreshToken(String token) {
+    public Uni<Void> revokeRefreshToken(RefreshTokenRequest token) {
 
         ReactiveKeyCommands<String> keys =
                 redisDataSource.key(String.class);
@@ -52,4 +56,3 @@ public class RefreshToken {
     }
 
 }
-//c8036d6b-9481-45a5-9335-e882d7df15de token para testa
