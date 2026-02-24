@@ -68,7 +68,7 @@ public class PacienteResponse {
                 )
                 .responsaveis(
                         paciente.getResponsaveis() == null
-                        ? Collections.emptyList()
+                                ? Collections.emptyList()
                                 : paciente.getResponsaveis().stream()
                                 .map(FiliacaoResponse::toResponse)
                                 .toList()

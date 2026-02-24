@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Builder
@@ -16,7 +18,7 @@ public class CarteiraRequest {
 
     @Schema(name = "valor", description = "Valor da transação", examples = { "150.75" })
     @NotNull
-    private Double valor;
+    private BigDecimal valor;
 
     @Schema(name = "descricao", description = "Descrição da transação", examples = { "Pagamento de consulta médica" })
     @NotBlank

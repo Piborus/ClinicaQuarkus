@@ -25,11 +25,11 @@ public class Consulta extends BaseAuditEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status_consulta")
-    private StatusConsulta consulta;
+    private StatusConsulta statusConsulta;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status_confirmacao")
-    private StatusConfirmacao confirmacao;
+    private StatusConfirmacao statusConfirmacao;
 
     @Column(name = "observacao", length = 1000)
     private String observacao;

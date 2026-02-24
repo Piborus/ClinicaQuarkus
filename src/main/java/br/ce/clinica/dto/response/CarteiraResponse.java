@@ -5,6 +5,8 @@ import br.ce.clinica.enums.TipoDePagamento;
 import br.ce.clinica.enums.TipoMovimento;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -13,7 +15,7 @@ public class CarteiraResponse {
 
     private Long id;
 
-    private Double valor;
+    private BigDecimal valor;
 
     private String descricao;
 

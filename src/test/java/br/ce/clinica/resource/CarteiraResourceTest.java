@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
@@ -39,7 +40,7 @@ class CarteiraResourceTest {
     @BeforeEach
     void setUp() {
         carteiraRequest = CarteiraRequest.builder()
-                .valor(150.00)
+                .valor(new BigDecimal("150.00"))
                 .descricao("Pagamento consulta")
                 .tipoDePagamento(TipoDePagamento.PIX)
                 .tipoMovimento(TipoMovimento.ENTRADA)
@@ -48,7 +49,7 @@ class CarteiraResourceTest {
 
         carteiraResumeResponse = CarteiraResumeResponse.builder()
                 .id(1L)
-                .valor(150.00)
+                .valor(new BigDecimal("150.00"))
                 .descricao("Pagamento consulta")
                 .tipoDePagamento(TipoDePagamento.PIX)
                 .tipoMovimento(TipoMovimento.ENTRADA)
