@@ -49,12 +49,20 @@ public class PacienteResumeResponse {
                 .telefone(paciente.getTelefone())
                 .email(paciente.getEmail())
                 .endereco(EnderecoResponse.toResponse(paciente.getEndereco()))
-                .transacoes(paciente.getTransacao().stream()
-                        .map(CarteiraResumeResponse::toResponse)
-                        .toList())
-                .prontuarios(paciente.getProntuarioDoPaciente().stream()
-                        .map(ProntuarioResumeResponse::toResponse)
-                        .toList())
+                .transacoes(
+                        paciente.getTransacao() == null
+                                ? List.of()
+                                : paciente.getTransacao().stream()
+                                .map(CarteiraResumeResponse::toResponse)
+                                .toList()
+                )
+                .prontuarios(
+                        paciente.getProntuarioDoPaciente() == null
+                                ? List.of()
+                                : paciente.getProntuarioDoPaciente().stream()
+                                .map(ProntuarioResumeResponse::toResponse)
+                                .toList()
+                )
                 .build();
     }
 }

@@ -36,8 +36,8 @@ public class AuthResource {
     @POST
     @Operation(summary = "Cadastra usuário", description = "Cadastra um novo usuário no sistema")
     public Uni<RestResponse<UsuarioResponse>> cadastrar(
-            @Valid UsuarioRequest request)
-    {
+            @Valid UsuarioRequest request
+    ){
         return authService.save(request)
                 .onItem().transform(usuario -> RestResponse
                         .ResponseBuilder.create(RestResponse.Status.CREATED, usuario).build());
