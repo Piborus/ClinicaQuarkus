@@ -19,6 +19,7 @@ public class ConsultaRepository implements PanacheRepository<Consulta> {
             WHERE 1 = 1
             """;
 
+
     private static final String BUSCAR_CONSULTA_DO_DIA = """
                SELECT c.dataInicio, c.dataFim
                FROM Consulta c
