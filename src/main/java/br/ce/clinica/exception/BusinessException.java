@@ -12,28 +12,18 @@ public abstract class BusinessException extends RuntimeException {
     private final int status;
     private final String title;
     private final ErrorCode errorCode;
-    private final List<ErrorObject> messages;
+    private final List<ErrorObject> details;
 
-    protected BusinessException(
-            String message,
-            int status,
-            String title,
-            ErrorCode errorCode,
-            List<ErrorObject> messages
-    ) {
+    protected BusinessException(String message,
+                                int status,
+                                String title,
+                                ErrorCode errorCode,
+                                List<ErrorObject> details) {
         super(message);
         this.status = status;
         this.title = title;
         this.errorCode = errorCode;
-        this.messages = messages;
+        this.details = details;
     }
 
-    protected BusinessException(
-            String message,
-            int status,
-            String title,
-            ErrorCode errorCode
-    ) {
-        this(message, status, title, errorCode, null);
-    }
 }

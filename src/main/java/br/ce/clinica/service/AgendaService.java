@@ -5,6 +5,7 @@ import br.ce.clinica.dto.response.ConsultaResponse;
 import io.smallrye.mutiny.Uni;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public interface AgendaService {
@@ -16,6 +17,10 @@ public interface AgendaService {
 //            AgendaCancelamentoRequest request
     );
 
-    Uni<List<String>> findAvailableTimes(Long usuarioId, LocalDate data);
+//    Uni<List<String>> findAvailableTimes(Long usuarioId, LocalDate data);
+
+    Uni<List<LocalTime>> findAvailableTimes(Long usuarioId, LocalDate data);
+
+    Uni<ConsultaResponse> findById(Long id);
 
 }

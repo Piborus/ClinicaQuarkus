@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,20 +78,36 @@ public class AgendaServiceImpl implements AgendaService {
     }
 
     @Override
-    public Uni<List<String>> findAvailableTimes(Long usuarioId, LocalDate data) {
+    public Uni<List<LocalTime>> findAvailableTimes(Long usuarioId, LocalDate data) {
+
         LocalDateTime inicioDia = data.atTime(8, 0);
-        LocalDateTime fimDia = data.atTime(18, 0); // limite comercial explícito
+        LocalDateTime fimDia = data.atTime(22, 0);
+
+        LocalDateTime inicioAlmoco = data.atTime(12, 0);
+        LocalDateTime fimAlmoco = data.atTime(13, 0);
 
         return consultaRepository.buscarHorariosOcupadosDoDia(usuarioId, inicioDia, fimDia)
                 .onItem().transform(ocupados -> {
-                    List<String> disponiveis = new ArrayList<>();
+
+                    List<LocalTime> disponiveis = new ArrayList<>();
                     LocalDateTime slot = inicioDia;
                     int i = 0;
 
                     while (slot.isBefore(fimDia)) {
+
                         LocalDateTime fimSlot = slot.plusHours(1);
 
-                        while (i < ocupados.size() && !ocupados.get(i).getDataFim().isAfter(slot)) {
+                        boolean horarioAlmoco =
+                                slot.isBefore(fimAlmoco) &&
+                                        fimSlot.isAfter(inicioAlmoco);
+
+                        if (horarioAlmoco) {
+                            slot = slot.plusHours(1);
+                            continue;
+                        }
+
+                        while (i < ocupados.size() &&
+                                !ocupados.get(i).getDataFim().isAfter(slot)) {
                             i++;
                         }
 
@@ -99,7 +116,7 @@ public class AgendaServiceImpl implements AgendaService {
                                 && ocupados.get(i).getDataFim().isAfter(slot);
 
                         if (!conflito) {
-                            disponiveis.add(slot.toLocalTime().toString()); // HH:mm
+                            disponiveis.add(slot.toLocalTime());
                         }
 
                         slot = slot.plusHours(1);
@@ -107,5 +124,46 @@ public class AgendaServiceImpl implements AgendaService {
 
                     return disponiveis;
                 });
+    }
+
+
+//    @Override
+//    public Uni<List<String>> findAvailableTimes(Long usuarioId, LocalDate data) {
+//        LocalDateTime inicioDia = data.atTime(8, 0);
+//        LocalDateTime fimDia = data.atTime(22, 0);
+//
+//        return consultaRepository.buscarHorariosOcupadosDoDia(usuarioId, inicioDia, fimDia)
+//                .onItem().transform(ocupados -> {
+//                    List<String> disponiveis = new ArrayList<>();
+//                    LocalDateTime slot = inicioDia;
+//                    int i = 0;
+//
+//                    while (slot.isBefore(fimDia)) {
+//                        LocalDateTime fimSlot = slot.plusHours(1);
+//
+//                        while (i < ocupados.size() && !ocupados.get(i).getDataFim().isAfter(slot)) {
+//                            i++;
+//                        }
+//
+//                        boolean conflito = i < ocupados.size()
+//                                && ocupados.get(i).getDataInicio().isBefore(fimSlot)
+//                                && ocupados.get(i).getDataFim().isAfter(slot);
+//
+//                        if (!conflito) {
+//                            disponiveis.add(slot.toLocalTime().toString()); // HH:mm
+//                        }
+//
+//                        slot = slot.plusHours(1);
+//                    }
+//
+//                    return disponiveis;
+//                });
+//    }
+
+    @Override
+    public Uni<ConsultaResponse> findById(Long id) {
+        return consultaRepository.findById(id)
+                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Consulta não encontrada."))
+                .onItem().transform(ConsultaResponse::toResponse);
     }
 }

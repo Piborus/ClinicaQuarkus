@@ -16,6 +16,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestResponse;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Path("/consulta")
@@ -57,11 +58,22 @@ public class AgendaResource {
     @GET
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Path("/usuarios/{usuarioId}/horarios-disponiveis")
-    public Uni<RestResponse<List<String>>> horariosDisponiveis(
+    public Uni<RestResponse<List<LocalTime>>> horariosDisponiveis(
             @PathParam("usuarioId") Long id,
             @QueryParam("data") LocalDate data
     ) {
         return agendaService.findAvailableTimes(id, data)
+                .onItem().transform(RestResponse::ok);
+    }
+
+    @GET
+    @Path("/{id}")
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
+    @Operation(summary = "Busca consulta por id", description = "Busca uma consulta pelo id no sistema")
+    public Uni<RestResponse<ConsultaResponse>> buscarPorId(
+            @PathParam("id") Long id
+    ) {
+        return agendaService.findById(id)
                 .onItem().transform(RestResponse::ok);
     }
 }
