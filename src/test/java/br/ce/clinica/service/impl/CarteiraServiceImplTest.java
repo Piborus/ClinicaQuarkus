@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,14 +57,14 @@ class CarteiraServiceImplTest {
 
         carteira = new Carteira();
         carteira.setId(1L);
-        carteira.setValor(150.75);
+        carteira.setValor(new BigDecimal("150.75"));
         carteira.setDescricao("Pagamento de consulta médica");
         carteira.setTipoMovimento(TipoMovimento.ENTRADA);
         carteira.setTipoDePagamento(TipoDePagamento.PIX);
         carteira.setPaciente(paciente);
 
         carteiraRequest = CarteiraRequest.builder()
-                .valor(150.75)
+                .valor(new BigDecimal("150.75"))
                 .descricao("Pagamento de consulta médica")
                 .tipoMovimento(TipoMovimento.ENTRADA)
                 .tipoDePagamento(TipoDePagamento.PIX)
@@ -179,7 +180,7 @@ class CarteiraServiceImplTest {
     @RunOnVertxContext
     void updateTransacaoComSucesso(UniAsserter asserter) {
         CarteiraRequest updateRequest = CarteiraRequest.builder()
-                .valor(200.00)
+                .valor(new BigDecimal("200.00"))
                 .descricao("Pagamento atualizado")
                 .tipoMovimento(TipoMovimento.SAIDA)
                 .tipoDePagamento(TipoDePagamento.CREDITO)

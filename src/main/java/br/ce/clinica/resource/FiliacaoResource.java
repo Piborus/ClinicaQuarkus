@@ -45,6 +45,8 @@ public class FiliacaoResource {
 
     @PUT
     @Path("/{id}")
+    @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
+    @Operation(summary = "Atualiza uma filiação", description = "Atualiza os dados de uma filiação no sistema")
     public Uni<RestResponse<FiliacaoResponse>> atualizar(
             @PathParam("id") Long id,
             @Valid FiliacaoRequest filiacaoRequest

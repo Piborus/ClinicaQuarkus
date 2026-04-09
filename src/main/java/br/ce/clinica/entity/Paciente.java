@@ -84,4 +84,7 @@ public class Paciente extends BaseAuditEntity {
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Filiacao> responsaveis;
 
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Consulta> consultas;
+
 }

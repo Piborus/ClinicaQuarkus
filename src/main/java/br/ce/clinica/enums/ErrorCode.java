@@ -7,14 +7,19 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
 
-    BAD_REQUEST("CLN-400"),
-    VALIDATION_ERROR("CLN-400-VAL"),
-    NOT_FOUND("CLN-404"),
-    CONFLICT("CLN-409"),
-    UNAUTHORIZED("CLN-401"),
-    FORBIDDEN("CLN-403"),
-    INTERNAL_ERROR("CLN-500"),
-    UNPROCESSABLE_ENTITY("CLN-422");
+    BAD_REQUEST(400,"Bad Request"),
+    VALIDATION_ERROR(400,"Validation Error"),
+    NOT_FOUND(404, "Not Found"),
+    CONFLICT(409, "Conflict"),
+    UNAUTHORIZED(401,"Unauthorized"),
+    FORBIDDEN(403, "Forbidden"),
+    INTERNAL_ERROR(500,"Internal Server Error"),
+    UNPROCESSABLE_ENTITY(422, "Unprocessable Entity");
 
-    private final String code;
+    private final int status;
+    private final String title;
+
+    public String getType() {
+        return "urn:clinica:error:" + name().toLowerCase();
+    }
 }

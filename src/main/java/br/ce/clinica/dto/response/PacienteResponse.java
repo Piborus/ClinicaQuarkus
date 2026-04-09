@@ -2,6 +2,7 @@ package br.ce.clinica.dto.response;
 
 import br.ce.clinica.entity.Paciente;
 import br.ce.clinica.enums.Sexo;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ public class PacienteResponse {
 
     private Sexo sexo;
 
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate dataNascimento;
 
     private String cpf;
@@ -68,7 +70,7 @@ public class PacienteResponse {
                 )
                 .responsaveis(
                         paciente.getResponsaveis() == null
-                        ? Collections.emptyList()
+                                ? Collections.emptyList()
                                 : paciente.getResponsaveis().stream()
                                 .map(FiliacaoResponse::toResponse)
                                 .toList()

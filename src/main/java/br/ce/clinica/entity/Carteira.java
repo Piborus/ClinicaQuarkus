@@ -5,6 +5,8 @@ import br.ce.clinica.enums.TipoMovimento;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Entity
@@ -14,8 +16,8 @@ import lombok.*;
 @EqualsAndHashCode(of = "id")
 public class Carteira extends BaseAuditEntity{
 
-    @Column(name = "valor", nullable = false)
-    private Double valor;
+    @Column(name = "valor", nullable = false, precision = 19, scale = 2)
+    private BigDecimal valor;
 
     @Column(name = "descricao")
     private String descricao;
