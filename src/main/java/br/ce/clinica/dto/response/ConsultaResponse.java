@@ -3,6 +3,7 @@ package br.ce.clinica.dto.response;
 import br.ce.clinica.entity.Consulta;
 import br.ce.clinica.enums.StatusConfirmacao;
 import br.ce.clinica.enums.StatusConsulta;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,8 +19,10 @@ public class ConsultaResponse {
 
     private Long id;
 
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime dataInicio;
 
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime dataFim;
 
     private StatusConsulta statusConsulta;

@@ -17,6 +17,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Path("/consulta")
@@ -60,8 +61,9 @@ public class AgendaResource {
     @Path("/usuarios/{usuarioId}/horarios-disponiveis")
     public Uni<RestResponse<List<LocalTime>>> horariosDisponiveis(
             @PathParam("usuarioId") Long id,
-            @QueryParam("data") LocalDate data
+            @QueryParam("data") String dataStr
     ) {
+        LocalDate data = LocalDate.parse(dataStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         return agendaService.findAvailableTimes(id, data)
                 .onItem().transform(RestResponse::ok);
     }

@@ -5,7 +5,9 @@ import br.ce.clinica.dto.response.ConsultaResponse;
 import br.ce.clinica.entity.Consulta;
 import br.ce.clinica.enums.StatusConfirmacao;
 import br.ce.clinica.enums.StatusConsulta;
+import br.ce.clinica.exception.ConflictBusinessException;
 import br.ce.clinica.exception.NotFoundBusinessException;
+import br.ce.clinica.exception.UnprocessableEntityBusinessException;
 import br.ce.clinica.repository.ConsultaRepository;
 import br.ce.clinica.repository.PacienteRepository;
 import br.ce.clinica.repository.UsuarioRepository;
@@ -40,27 +42,61 @@ public class AgendaServiceImpl implements AgendaService {
 
     @Override
     public Uni<ConsultaResponse> scheduleConsultation(AgendaRequest request) {
-        log.info("Iniciando agendamento de consulta para o paciente {} com o usuário {} no horário {}", 
+        log.info("Iniciando agendamento de consulta para o paciente {} com o usuário {} no horário {}",
                 request.getIdpaciente(), request.getIdUsuario(), request.getHorario());
-        
+
+        LocalDateTime inicio = request.getHorario();
+        LocalDateTime fim = inicio.plusHours(1);
+
+        if (!inicio.isAfter(LocalDateTime.now())) {
+            log.warn("Tentativa de agendamento no passado: {}", inicio);
+            throw new UnprocessableEntityBusinessException(
+                    "A data e hora da consulta não podem ser no passado."
+            );
+        }
+
         return Panache.withTransaction(() ->
                 pacienteRepository.findByIdWithCollections(request.getIdpaciente())
-                        .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Paciente não encontrado."))
-                        .onItem().ifNotNull().transformToUni(paciente -> usuarioRepository.findById(request.getIdUsuario())
-                                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Usuário não encontrado."))
-                                .onItem().ifNotNull().transformToUni(usuario -> {
-                                    Consulta consulta = new Consulta();
-                                    consulta.setPaciente(paciente);
-                                    consulta.setUsuario(usuario);
-                                    consulta.setDataInicio(request.getHorario());
-                                    consulta.setDataFim(request.getHorario().plusHours(1));
-                                    consulta.setStatusConsulta(StatusConsulta.AGENDADA);
-                                    consulta.setStatusConfirmacao(StatusConfirmacao.PENDENTE);
-                                    return consultaRepository.persist(consulta);
-                                })
-                                .onItem().invoke(consulta -> log.info("Consulta agendada com sucesso. ID: {}", consulta.getId()))
-                                .onItem().transform(ConsultaResponse::toResponse)
-        ));
+                        .onItem().ifNull().failWith(
+                                () -> new NotFoundBusinessException("Paciente não encontrado.")
+                        )
+                        .chain(paciente ->
+                                usuarioRepository.findById(request.getIdUsuario())
+                                        .onItem().ifNull().failWith(
+                                                () -> new NotFoundBusinessException("Usuário não encontrado.")
+                                        )
+                                        .chain(usuario ->
+                                                consultaRepository.existeConflitoHorario(
+                                                                usuario.getId(),
+                                                                inicio,
+                                                                fim
+                                                        )
+                                                        .chain(existeConflito -> {
+                                                            if (Boolean.TRUE.equals(existeConflito)) {
+                                                                return Uni.createFrom().failure(
+                                                                        new ConflictBusinessException(
+                                                                                "O horário selecionado já está ocupado."
+                                                                        )
+                                                                );
+                                                            }
+
+                                                            Consulta consulta = new Consulta();
+                                                            consulta.setPaciente(paciente);
+                                                            consulta.setUsuario(usuario);
+                                                            consulta.setDataInicio(inicio);
+                                                            consulta.setDataFim(fim);
+                                                            consulta.setStatusConsulta(StatusConsulta.AGENDADA);
+                                                            consulta.setStatusConfirmacao(StatusConfirmacao.PENDENTE);
+
+                                                            return consultaRepository.persist(consulta);
+                                                        })
+                                        )
+                                        .invoke(consulta ->
+                                                log.info("Consulta agendada com sucesso. ID: {}", consulta.getId())
+                                        )
+                                        .map(ConsultaResponse::toResponse)
+                        )
+        );
     }
 
     @Override

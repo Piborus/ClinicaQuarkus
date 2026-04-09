@@ -30,6 +30,15 @@ public class ConsultaRepository implements PanacheRepository<Consulta> {
                ORDER BY c.dataInicio
             """;
 
+    private static final String EXISTE_CONFLITO_HORARIO = """
+            SELECT COUNT(c) > 0
+            FROM Consulta c
+            WHERE c.usuario.id = ?1
+            AND c.statusConsulta <> br.ce.clinica.enums.StatusConsulta.CANCELADA
+            AND c.dataInicio < ?3
+            AND c.dataFim > ?2
+            """;
+
     public Uni<List<IntervaloConsultaRequest>> buscarHorariosOcupadosDoDia(
             Long idUsuario,
             LocalDateTime dataInicio,
@@ -37,6 +46,17 @@ public class ConsultaRepository implements PanacheRepository<Consulta> {
         return find(BUSCAR_CONSULTA_DO_DIA, idUsuario, dataInicio, dataFim)
                 .project(IntervaloConsultaRequest.class)
                 .list();
+    }
+
+    public Uni<Boolean> existeConflitoHorario(
+            Long idUsuario,
+            LocalDateTime dataInicio,
+            LocalDateTime dataFim) {
+        return find(EXISTE_CONFLITO_HORARIO, idUsuario, dataInicio, dataFim)
+                .project(Boolean.class)
+                .firstResult()
+                .onItem().ifNull().continueWith(false);
+
     }
 
 }
