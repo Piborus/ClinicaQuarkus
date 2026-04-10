@@ -39,6 +39,13 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public Uni<Void> mandarLembreConsulta(LembreteDeConsultaRequest request) {
-        return null;
+        return template.to(request.getDestinatario())
+                .subject("Lembrete de Consulta")
+                .data("nomePaciente", request.getNomePaciente())
+                .data("nomeProfissional", request.getNomeProfissional())
+                .data("especialidade", request.getEspecialidade())
+                .data("dataConsulta", request.getDataConsulta())
+                .data("horaConsulta", request.getHoraConsulta())
+                .send();
     }
 }
