@@ -69,13 +69,17 @@
 
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-test-security</artifactId>
-            <scope>test</scope>
+            <artifactId>quarkus-mailer</artifactId>
         </dependency>
 
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-test-security-jwt</artifactId>
+            <artifactId>quarkus-qute</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-test-security</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -85,17 +89,23 @@
         <!-- ========================= -->
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-security</artifactId>
+            <artifactId>quarkus-test-security-jwt</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-elytron-security-common</artifactId>
+            <artifactId>quarkus-security</artifactId>
         </dependency>
 
         <!-- ========================= -->
         <!-- Hibernate / Panache -->
         <!-- ========================= -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-elytron-security-common</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-reactive-pg-client</artifactId>
@@ -106,22 +116,17 @@
             <artifactId>quarkus-jdbc-postgresql</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-hibernate-reactive-panache</artifactId>
-        </dependency>
-
         <!-- ========================= -->
         <!-- Migração de Banco -->
         <!-- ========================= -->
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-hibernate-reactive-rest-data-panache</artifactId>
+            <artifactId>quarkus-hibernate-reactive-panache</artifactId>
         </dependency>
 
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-hibernate-orm</artifactId>
+            <artifactId>quarkus-hibernate-reactive-rest-data-panache</artifactId>
         </dependency>
 
         <!-- ========================= -->
@@ -129,20 +134,25 @@
         <!-- ========================= -->
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-flyway</artifactId>
+            <artifactId>quarkus-hibernate-orm</artifactId>
         </dependency>
 
         <!-- ========================= -->
         <!-- OpenAPI / Swagger -->
         <!-- ========================= -->
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-flyway</artifactId>
         </dependency>
 
         <!-- ========================= -->
         <!-- Utilitários -->
         <!-- ========================= -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
@@ -153,6 +163,9 @@
             <artifactId>quarkus-smallrye-openapi</artifactId>
         </dependency>
 
+        <!-- ========================= -->
+        <!-- Testes -->
+        <!-- ========================= -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -160,9 +173,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- ========================= -->
-        <!-- Testes -->
-        <!-- ========================= -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-validator</artifactId>
@@ -179,13 +189,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Mockito para testes -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5-mockito</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- Mockito para testes -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-test-vertx</artifactId>
@@ -197,7 +207,6 @@
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
