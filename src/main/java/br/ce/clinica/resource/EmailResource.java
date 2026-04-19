@@ -20,7 +20,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 @Produces(MediaType.TEXT_PLAIN)
 @ApplicationScoped
 @ApiDocumentation
-public class MailerResource {
+public class EmailResource {
 
     @Inject
     EmailService emailService;
@@ -40,13 +40,13 @@ public class MailerResource {
         ).replaceWith("Email enviado com sucesso");
     }
 
-    @POST
-    @Path("/lembrete/enviar")
-    @WithSession
-    public Uni<RestResponse<String>> enviarLembretes() {
-        return lembreteScheduler.enviarLembretes()
-                .map(v -> RestResponse.ok("Lembretes enviados com sucesso"));
-    }
+//    @POST
+//    @Path("/lembrete/enviar")
+//    @WithSession
+//    public Uni<RestResponse<String>> enviarLembretes() {
+//        return lembreteScheduler.enviarLembretes()
+//                .map(v -> RestResponse.ok("Lembretes enviados com sucesso"));
+//    }
 
     @POST
     @Path("/lembrete/consultas/disparar")
