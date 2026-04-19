@@ -39,6 +39,15 @@ public class ConsultaRepository implements PanacheRepository<Consulta> {
             AND c.dataFim > ?2
             """;
 
+    private static final String BUSCAR_CONSULTAS_PARA_LEMBRETE = """
+            SELECT DISTINCT c FROM Consulta c
+            LEFT JOIN FETCH c.paciente
+            LEFT JOIN FETCH c.usuario
+            WHERE c.statusConsulta <> br.ce.clinica.enums.StatusConsulta.CANCELADA
+            AND c.dataInicio >= ?1
+            AND c.dataInicio < ?2
+            """;
+
     public Uni<List<IntervaloConsultaRequest>> buscarHorariosOcupadosDoDia(
             Long idUsuario,
             LocalDateTime dataInicio,
@@ -46,6 +55,10 @@ public class ConsultaRepository implements PanacheRepository<Consulta> {
         return find(BUSCAR_CONSULTA_DO_DIA, idUsuario, dataInicio, dataFim)
                 .project(IntervaloConsultaRequest.class)
                 .list();
+    }
+
+    public Uni<List<Consulta>> buscarConsultasParaLembrete(LocalDateTime inicio, LocalDateTime fim) {
+        return find(BUSCAR_CONSULTAS_PARA_LEMBRETE, inicio, fim).list();
     }
 
     public Uni<Boolean> existeConflitoHorario(
