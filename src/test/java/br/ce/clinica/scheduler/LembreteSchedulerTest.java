@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -120,6 +121,28 @@ class LembreteSchedulerTest {
         scheduler.enviarLembretes(agora).await().indefinitely();
 
         verify(emailService, never()).mandarLembreConsulta(any(LembreteDeConsultaRequest.class));
+    }
+
+    @Test
+    @DisplayName("Deve continuar o processamento quando um destinatario falhar")
+    void enviarLembretesContinuaQuandoUmEnvioFalha() {
+        LocalDateTime agora = LocalDateTime.of(2026, 4, 18, 9, 0);
+        Consulta consulta = criarConsulta(5L, agora.plusHours(3), "paciente@clinica.com", "psicologo@clinica.com");
+
+        when(consultaRepository.buscarConsultasParaLembrete(eq(agora.plusHours(3)), eq(agora.plusHours(3).plusMinutes(3))))
+                .thenReturn(Uni.createFrom().item(List.of(consulta)));
+
+        when(emailService.mandarLembreConsulta(any(LembreteDeConsultaRequest.class)))
+                .thenAnswer(invocation -> {
+                    LembreteDeConsultaRequest request = invocation.getArgument(0);
+                    if ("paciente@clinica.com".equals(request.getDestinatario())) {
+                        return Uni.createFrom().failure(new RuntimeException("Falha SMTP simulada"));
+                    }
+                    return Uni.createFrom().voidItem();
+                });
+
+        assertDoesNotThrow(() -> scheduler.enviarLembretes(agora).await().indefinitely());
+        verify(emailService, times(2)).mandarLembreConsulta(any(LembreteDeConsultaRequest.class));
     }
 
     private Consulta criarConsulta(Long id, LocalDateTime dataInicio, String emailPaciente, String emailProfissional) {
