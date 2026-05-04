@@ -26,6 +26,7 @@ public class GenerateToken {
                 .subject(usuario.getId().toString())
                 .upn(usuario.getEmail())
                 .groups(Set.of(usuario.getTipoUsuario().name()))
+                .claim("usuario_id", usuario.getId().toString())
                 .claim("email", usuario.getEmail())
                 .claim("tipoUsuario", usuario.getTipoUsuario().name())
                 .expiresIn(expiredAt)
