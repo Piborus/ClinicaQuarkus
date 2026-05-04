@@ -28,7 +28,7 @@ class EmailServiceImplTest {
     @BeforeEach
     void setUp() {
         emailService = new EmailServiceImpl();
-        emailService.template = template;
+//        emailService.template = template;
     }
 
     @Test

@@ -19,7 +19,7 @@ import java.util.List;
 @ApplicationScoped
 public class LembreteScheduler {
 
-    private static final Logger log = Logger.getLogger(LembreteScheduler.class);
+    private  static final Logger log = Logger.getLogger(LembreteScheduler.class);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -29,7 +29,7 @@ public class LembreteScheduler {
     @Inject
     EmailService emailService;
 
-    @Scheduled(cron = "0 0/3 * * * ?") //
+    @Scheduled(cron = "0 0/1 * * * ?") //
     @WithSession
     public Uni<Void> enviarLembretes() {
         return enviarLembretes(LocalDateTime.now());
@@ -60,16 +60,14 @@ public class LembreteScheduler {
 
                         if (consulta.getPaciente().getEmail() != null && !consulta.getPaciente().getEmail().isBlank()) {
                             log.infof("Preparando lembrete para paciente %s na consulta %s", consulta.getPaciente().getEmail(), consulta.getId());
-                            envios.add(emailService.mandarLembreConsulta(
-                                    buildRequest(consulta, consulta.getPaciente().getEmail())));
+                            envios.add(enviarComLog(consulta, consulta.getPaciente().getEmail()));
                         } else {
                             log.debugf("Consulta %s sem e-mail de paciente; lembrete não será enviado ao paciente", consulta.getId());
                         }
 
                         if (consulta.getUsuario().getEmail() != null && !consulta.getUsuario().getEmail().isBlank()) {
                             log.infof("Preparando lembrete para usuário %s na consulta %s", consulta.getUsuario().getEmail(), consulta.getId());
-                            envios.add(emailService.mandarLembreConsulta(
-                                    buildRequest(consulta, consulta.getUsuario().getEmail())));
+                            envios.add(enviarComLog(consulta, consulta.getUsuario().getEmail()));
                         } else {
                             log.debugf("Consulta %s sem e-mail de usuário; lembrete não será enviado ao usuário", consulta.getId());
                         }
@@ -83,6 +81,16 @@ public class LembreteScheduler {
                     log.infof("Total de lembretes a enviar nesta execução: %d", envios.size());
                     return Uni.combine().all().unis(envios).usingConcurrencyOf(5).discardItems();
                 });
+    }
+
+    private Uni<Void> enviarComLog(Consulta consulta, String destinatario) {
+        return emailService.mandarLembreConsulta(buildRequest(consulta, destinatario))
+                .invoke(() -> log.infof("Lembrete enviado com sucesso para %s na consulta %s", destinatario, consulta.getId()))
+                .onFailure().invoke(erro ->
+                        log.errorf(erro, "Falha ao enviar lembrete para %s na consulta %s", destinatario, consulta.getId()))
+                // Mantem a rotina ativa mesmo quando um destinatario falha.
+                .onFailure().recoverWithNull()
+                .replaceWithVoid();
     }
 
     private boolean consultaEhDoMesmoDia(LocalDateTime agora, Consulta consulta) {
