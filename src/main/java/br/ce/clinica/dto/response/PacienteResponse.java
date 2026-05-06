@@ -56,21 +56,21 @@ public class PacienteResponse {
                 .endereco(EnderecoResponse.toResponse(paciente.getEndereco()))
                 .transacoes(
                         paciente.getTransacao() == null
-                                ? Collections.emptyList()
+                                ? List.of()
                                 : paciente.getTransacao().stream()
                                 .map(CarteiraResponse::toResponse)
                                 .toList()
                 )
                 .prontuarios(
                         paciente.getProntuarioDoPaciente() == null
-                                ? Collections.emptyList()
+                                ? List.of()
                                 : paciente.getProntuarioDoPaciente().stream()
                                 .map(ProntuarioResponse::toResponse)
                                 .toList()
                 )
                 .responsaveis(
                         paciente.getResponsaveis() == null
-                                ? Collections.emptyList()
+                                ? List.of()
                                 : paciente.getResponsaveis().stream()
                                 .map(FiliacaoResponse::toResponse)
                                 .toList()

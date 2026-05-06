@@ -1,5 +1,6 @@
 package br.ce.clinica.resource;
 
+import br.ce.clinica.dto.response.ApiResponse;
 import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.scheduler.LembreteScheduler;
 import br.ce.clinica.service.EmailService;
@@ -8,10 +9,8 @@ import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.jboss.resteasy.reactive.RestResponse;
@@ -53,8 +52,24 @@ public class EmailResource {
     @WithSession
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Dispara lembretes de consultas", description = "Executa manualmente a rotina de envio de lembretes de consulta 3 horas antes do horário agendado")
-    public Uni<RestResponse<String>> dispararLembretesConsulta() {
+    public Uni<RestResponse<Void>> dispararLembretesConsulta() {
         return lembreteScheduler.enviarLembretes()
-                .replaceWith(RestResponse.ok("Rotina de lembretes de consulta executada com sucesso"));
+                .replaceWith(RestResponse.ok());
+    }
+
+    @POST
+    @Path("/esqueci-senha/{email}")
+    @WithSession
+    @Operation(summary = "Envia um email para recuperar a senha", description = "Envia um email para recuperar a senha")
+    public Uni<RestResponse<ApiResponse>> enviarEmailEsqueciSenha(
+            @PathParam("email") String email
+    ) {
+        return emailService.esqueciSenha(email)
+                .onItem()
+                .transform(esqueciSenha -> RestResponse.status(RestResponse.Status.CREATED,
+                        ApiResponse.builder()
+                                .message("Email de recuperação de senha enviado com sucesso")
+                                .build()
+                        ));
     }
 }

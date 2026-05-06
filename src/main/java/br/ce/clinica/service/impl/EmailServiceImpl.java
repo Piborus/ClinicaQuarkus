@@ -1,6 +1,9 @@
 package br.ce.clinica.service.impl;
 
 import br.ce.clinica.dto.request.LembreteDeConsultaRequest;
+import br.ce.clinica.exception.NotFoundBusinessException;
+import br.ce.clinica.exception.UnprocessableEntityBusinessException;
+import br.ce.clinica.repository.UsuarioRepository;
 import br.ce.clinica.service.EmailService;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MailTemplate;
@@ -26,10 +29,17 @@ public class EmailServiceImpl implements EmailService {
 
     @Inject
     @Location("mail/lembreteConsulta")
-    MailTemplate template;
+    MailTemplate templateLembrete;
+
+    @Inject
+    @Location("mail/esqueciSenha")
+    MailTemplate templateEsqueciSenha;
 
     @Inject
     ReactiveMailer mailer;
+
+    @Inject
+    UsuarioRepository usuario;
 
     @Override
     public Uni<String> enviarLembreConsulta(
@@ -38,7 +48,7 @@ public class EmailServiceImpl implements EmailService {
             String nomeProfissional,
             String dataConsulta,
             String horaConsulta) {
-        return template.to(destinatario)
+        return templateLembrete.to(destinatario)
                 .subject("Lembrete de Consulta")
                 .data("nomePaciente", nomePaciente)
                 .data("nomeProfissional", nomeProfissional)
@@ -50,7 +60,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public Uni<Void> mandarLembreConsulta(LembreteDeConsultaRequest request) {
-        String html = template
+        String html = templateLembrete
                 .data("nomePaciente", request.getNomePaciente())
                 .data("nomeProfissional", request.getNomeProfissional())
                 .data("especialidade", request.getEspecialidade())
@@ -73,6 +83,33 @@ public class EmailServiceImpl implements EmailService {
                 System.err.println("Erro ao enviar e-mail: " + erro.getMessage())
         ).replaceWithVoid();
     }
+
+    @Override
+    public Uni<Void> esqueciSenha(String email) {
+        return usuario.findByEmail(email)
+                .onItem().ifNull()
+                .failWith(() -> new NotFoundBusinessException("Usuário com email " + email + " não encontrado"))
+                .onItem().ifNotNull()
+                .transformToUni(usuario -> {
+                    String html = templateEsqueciSenha
+                            .data("nomePaciente", usuario.getNome())
+                            .templateInstance().render();
+
+                    Mail mail = Mail.withHtml(email, "Recuperação de Senha", html)
+                            .addInlineAttachment(
+                                    "logotipo.png",
+                                    carregarLogoTemporario(),
+                                    "image/png",
+                                    CONTENT_ID
+                            );
+
+                    return mailer.send(mail)
+                            .onFailure().invoke(erro ->
+                                    new UnprocessableEntityBusinessException("Erro ao enviar e-mail: " + erro.getMessage())
+                            ).replaceWithVoid();
+                });
+    }
+
 
     private File carregarLogoTemporario() {
         try (InputStream inputStream = Thread.currentThread()

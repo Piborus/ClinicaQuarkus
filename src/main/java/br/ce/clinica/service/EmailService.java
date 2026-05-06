@@ -15,4 +15,6 @@ public interface EmailService {
     );
 
     Uni<Void> mandarLembreConsulta(LembreteDeConsultaRequest request);
+
+    Uni<Void> esqueciSenha(String email);
 }

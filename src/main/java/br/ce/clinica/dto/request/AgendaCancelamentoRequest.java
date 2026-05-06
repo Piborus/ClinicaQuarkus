@@ -18,11 +18,4 @@ public class AgendaCancelamentoRequest {
 
     private StatusConfirmacao statusConfirmacao;
 
-    public static AgendaCancelamentoRequest toRequest(Consulta consulta) {
-        return AgendaCancelamentoRequest.builder()
-                .observacao(consulta.getObservacao())
-                .statusConsulta(consulta.getStatusConsulta())
-                .statusConfirmacao(consulta.getStatusConfirmacao())
-                .build();
-    }
 }

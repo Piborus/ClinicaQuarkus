@@ -3,6 +3,7 @@ package br.ce.clinica.resource;
 import br.ce.clinica.dto.request.LoginRequest;
 import br.ce.clinica.dto.request.RefreshTokenRequest;
 import br.ce.clinica.dto.request.UsuarioRequest;
+import br.ce.clinica.dto.response.ApiResponse;
 import br.ce.clinica.dto.response.TokenResponse;
 import br.ce.clinica.dto.response.UsuarioResponse;
 import br.ce.clinica.openapi.ApiDocumentation;
@@ -35,12 +36,16 @@ public class AuthResource {
 
     @POST
     @Operation(summary = "Cadastra usuário", description = "Cadastra um novo usuário no sistema")
-    public Uni<RestResponse<UsuarioResponse>> cadastrar(
+    public Uni<RestResponse<ApiResponse>> cadastrar(
             @Valid UsuarioRequest request
     ){
         return authService.save(request)
                 .onItem().transform(usuario -> RestResponse
-                        .ResponseBuilder.create(RestResponse.Status.CREATED, usuario).build());
+                        .status(RestResponse.Status.CREATED,
+                                ApiResponse.builder()
+                                        .message("Usuario cadastrado com sucesso")
+                                        .build()
+                                ));
     }
 
     @POST

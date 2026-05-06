@@ -1,6 +1,7 @@
 package br.ce.clinica.resource;
 
 import br.ce.clinica.dto.request.PacienteRequest;
+import br.ce.clinica.dto.response.ApiResponse;
 import br.ce.clinica.dto.response.PacienteResponse;
 import br.ce.clinica.dto.response.PacienteResumeResponse;
 import br.ce.clinica.dto.response.PanachePage;
@@ -8,6 +9,7 @@ import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.service.PacienteService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.panache.common.Page;
+import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -36,13 +38,16 @@ public class PacienteResource {
     @POST
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Cria paciente", description = "Cria um novo paciente no sistema")
-    public Uni<RestResponse<PacienteResponse>> salvar(
+    public Uni<RestResponse<ApiResponse>> salvar(
            @Valid PacienteRequest pacienteRequest
     ) {
       return pacienteService.save(pacienteRequest)
               .onItem()
-              .transform(pessoa -> RestResponse
-                      .ResponseBuilder.create(RestResponse.Status.CREATED, pessoa).build());
+              .transform( paciente -> RestResponse.status(RestResponse.Status.CREATED,
+                        ApiResponse.builder()
+                                .message("Paciente criado com sucesso")
+                                .build())
+                      );
 
     }
 
@@ -60,35 +65,50 @@ public class PacienteResource {
     @PATCH
     @Path("delete/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
-    @Operation(summary = "Deleta Paciente", description = "Deleta um paciente pelo id")
-    public Uni<RestResponse<Boolean>> deletarPorId(
+    @Operation(summary = "Deleta Paciente", description = "Desativa um paciente pelo id")
+    public Uni<RestResponse<ApiResponse>> deletarPorId(
             @PathParam("id") Long id
     ) {
         return pacienteService.softDelete(id)
-                .onItem().transform( pessoa -> RestResponse.noContent());
+                .onItem().transform(paciente -> RestResponse.ok(
+                        ApiResponse
+                                .builder()
+                                .message("Paciente desativado com sucesso")
+                                .build()
+                ));
     }
 
     @PATCH
     @Path("restore/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Recupera Paciente", description = "Recupera um paciente pelo id")
-    public Uni<RestResponse<Boolean>> restauraPorId(
+    public Uni<RestResponse<ApiResponse>> restauraPorId(
             @PathParam("id") Long id
     ) {
         return pacienteService.restore(id)
-                .onItem().transform(RestResponse::ok);
+                .onItem().transform(paciente -> RestResponse.ok(
+                        ApiResponse
+                                .builder()
+                                .message("Paciente restaurado com sucesso")
+                                .build()
+                        ));
     }
 
     @PUT
     @Path("/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Atualiza Paciente", description = "Atualiza um paciente pelo id")
-    public Uni<RestResponse<PacienteResumeResponse>> atualizar(
+    public Uni<RestResponse<ApiResponse>> atualizar(
             @PathParam("id") Long id,
             @Valid PacienteRequest pacienteRequest
     ){
         return pacienteService.update(id, pacienteRequest)
-                .onItem().transform( pessoa -> RestResponse.ok());
+                .onItem().transform( paciente -> RestResponse.ok(
+                        ApiResponse
+                                .builder()
+                                .message("Paciente atualizado com sucesso")
+                                .build()
+                ));
     }
 
     @GET
