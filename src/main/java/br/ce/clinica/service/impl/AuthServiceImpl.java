@@ -67,9 +67,15 @@ public class AuthServiceImpl implements AuthService {
 
                     Usuario usuario = Usuario.builder()
                             .nome(request.getNome())
+                            .sobrenome(request.getSobrenome())
+                            .dataNascimento(request.getDataNascimento())
                             .email(request.getEmail())
                             .senha(passwordEncoder.hash(request.getSenha()))
-                            .tipoUsuario(TipoUsuario.PSICOLOGO)
+                            .telefone(request.getTelefone())
+                            .cpf(request.getCpf())
+                            .crp(request.getCrp())
+                            .tipoUsuario(request.getCrp() != null ? TipoUsuario.PSICOLOGO : null)
+                            .especialidade(request.getEspecialidade())
                             .build();
 
                     return usuarioRepository.persist(usuario);
