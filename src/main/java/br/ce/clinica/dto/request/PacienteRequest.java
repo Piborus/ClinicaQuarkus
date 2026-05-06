@@ -29,7 +29,7 @@ public class PacienteRequest {
     @Schema(name = "sexo", description = "Sexo do paciente", examples = {"MASCULINO"})
     private Sexo sexo;
 
-    @Schema(name = "dataNascimento", description = "Data de nascimento do paciente", examples = {"1990-01-01"}, format = "date")
+    @Schema(name = "dataNascimento", description = "Data de nascimento do paciente", examples = {"10/01/1990"}, format = "date")
     @NotNull
     @PastOrPresent(message = "A data de Nascimento do paciente não pode ser no futuro.")
     @JsonFormat(pattern = "dd/MM/yyyy")
