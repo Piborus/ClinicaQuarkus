@@ -1,5 +1,6 @@
 package br.ce.clinica.resource;
 
+import br.ce.clinica.dto.request.EsqueciSenhaRequest;
 import br.ce.clinica.dto.response.ApiResponse;
 import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.scheduler.LembreteScheduler;
@@ -16,7 +17,7 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.jboss.resteasy.reactive.RestResponse;
 
 @Path("/mailer")
-@Produces(MediaType.TEXT_PLAIN)
+@Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
 @ApiDocumentation
 public class EmailResource {
@@ -58,17 +59,17 @@ public class EmailResource {
     }
 
     @POST
-    @Path("/esqueci-senha/{email}")
+    @Path("/esqueci-senha")
     @WithSession
     @Operation(summary = "Envia um email para recuperar a senha", description = "Envia um email para recuperar a senha")
     public Uni<RestResponse<ApiResponse>> enviarEmailEsqueciSenha(
-            @PathParam("email") String email
-    ) {
-        return emailService.esqueciSenha(email)
+            @Valid EsqueciSenhaRequest request
+            ) {
+        return emailService.esqueciSenha(request.getEmail())
                 .onItem()
-                .transform(esqueciSenha -> RestResponse.status(RestResponse.Status.CREATED,
+                .transform(esqueciSenha -> RestResponse.ok(
                         ApiResponse.builder()
-                                .message("Email de recuperação de senha enviado com sucesso")
+                                .message("Se o e-mail estiver cadastrado, enviaremos um código para redefinir sua senha.")
                                 .build()
                         ));
     }

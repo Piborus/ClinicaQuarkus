@@ -3,295 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recuperar Senha - Clínica</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f5f5f5;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 30px 20px;
-            text-align: center;
-            color: #ffffff;
-        }
-
-        .header img {
-            max-width: 120px;
-            height: auto;
-            margin-bottom: 15px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 5px;
-            letter-spacing: -0.5px;
-        }
-
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
-            margin: 0;
-        }
-
-        .content {
-            padding: 40px 30px;
-        }
-
-        .greeting {
-            font-size: 16px;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .greeting strong {
-            color: #667eea;
-        }
-
-        .message {
-            background-color: #f9f9f9;
-            border-left: 4px solid #667eea;
-            padding: 15px 20px;
-            margin: 25px 0;
-            border-radius: 4px;
-            font-size: 15px;
-            line-height: 1.7;
-            color: #555;
-        }
-
-        .cta-container {
-            text-align: center;
-            margin: 35px 0;
-        }
-
-        .cta-button {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff;
-            padding: 14px 40px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 16px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-        }
-
-        .expiry-warning {
-            background-color: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 4px;
-            padding: 12px 16px;
-            margin: 20px 0;
-            font-size: 14px;
-            color: #856404;
-        }
-
-        .expiry-warning strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .code-section {
-            background-color: #f5f5f5;
-            border-radius: 6px;
-            padding: 20px;
-            margin: 25px 0;
-            text-align: center;
-        }
-
-        .code-label {
-            font-size: 12px;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-        }
-
-        .code {
-            font-family: 'Courier New', monospace;
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
-            letter-spacing: 4px;
-            word-break: break-all;
-            user-select: all;
-        }
-
-        .footer {
-            background-color: #f9f9f9;
-            border-top: 1px solid #eee;
-            padding: 20px 30px;
-            text-align: center;
-            font-size: 13px;
-            color: #999;
-            line-height: 1.8;
-        }
-
-        .footer a {
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-
-        .security-notice {
-            background-color: #e7f3ff;
-            border-left: 4px solid #2196F3;
-            padding: 12px 16px;
-            margin: 20px 0;
-            border-radius: 4px;
-            font-size: 13px;
-            color: #0277bd;
-        }
-
-        .security-notice strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .divider {
-            border: 0;
-            border-top: 1px solid #eee;
-            margin: 25px 0;
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                border-radius: 0;
-            }
-
-            .content {
-                padding: 25px 20px;
-            }
-
-            .header {
-                padding: 20px 15px;
-            }
-
-            .cta-button {
-                display: block;
-                width: 100%;
-            }
-
-            .code {
-                font-size: 20px;
-                letter-spacing: 2px;
-            }
-        }
-    </style>
+    <title>Recuperar Senha - Intuitivo Psi</title>
 </head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <img src="cid:logo" alt="Logo Clínica" />
-            <h1>Recuperar Senha</h1>
-            <p>Solicitação de redefinição de senha</p>
-        </div>
+<body style="margin:0;padding:0;background-color:#F4F6F8;font-family:Arial,Helvetica,sans-serif;">
+<table role="presentation" style="border-collapse:collapse;border-spacing:0;background-color:#F4F6F8;margin:0;padding:24px 0;width:100%;">
+    <tr>
+        <td align="center">
+            <table role="presentation" style="border-collapse:collapse;border-spacing:0;width:600px;max-width:600px;background-color:#FFFFFF;border-radius:16px;overflow:hidden;">
 
-        <!-- Content -->
-        <div class="content">
-            <p class="greeting">
-                Olá <strong>{usuario.nome}</strong>,
-            </p>
+                <!-- Header com logo -->
+                <tr>
+                    <td style="background-color:#0F1126;padding:28px 32px 24px 32px;">
+                        <table role="presentation" style="border-collapse:collapse;border-spacing:0;width:100%;">
+                            <tr>
+                                <td align="left" style="vertical-align:middle;">
+                                    <table role="presentation" style="border-collapse:collapse;border-spacing:0;">
+                                        <tr>
+                                            <td style="vertical-align:middle;padding-right:14px;">
+                                                <img src="cid:logo@intuitivopsi.com"
+                                                     alt="Intuitivo Psi"
+                                                     width="54"
+                                                     height="54"
+                                                     style="display:block;border:0;outline:none;text-decoration:none;">
+                                            </td>
+                                            <td style="vertical-align:middle;">
+                                                <div style="margin:0;font-size:18px;line-height:1;color:#FFFFFF;font-weight:bold;">
+                                                    Intuitivo Psi
+                                                </div>
+                                                <div style="margin-top:6px;font-size:11px;line-height:1.4;color:#D7DBE5;letter-spacing:0.8px;text-transform:uppercase;">
+                                                    Software para psicólogos e clínicas
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
 
-            <p class="message">
-                Recebemos uma solicitação para redefinir a senha da sua conta. Se você não fez essa solicitação,
-                ignore este email e sua senha permanecerá segura.
-            </p>
+                <!-- Barra colorida de gradiente -->
+                <tr>
+                    <td style="height:6px;line-height:6px;font-size:0;background:linear-gradient(90deg,#7B5CF6 0%, #4F8BFF 50%, #2EC4B6 100%);">
+                        &nbsp;
+                    </td>
+                </tr>
 
-            <!-- Expiry Warning -->
-            <div class="expiry-warning">
-                <strong>⏱️ Link expira em 24 horas</strong>
-                Este link de recuperação é válido apenas até <strong>{dataExpiracao}</strong>.
-                Após esse período, você precisará solicitar um novo link.
-            </div>
+                <!-- Título e mensagem inicial -->
+                <tr>
+                    <td style="padding:32px 32px 12px 32px;">
+                        <div style="font-size:24px;line-height:1.3;color:#111827;font-weight:bold;margin:0 0 10px 0;">
+                            Recuperar Senha
+                        </div>
+                        <div style="font-size:15px;line-height:1.7;color:#4B5563;margin:0;">
+                            Olá, <strong>{usuario}</strong>! Recebemos uma solicitação para redefinir a senha da sua conta. Confira abaixo as instruções.
+                        </div>
+                    </td>
+                </tr>
 
-            <!-- Code Section -->
-            <div class="code-section">
-                <div class="code-label">Código de verificação</div>
-                <div class="code">{codigoRecuperacao}</div>
-                <p style="font-size: 12px; color: #999; margin-top: 10px;">
-                    Use este código caso não consiga acessar o link abaixo
-                </p>
-            </div>
+                <!-- Aviso de segurança -->
+                <tr>
+                    <td style="padding:12px 32px 0 32px;">
+                        <table role="presentation" style="border-collapse:collapse;border-spacing:0;width:100%;background-color:#FFF9E6;border-left:4px solid #2EC4B6;border-radius:8px;">
+                            <tr>
+                                <td style="padding:14px 16px;font-size:14px;line-height:1.7;color:#4B5563;">
+                                    <strong style="color:#2B1B69;">⏱️ Link expira em 24 horas:</strong> Este link é válido apenas até <strong>{dataExpiracao}</strong>.
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
 
-            <!-- CTA Button -->
-            <div class="cta-container">
-                <a href="{linkRecuperacao}" class="cta-button">
-                    🔐 Redefinir Senha
-                </a>
-            </div>
+                <!-- Mensagem de segurança (se não fez a solicitação) -->
+                <tr>
+                    <td style="padding:20px 32px 0 32px;">
+                        <table role="presentation" style="border-collapse:collapse;border-spacing:0;width:100%;background-color:#F8FAFC;border-left:4px solid #FF6B6B;border-radius:8px;">
+                            <tr>
+                                <td style="padding:14px 16px;font-size:14px;line-height:1.7;color:#4B5563;">
+                                    Se você não fez essa solicitação, <strong>ignore este email</strong> e sua senha permanecerá segura.
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
 
-            <p style="text-align: center; color: #999; font-size: 13px; margin: 20px 0;">
-                Ou copie e cole este endereço no seu navegador:
-            </p>
-            <p style="word-break: break-all; background-color: #f5f5f5; padding: 10px; border-radius: 4px; font-size: 12px; color: #666;">
-                {linkRecuperacao}
-            </p>
+                <!-- Seção de código de verificação -->
+                <tr>
+                    <td style="padding:24px 32px 0 32px;">
+                        <table role="presentation" style="border-collapse:collapse;border-spacing:0;width:100%;border:1px solid #E5E7EB;border-radius:12px;background-color:#FFFFFF;">
+                            <tr>
+                                <td align="center" style="padding:20px 18px;border-bottom:1px solid #E5E7EB;font-size:12px;line-height:1.6;color:#6B7280;text-transform:uppercase;letter-spacing:1px;">
+                                    Código de Verificação
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="center" style="padding:20px 18px;font-family:'Courier New',monospace;font-size:28px;line-height:1.6;color:#2B1B69;font-weight:bold;letter-spacing:4px;">
+                                    {codigoRecuperacao}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="center" style="padding:0 18px 14px 18px;font-size:12px;line-height:1.6;color:#6B7280;">
+                                    Use este código caso não consiga acessar o link abaixo
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
 
-            <hr class="divider">
+                <!-- Botão CTA de redefinição -->
+                <tr>
+                    <td align="center" style="padding:28px 32px 0 32px;">
+                        <a href="{linkRecuperacao}"
+                           style="display:inline-block;background:linear-gradient(90deg,#7B5CF6 0%, #4F8BFF 100%);color:#FFFFFF;padding:14px 42px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;line-height:1.6;">
+                            🔐 Redefinir Senha
+                        </a>
+                    </td>
+                </tr>
 
-            <!-- Security Notice -->
-            <div class="security-notice">
-                <strong>🔒 Proteção de Segurança</strong>
-                Nunca compartilhe este código com ninguém. Nossa equipe nunca pedirá sua senha por email.
-            </div>
+                <!-- Link alternativo -->
+                <tr>
+                    <td style="padding:20px 32px 0 32px;">
+                        <div style="font-size:13px;line-height:1.7;color:#6B7280;text-align:center;margin-bottom:10px;">
+                            Ou copie e cole este endereço no seu navegador:
+                        </div>
+                        <table role="presentation" style="border-collapse:collapse;border-spacing:0;width:100%;background-color:#F8FAFC;border-radius:8px;border:1px solid #E5E7EB;">
+                            <tr>
+                                <td style="padding:12px 16px;font-size:12px;line-height:1.6;color:#4B5563;word-break:break-all;text-align:center">
+                                    {linkRecuperacao}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
 
-            <!-- Instructions -->
-            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 4px; margin: 20px 0; font-size: 14px;">
-                <strong style="color: #333; display: block; margin-bottom: 10px;">📋 Próximos passos:</strong>
-                <ol style="margin: 0; padding-left: 20px; color: #666;">
-                    <li>Clique no botão "Redefinir Senha" acima</li>
-                    <li>Insira uma nova senha segura</li>
-                    <li>Confirme sua nova senha</li>
-                    <li>Faça login com suas novas credenciais</li>
-                </ol>
-            </div>
-        </div>
+                <!-- Avisos de segurança -->
+                <tr>
+                    <td style="padding:24px 32px 0 32px;">
+                        <table role="presentation" style="border-collapse:collapse;border-spacing:0;width:100%;background-color:#E8F4F8;border-left:4px solid #2196F3;border-radius:8px;">
+                            <tr>
+                                <td style="padding:14px 16px;font-size:13px;line-height:1.7;color:#0277BD;">
+                                    <strong style="display:block;margin-bottom:5px;">🔒 Proteção de Segurança</strong>
+                                    Nunca compartilhe este código com ninguém. Nossa equipe nunca pedirá sua senha por email.
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
 
-        <!-- Footer -->
-        <div class="footer">
-            <p>
-                <strong>Clínica - Sistema de Agendamento</strong><br>
-                Este é um email automático. Por favor, não responda.
-            </p>
-            <p style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
-                Recebeu este email por engano?<br>
-                <a href="mailto:suporte@clinica.com">Entre em contato com nosso suporte</a> |
-                <a href="#">Política de Privacidade</a>
-            </p>
-            <p style="margin-top: 10px; font-size: 12px; color: #bbb;">
-                © 2026 Clínica. Todos os direitos reservados.
-            </p>
-        </div>
-    </div>
+                <!-- Próximos passos -->
+                <tr>
+                    <td style="padding:24px 32px 0 32px;">
+                        <div style="font-size:14px;line-height:1.7;color:#111827;font-weight:bold;margin-bottom:10px;">
+                            📋 Próximos passos:
+                        </div>
+                        <ol style="margin:0;padding-left:20px;color:#4B5563;font-size:13px;line-height:1.8;">
+                            <li>Clique no botão "Redefinir Senha" acima</li>
+                            <li>Insira uma nova senha segura</li>
+                            <li>Confirme sua nova senha</li>
+                            <li>Faça login com suas novas credenciais</li>
+                        </ol>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="padding:28px 32px 28px 32px;border-top:1px solid #E5E7EB;">
+                        <table role="presentation" style="border-collapse:collapse;border-spacing:0;width:100%;">
+                            <tr>
+                                <td align="center" style="font-size:12px;line-height:1.7;color:#6B7280;">
+                                    <strong style="color:#2B1B69;">Intuitivo Psi - Sistema de Agendamento</strong><br>
+                                    Este é um email automático. Por favor, não responda.<br><br>
+                                    <a href="mailto:suporte@clinica.com" style="color:#2B1B69;text-decoration:none;">Suporte</a> |
+                                    <a href="#" style="color:#2B1B69;text-decoration:none;">Política de Privacidade</a><br><br>
+                                    © 2026 Clínica. Todos os direitos reservados.
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
 </body>
 </html>

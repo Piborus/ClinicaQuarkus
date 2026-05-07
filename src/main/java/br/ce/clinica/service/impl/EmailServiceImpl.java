@@ -4,6 +4,7 @@ import br.ce.clinica.dto.request.LembreteDeConsultaRequest;
 import br.ce.clinica.exception.NotFoundBusinessException;
 import br.ce.clinica.exception.UnprocessableEntityBusinessException;
 import br.ce.clinica.repository.UsuarioRepository;
+import br.ce.clinica.security.CodigoRecuperacao;
 import br.ce.clinica.service.EmailService;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MailTemplate;
@@ -19,6 +20,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @ApplicationScoped
 public class EmailServiceImpl implements EmailService {
@@ -36,10 +40,13 @@ public class EmailServiceImpl implements EmailService {
     MailTemplate templateEsqueciSenha;
 
     @Inject
+    CodigoRecuperacao codigoRecuperacao;
+
+    @Inject
     ReactiveMailer mailer;
 
     @Inject
-    UsuarioRepository usuario;
+    UsuarioRepository usuarioRepository;
 
     @Override
     public Uni<String> enviarLembreConsulta(
@@ -86,13 +93,19 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public Uni<Void> esqueciSenha(String email) {
-        return usuario.findByEmail(email)
+        return usuarioRepository.findByEmail(email)
                 .onItem().ifNull()
-                .failWith(() -> new NotFoundBusinessException("Usuário com email " + email + " não encontrado"))
+                .failWith(() -> new NotFoundBusinessException(null))
                 .onItem().ifNotNull()
                 .transformToUni(usuario -> {
+                    
+                    String expiracao = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
                     String html = templateEsqueciSenha
-                            .data("nomePaciente", usuario.getNome())
+                            .data("usuario", usuario.getNome())
+                            .data("codigoRecuperacao", codigoRecuperacao.gerarCodigoRecuperacao())
+                            .data("dataExpiracao", expiracao)
+                            .data("linkRecuperacao", "https://www.google.com/?hl=pt_BR")
                             .templateInstance().render();
 
                     Mail mail = Mail.withHtml(email, "Recuperação de Senha", html)
@@ -125,4 +138,5 @@ public class EmailServiceImpl implements EmailService {
             throw new RuntimeException("Erro ao carregar logotipo do e-mail.", e);
         }
     }
+
 }
