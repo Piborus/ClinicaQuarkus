@@ -21,5 +21,18 @@ public class HashService {
         }
     }
 
+    public boolean verify(String valorInformado, String hashArmazenado) {
+        if (valorInformado == null || hashArmazenado == null) {
+            return false;
+        }
+
+        String hashInformado = hash(valorInformado);
+
+        return MessageDigest.isEqual(
+                hashInformado.getBytes(StandardCharsets.UTF_8),
+                hashArmazenado.getBytes(StandardCharsets.UTF_8)
+        );
+    }
+
 
 }

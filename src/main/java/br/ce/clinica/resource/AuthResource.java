@@ -1,11 +1,8 @@
 package br.ce.clinica.resource;
 
-import br.ce.clinica.dto.request.LoginRequest;
-import br.ce.clinica.dto.request.RefreshTokenRequest;
-import br.ce.clinica.dto.request.UsuarioRequest;
+import br.ce.clinica.dto.request.*;
 import br.ce.clinica.dto.response.ApiResponse;
 import br.ce.clinica.dto.response.TokenResponse;
-import br.ce.clinica.dto.response.UsuarioResponse;
 import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.service.AuthService;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
@@ -78,5 +75,35 @@ public class AuthResource {
     ) {
         return authService.logout(token)
                 .onItem().transform(refreshToken -> RestResponse.noContent());
+    }
+
+    @POST
+    @Path("/esqueci-senha")
+    @Operation(summary = "Envia um email para recuperar a senha", description = "Envia um email para recuperar a senha")
+    public Uni<RestResponse<ApiResponse>> enviarEmailEsqueciSenha(
+            @Valid EsqueciSenhaRequest request
+    ) {
+        return authService.esqueciSenha(request.getEmail())
+                .onItem()
+                .transform(esqueciSenha -> RestResponse.ok(
+                        ApiResponse.builder()
+                                .message("Se o e-mail estiver cadastrado, enviaremos um código para redefinir sua senha.")
+                                .build()
+                ));
+    }
+
+    @POST
+    @Path("/redefinir-senha")
+    @Operation(summary = "Redefinir senha", description = "Redefine a senha do usuário utilizando um código de verificação enviado por email")
+    public Uni<RestResponse<ApiResponse>> redefinirSenha(
+            @Valid RedefinirSenhaRequest request
+    ){
+        return authService.redefinirSenha(request)
+                .onItem()
+                .transform(redefinirSenha -> RestResponse.ok(
+                        ApiResponse.builder()
+                                .message("Senha redefinida com sucesso")
+                                .build()
+                ));
     }
 }

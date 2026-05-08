@@ -1,6 +1,7 @@
 package br.ce.clinica.service.impl;
 
 import br.ce.clinica.dto.request.LoginRequest;
+import br.ce.clinica.dto.request.RedefinirSenhaRequest;
 import br.ce.clinica.dto.request.RefreshTokenRequest;
 import br.ce.clinica.dto.request.UsuarioRequest;
 import br.ce.clinica.dto.response.TokenResponse;
@@ -10,10 +11,9 @@ import br.ce.clinica.enums.TipoUsuario;
 import br.ce.clinica.exception.BadRequestBusinessException;
 import br.ce.clinica.exception.UnauthorizedBusinessException;
 import br.ce.clinica.repository.UsuarioRepository;
-import br.ce.clinica.security.GenerateToken;
-import br.ce.clinica.security.PasswordEnconder;
-import br.ce.clinica.security.RefreshToken;
+import br.ce.clinica.security.*;
 import br.ce.clinica.service.AuthService;
+import br.ce.clinica.service.EmailService;
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -34,7 +34,14 @@ public class AuthServiceImpl implements AuthService {
     @Inject
     RefreshToken refreshToken;
 
+    @Inject
+    RecuperacaoSenhaRedisService recuperacaoSenhaRedisService;
 
+    @Inject
+    CodigoRecuperacao codigoRecuperacao;
+
+    @Inject
+    EmailService emailService;
 
     @Override
     public Uni<TokenResponse> login(LoginRequest request) {
@@ -99,6 +106,66 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Uni<Void> logout(RefreshTokenRequest token) {
         return refreshToken.revokeRefreshToken(token.getToken());
+
     }
+
+
+    @Override
+    public Uni<Void> esqueciSenha(String email) {
+        String emailNormalizado = email.trim().toLowerCase();
+
+
+        return usuarioRepository.findByEmail(emailNormalizado)
+                .onItem().transformToUni
+                        (usuario -> {
+                                    if (usuario == null) {
+                                        return Uni.createFrom().voidItem();
+                                    }
+
+                                    String codigo = codigoRecuperacao.gerarCodigoRecuperacao();
+
+                                    return recuperacaoSenhaRedisService.salvarCodigo(usuario.getId(), codigo)
+                                            .onItem()
+                                            .transformToUni(result -> emailService.enviarEmailRecuperacaoSenha(
+                                                            usuario.getEmail(),
+                                                            usuario.getNome(),
+                                                            codigo
+                                                    )
+                                            );
+
+                                }
+                        );
+
+    }
+
+    @Override
+    public Uni<Void> redefinirSenha(RedefinirSenhaRequest request) {
+        String emailNormalizado = request.getEmail().trim().toLowerCase();
+
+        return Panache.withTransaction(() -> usuarioRepository.findByEmail(emailNormalizado)
+                .onItem().ifNull().failWith(() -> new BadRequestBusinessException("Codigo expirado ou inválido")
+                ).onItem().ifNotNull().transformToUni(usuario -> recuperacaoSenhaRedisService.tentativasExcedidas(usuario.getId())
+                        .onItem().transformToUni(excedeu -> {
+                            if (Boolean.TRUE.equals(excedeu)) {
+                                return Uni.createFrom().failure(new BadRequestBusinessException("Codigo expirado ou inválido"));
+                            }
+                            return recuperacaoSenhaRedisService.codigoValido(usuario.getId(), request.getCodigo())
+                                    .onItem().transformToUni(codigoValido -> {
+                                        if (!Boolean.TRUE.equals(codigoValido)) {
+                                            return recuperacaoSenhaRedisService.incrementarTentativas(usuario.getId())
+                                                    .onItem().transformToUni(totalTentativas ->
+                                                            Uni.createFrom().failure(new BadRequestBusinessException("Codigo expirado ou inválido")));
+                                        }
+                                        usuario.setSenha(passwordEncoder.hash(request.getNovaSenha()));
+                                        return usuarioRepository.persist(usuario)
+                                                .onItem().transformToUni(ignored ->
+                                                        recuperacaoSenhaRedisService.removerCodigo(usuario.getId())
+                                                );
+                                    });
+                        })
+                )
+        );
+    }
+
 
 }

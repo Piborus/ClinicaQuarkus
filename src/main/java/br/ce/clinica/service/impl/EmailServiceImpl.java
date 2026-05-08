@@ -1,7 +1,6 @@
 package br.ce.clinica.service.impl;
 
 import br.ce.clinica.dto.request.LembreteDeConsultaRequest;
-import br.ce.clinica.exception.NotFoundBusinessException;
 import br.ce.clinica.exception.UnprocessableEntityBusinessException;
 import br.ce.clinica.repository.UsuarioRepository;
 import br.ce.clinica.security.CodigoRecuperacao;
@@ -20,9 +19,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @ApplicationScoped
 public class EmailServiceImpl implements EmailService {
@@ -92,35 +88,34 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public Uni<Void> esqueciSenha(String email) {
-        return usuarioRepository.findByEmail(email)
-                .onItem().ifNull()
-                .failWith(() -> new NotFoundBusinessException(null))
-                .onItem().ifNotNull()
-                .transformToUni(usuario -> {
-                    
-                    String expiracao = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    public Uni<Void> enviarEmailRecuperacaoSenha(
+            String email,
+            String nomeUsuario,
+            String codigo
+    ) {
+        String html = templateEsqueciSenha
+                .data("usuario", nomeUsuario)
+                .data("codigoRecuperacao", codigo)
+                .data("dataExpiracao", "10 minutos")
+                .data("linkRecuperacao", "https://www.google.com/?hl=pt_BR")
+                .templateInstance()
+                .render();
 
-                    String html = templateEsqueciSenha
-                            .data("usuario", usuario.getNome())
-                            .data("codigoRecuperacao", codigoRecuperacao.gerarCodigoRecuperacao())
-                            .data("dataExpiracao", expiracao)
-                            .data("linkRecuperacao", "https://www.google.com/?hl=pt_BR")
-                            .templateInstance().render();
+        Mail mail = Mail.withHtml(email, "Recuperação de Senha", html)
+                .addInlineAttachment(
+                        "logotipo.png",
+                        carregarLogoTemporario(),
+                        "image/png",
+                        CONTENT_ID
+                );
 
-                    Mail mail = Mail.withHtml(email, "Recuperação de Senha", html)
-                            .addInlineAttachment(
-                                    "logotipo.png",
-                                    carregarLogoTemporario(),
-                                    "image/png",
-                                    CONTENT_ID
-                            );
-
-                    return mailer.send(mail)
-                            .onFailure().invoke(erro ->
-                                    new UnprocessableEntityBusinessException("Erro ao enviar e-mail: " + erro.getMessage())
-                            ).replaceWithVoid();
-                });
+        return mailer.send(mail)
+                .onFailure().transform(erro ->
+                        new UnprocessableEntityBusinessException(
+                                "Não foi possível enviar o e-mail de recuperação de senha."
+                        )
+                )
+                .replaceWithVoid();
     }
 
 

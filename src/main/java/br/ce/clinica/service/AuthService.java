@@ -1,6 +1,7 @@
 package br.ce.clinica.service;
 
 import br.ce.clinica.dto.request.LoginRequest;
+import br.ce.clinica.dto.request.RedefinirSenhaRequest;
 import br.ce.clinica.dto.request.RefreshTokenRequest;
 import br.ce.clinica.dto.request.UsuarioRequest;
 import br.ce.clinica.dto.response.TokenResponse;
@@ -16,5 +17,9 @@ public interface AuthService {
     Uni<TokenResponse> refreshToken(String refreshToken);
 
     Uni<Void> logout(RefreshTokenRequest token);
+
+    Uni<Void> esqueciSenha(String email);
+
+    Uni<Void> redefinirSenha(RedefinirSenhaRequest request);
 
 }

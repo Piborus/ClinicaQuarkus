@@ -1,7 +1,5 @@
 package br.ce.clinica.resource;
 
-import br.ce.clinica.dto.request.EsqueciSenhaRequest;
-import br.ce.clinica.dto.response.ApiResponse;
 import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.scheduler.LembreteScheduler;
 import br.ce.clinica.service.EmailService;
@@ -10,7 +8,6 @@ import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -20,6 +17,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
 @ApiDocumentation
+@WithSession
 public class EmailResource {
 
     @Inject
@@ -50,27 +48,10 @@ public class EmailResource {
 
     @POST
     @Path("/lembrete/consultas/disparar")
-    @WithSession
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Dispara lembretes de consultas", description = "Executa manualmente a rotina de envio de lembretes de consulta 3 horas antes do horário agendado")
     public Uni<RestResponse<Void>> dispararLembretesConsulta() {
         return lembreteScheduler.enviarLembretes()
                 .replaceWith(RestResponse.ok());
-    }
-
-    @POST
-    @Path("/esqueci-senha")
-    @WithSession
-    @Operation(summary = "Envia um email para recuperar a senha", description = "Envia um email para recuperar a senha")
-    public Uni<RestResponse<ApiResponse>> enviarEmailEsqueciSenha(
-            @Valid EsqueciSenhaRequest request
-            ) {
-        return emailService.esqueciSenha(request.getEmail())
-                .onItem()
-                .transform(esqueciSenha -> RestResponse.ok(
-                        ApiResponse.builder()
-                                .message("Se o e-mail estiver cadastrado, enviaremos um código para redefinir sua senha.")
-                                .build()
-                        ));
     }
 }
