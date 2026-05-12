@@ -19,7 +19,6 @@ public class ErrorResponse {
     private String instance;
     private OffsetDateTime timestamp;
 
-    // campos extras permitidos pelo RFC
     private String errorCode;
     private List<ErrorObject> errors;
 

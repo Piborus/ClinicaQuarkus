@@ -1,6 +1,7 @@
 package br.ce.clinica.resource;
 
 import br.ce.clinica.dto.request.ProntuarioRequest;
+import br.ce.clinica.dto.response.ApiResponse;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.dto.response.ProntuarioResponse;
 import br.ce.clinica.dto.response.ProntuarioResumeResponse;
@@ -37,13 +38,17 @@ public class ProntuarioResource {
     @Operation(summary = "Cria um prontuario do paciente",
             description = "Cria um novo prontuario do paciente no sistema")
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
-    public Uni<RestResponse<ProntuarioResponse>> salvar(
+    public Uni<RestResponse<ApiResponse>> salvar(
             @Valid ProntuarioRequest prontuarioRequest
     ) {
         return prontuarioService.save(prontuarioRequest)
                 .onItem()
                 .transform(prontuarioResponse -> RestResponse
-                        .ResponseBuilder.create(RestResponse.Status.CREATED, prontuarioResponse).build());
+                        .status(RestResponse.Status.CREATED,
+                                ApiResponse.builder()
+                                        .message("Prontuario do paciente criado com sucesso")
+                                        .build()
+                                ));
     }
 
     @GET
@@ -64,11 +69,15 @@ public class ProntuarioResource {
     @Operation(summary = "Deleta um prontuario do paciente pelo id",
             description = "Deleta um prontuario do paciente pelo id no sistema")
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
-    public Uni<RestResponse<Boolean>> deletarPorId(
+    public Uni<RestResponse<ApiResponse>> deletarPorId(
             @PathParam("id") Long id
     ) {
         return prontuarioService.deleteById(id)
-                .onItem().transform(prontuario -> RestResponse.noContent());
+                .onItem().transform(prontuario -> RestResponse.ok(
+                        ApiResponse.builder()
+                                .message("Prontuario do paciente deletado com sucesso")
+                                .build()
+                ));
     }
 
     @PUT
@@ -76,12 +85,16 @@ public class ProntuarioResource {
     @Operation(summary = "Atualiza um prontuario do paciente pelo id",
             description = "Atualiza um prontuario do paciente pelo id no sistema")
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
-    public Uni<RestResponse<ProntuarioResumeResponse>> atualizar(
+    public Uni<RestResponse<ApiResponse>> atualizar(
             @PathParam("id") Long id,
             @Valid ProntuarioRequest prontuarioRequest
     ) {
         return prontuarioService.update(id, prontuarioRequest)
-                .onItem().transform(prontuario -> RestResponse.ok(prontuario));
+                .onItem().transform(prontuario -> RestResponse.ok(
+                        ApiResponse.builder()
+                                .message("Prontuario do paciente atualizado com sucesso")
+                                .build()
+                ));
     }
 
     @GET

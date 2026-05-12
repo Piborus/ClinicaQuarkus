@@ -13,6 +13,9 @@ import java.util.List;
 @NoArgsConstructor
 public class AntecedenteFamiliarRequest {
 
+    @Schema(name = "tiposAntecedentes",
+            description = "Tipos de antecedentes familiares",
+            examples = {"SUICIDIO"})
     private List<TipoAntecedenteFamiliar> tiposAntecedentes;
 
     @Schema(name = "descricao",

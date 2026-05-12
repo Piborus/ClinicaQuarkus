@@ -1,6 +1,9 @@
 package br.ce.clinica.service.impl;
 
 import br.ce.clinica.dto.request.LembreteDeConsultaRequest;
+import br.ce.clinica.exception.UnprocessableEntityBusinessException;
+import br.ce.clinica.repository.UsuarioRepository;
+import br.ce.clinica.security.CodigoRecuperacao;
 import br.ce.clinica.service.EmailService;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MailTemplate;
@@ -26,10 +29,20 @@ public class EmailServiceImpl implements EmailService {
 
     @Inject
     @Location("mail/lembreteConsulta")
-    MailTemplate template;
+    MailTemplate templateLembrete;
+
+    @Inject
+    @Location("mail/esqueciSenha")
+    MailTemplate templateEsqueciSenha;
+
+    @Inject
+    CodigoRecuperacao codigoRecuperacao;
 
     @Inject
     ReactiveMailer mailer;
+
+    @Inject
+    UsuarioRepository usuarioRepository;
 
     @Override
     public Uni<String> enviarLembreConsulta(
@@ -38,7 +51,7 @@ public class EmailServiceImpl implements EmailService {
             String nomeProfissional,
             String dataConsulta,
             String horaConsulta) {
-        return template.to(destinatario)
+        return templateLembrete.to(destinatario)
                 .subject("Lembrete de Consulta")
                 .data("nomePaciente", nomePaciente)
                 .data("nomeProfissional", nomeProfissional)
@@ -50,7 +63,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public Uni<Void> mandarLembreConsulta(LembreteDeConsultaRequest request) {
-        String html = template
+        String html = templateLembrete
                 .data("nomePaciente", request.getNomePaciente())
                 .data("nomeProfissional", request.getNomeProfissional())
                 .data("especialidade", request.getEspecialidade())
@@ -74,6 +87,38 @@ public class EmailServiceImpl implements EmailService {
         ).replaceWithVoid();
     }
 
+    @Override
+    public Uni<Void> enviarEmailRecuperacaoSenha(
+            String email,
+            String nomeUsuario,
+            String codigo
+    ) {
+        String html = templateEsqueciSenha
+                .data("usuario", nomeUsuario)
+                .data("codigoRecuperacao", codigo)
+                .data("dataExpiracao", "10 minutos")
+                .data("linkRecuperacao", "https://www.google.com/?hl=pt_BR")
+                .templateInstance()
+                .render();
+
+        Mail mail = Mail.withHtml(email, "Recuperação de Senha", html)
+                .addInlineAttachment(
+                        "logotipo.png",
+                        carregarLogoTemporario(),
+                        "image/png",
+                        CONTENT_ID
+                );
+
+        return mailer.send(mail)
+                .onFailure().transform(erro ->
+                        new UnprocessableEntityBusinessException(
+                                "Não foi possível enviar o e-mail de recuperação de senha."
+                        )
+                )
+                .replaceWithVoid();
+    }
+
+
     private File carregarLogoTemporario() {
         try (InputStream inputStream = Thread.currentThread()
                 .getContextClassLoader()
@@ -88,4 +133,5 @@ public class EmailServiceImpl implements EmailService {
             throw new RuntimeException("Erro ao carregar logotipo do e-mail.", e);
         }
     }
+
 }

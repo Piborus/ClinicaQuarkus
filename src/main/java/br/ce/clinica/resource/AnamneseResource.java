@@ -2,6 +2,7 @@ package br.ce.clinica.resource;
 
 import br.ce.clinica.dto.request.AnamneseRequest;
 import br.ce.clinica.dto.response.AnamneseResponse;
+import br.ce.clinica.dto.response.ApiResponse;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.service.AnamneseService;
@@ -35,26 +36,34 @@ public class AnamneseResource {
     @POST
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Salva anamnese", description = "Salva uma nova anamnese no sistema")
-    public Uni<RestResponse<AnamneseResponse>> salvar(
+    public Uni<RestResponse<ApiResponse>> salvar(
            @Valid AnamneseRequest anamneseRequest
     ){
         return anamneseService.save(anamneseRequest)
                 .onItem()
-                .transform(anamnese -> RestResponse
-                        .ResponseBuilder.create(RestResponse.Status.CREATED, anamnese).build());
+                .transform(anamnese -> RestResponse.status(
+                        (RestResponse.Status.CREATED),
+                        ApiResponse.builder()
+                                .message("Anamnese criada com sucesso")
+                                .build()
+                        ));
     }
 
     @PUT
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Path("/{id}")
     @Operation(summary = "Atualiza anamnese", description = "Atualiza uma anamnese no sistema")
-    public Uni<RestResponse<AnamneseResponse>> atualizar(
+    public Uni<RestResponse<ApiResponse>> atualizar(
             @PathParam("id") Long id,
             @Valid AnamneseRequest anamneseRequest
     ){
         return anamneseService.update(id, anamneseRequest)
                 .onItem()
-                .transform(RestResponse::ok);
+                .transform(anamnese -> RestResponse.ok(
+                        ApiResponse.builder()
+                                .message("Anamnese atualizada com sucesso")
+                                .build()
+                ));
     }
 
     @GET

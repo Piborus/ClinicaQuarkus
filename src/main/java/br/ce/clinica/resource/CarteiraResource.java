@@ -1,6 +1,7 @@
 package br.ce.clinica.resource;
 
 import br.ce.clinica.dto.request.CarteiraRequest;
+import br.ce.clinica.dto.response.ApiResponse;
 import br.ce.clinica.dto.response.CarteiraResumeResponse;
 import br.ce.clinica.dto.response.PanachePage;
 import br.ce.clinica.openapi.ApiDocumentation;
@@ -36,13 +37,17 @@ public class CarteiraResource {
     @POST
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Cria uma Transação", description = "Cria uma transação para um paciente no sistema")
-    public Uni<RestResponse<CarteiraResumeResponse>> salvar (
+    public Uni<RestResponse<ApiResponse>> salvar (
             @Valid CarteiraRequest carteiraRequest
     ){
         return carteiraService.save(carteiraRequest)
                 .onItem()
                 .transform(transacaoResumeResponse -> RestResponse
-                        .ResponseBuilder.create(RestResponse.Status.CREATED, transacaoResumeResponse).build());
+                        .status(RestResponse.Status.CREATED,
+                                ApiResponse.builder()
+                                        .message("Transação criada com sucesso")
+                                        .build()
+                                ));
     }
 
     @GET
@@ -74,13 +79,17 @@ public class CarteiraResource {
     @PUT
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Path("/{id}")
-    public Uni<RestResponse<CarteiraResumeResponse>> atualizar(
+    public Uni<RestResponse<ApiResponse>> atualizar(
             @PathParam("id") Long id,
             @Valid CarteiraRequest carteiraRequest
     ) {
         return carteiraService.update(id, carteiraRequest)
                 .onItem()
-                .transform(RestResponse::ok);
+                .transform(transacao -> RestResponse.ok(
+                        ApiResponse.builder()
+                                .message("Transação atualizada com sucesso")
+                                .build()
+                ));
     }
 
     @GET

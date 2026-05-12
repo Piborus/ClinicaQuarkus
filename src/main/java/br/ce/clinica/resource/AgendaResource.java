@@ -1,6 +1,7 @@
 package br.ce.clinica.resource;
 
 import br.ce.clinica.dto.request.AgendaRequest;
+import br.ce.clinica.dto.response.ApiResponse;
 import br.ce.clinica.dto.response.ConsultaResponse;
 import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.service.AgendaService;
@@ -35,25 +36,34 @@ public class AgendaResource {
     @POST
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Cadastra consulta", description = "Cadastra uma nova consulta no sistema")
-    public Uni<RestResponse<ConsultaResponse>> cadastrar(
+    public Uni<RestResponse<ApiResponse>> cadastrar(
             @Valid AgendaRequest agendaRequest
     ){
         return agendaService.scheduleConsultation(agendaRequest)
                 .onItem()
-                .transform(consultaResponse ->
-                        RestResponse.ResponseBuilder.create(RestResponse.Status.CREATED, consultaResponse).build());
+                .transform(consulta ->
+                        RestResponse.status(RestResponse.Status.CREATED,
+                                ApiResponse
+                                        .builder()
+                                        .message("Consulta Registrada com Sucesso")
+                                        .build())
+                        );
     }
 
     @PATCH
     @Path("/cancelar/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Cancela consulta", description = "Cancela uma consulta no sistema")
-    public Uni<RestResponse<Void>> cancelar(
+    public Uni<RestResponse<ApiResponse>> cancelar(
             @PathParam("id") Long id
 //            @Valid AgendaCancelamentoRequest agendaCancelamentoRequest
     ) {
         return agendaService.cancelConsultation(id)
-                .onItem().transform(RestResponse::ok);
+                .onItem().transform(consulta -> RestResponse.ok(
+                ApiResponse.builder()
+                        .message("Consulta cancelado com sucesso")
+                        .build()
+                        ));
     }
 
     @GET

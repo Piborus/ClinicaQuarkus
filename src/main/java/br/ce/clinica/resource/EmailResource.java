@@ -8,18 +8,16 @@ import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.jboss.resteasy.reactive.RestResponse;
 
 @Path("/mailer")
-@Produces(MediaType.TEXT_PLAIN)
+@Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
 @ApiDocumentation
+@WithSession
 public class EmailResource {
 
     @Inject
@@ -50,11 +48,10 @@ public class EmailResource {
 
     @POST
     @Path("/lembrete/consultas/disparar")
-    @WithSession
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Dispara lembretes de consultas", description = "Executa manualmente a rotina de envio de lembretes de consulta 3 horas antes do horário agendado")
-    public Uni<RestResponse<String>> dispararLembretesConsulta() {
+    public Uni<RestResponse<Void>> dispararLembretesConsulta() {
         return lembreteScheduler.enviarLembretes()
-                .replaceWith(RestResponse.ok("Rotina de lembretes de consulta executada com sucesso"));
+                .replaceWith(RestResponse.ok());
     }
 }

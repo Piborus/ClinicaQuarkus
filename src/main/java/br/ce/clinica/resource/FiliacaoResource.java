@@ -2,6 +2,7 @@ package br.ce.clinica.resource;
 
 
 import br.ce.clinica.dto.request.FiliacaoRequest;
+import br.ce.clinica.dto.response.ApiResponse;
 import br.ce.clinica.dto.response.FiliacaoResponse;
 import br.ce.clinica.openapi.ApiDocumentation;
 import br.ce.clinica.service.FiliacaoService;
@@ -47,13 +48,17 @@ public class FiliacaoResource {
     @Path("/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PSICOLOGO"})
     @Operation(summary = "Atualiza uma filiação", description = "Atualiza os dados de uma filiação no sistema")
-    public Uni<RestResponse<FiliacaoResponse>> atualizar(
+    public Uni<RestResponse<ApiResponse>> atualizar(
             @PathParam("id") Long id,
             @Valid FiliacaoRequest filiacaoRequest
             )
     {
         return filiacaoService.update(id, filiacaoRequest)
-                .onItem().transform(RestResponse::ok);
+                .onItem().transform(filiacao -> RestResponse.ok(
+                        ApiResponse.builder()
+                                .message("Filiação atualizada com sucesso.")
+                                .build()
+                ));
     }
 
 //    @DELETE

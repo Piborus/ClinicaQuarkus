@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @APIResponses({
         @APIResponse(
                 responseCode = "200",
-                description = "Requisição bem-sucedida"
+                description = "Requisição bem sucedida"
         ),
         @APIResponse(
                 responseCode = "201",
