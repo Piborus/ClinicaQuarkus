@@ -13,14 +13,13 @@ public class RedefinirSenhaRequest {
 
     @NotBlank(message = "Código é obrigatório")
     @Pattern(regexp = "\\d{6}", message = "Código deve conter exatamente 6 caracteres alfanuméricos")
-    @Schema(description = "Código de recuperação enviado por email", example = "123456")
+    @Schema(description = "Código de recuperação enviado por email", examples = {"123456"})
     private String codigo;
 
     @NotBlank(message = "Email é obrigatório")
     @Email(message = "Email deve ser válido")
     @Schema(description = "Email do usuário para o qual a senha será redefinida", examples = {"demo@email.com"})
     private String email;
-
 
     @NotBlank
     @Pattern(

@@ -51,11 +51,11 @@ public class RecuperacaoSenhaRedisService {
         ReactiveValueCommands<String, String> valueCommands = redisDataSource.value(String.class, String.class);
 
         String chaveCodigo = montarChaveCodigo(usuarioId);
-        String codioHashInformado = hashService.hash(codigoInformado);
+        //String codioHashInformado = hashService.hash(codigoInformado);
 
         return valueCommands.get(chaveCodigo)
                 .onItem().ifNull().failWith(() -> new BadRequestBusinessException("Código inválido ou expirado."))
-                .onItem().transform(codigoHashArmazenado -> hashService.verify(codioHashInformado, codigoHashArmazenado));
+                .onItem().transform(codigoHashArmazenado -> hashService.verify(codigoInformado, codigoHashArmazenado));
 
     }
 
