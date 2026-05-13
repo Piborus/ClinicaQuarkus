@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDate;
-
 @Getter
 @Builder
 @AllArgsConstructor
@@ -27,7 +25,6 @@ public class UsuarioResponse {
         return UsuarioResponse.builder()
                 .id(usuario.getId())
                 .nome(usuario.getNome())
-                .sobrenome(usuario.getSobrenome())
                 .email(usuario.getEmail())
                 .tipoUsuario(usuario.getTipoUsuario())
                 .build();

@@ -22,9 +22,6 @@ public class Usuario extends BaseAuditEntity {
     @Column(name = "nome", nullable = false)
     private String nome;
 
-    @Column(name = "sobrenome", nullable = false)
-    private String sobrenome;
-
     @Column(name = "data_nascimento", nullable = false)
     private LocalDate dataNascimento;
 
@@ -54,5 +51,8 @@ public class Usuario extends BaseAuditEntity {
     
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Consulta> consultas;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Paciente> pacientes;
 
 }
