@@ -84,7 +84,14 @@ public class AuthServiceImpl implements AuthService {
                             .especialidade(request.getEspecialidade())
                             .build();
 
-                    return usuarioRepository.persist(usuario);
+                    return usuarioRepository.persist(usuario)
+                            .onItem().transformToUni(email -> emailService.enviarEmailBemVindo(
+                                            usuario.getEmail(),
+                                            usuario.getNome(),
+                                            usuario.getDataCriacao().toLocalDate()
+                                    )
+                                    .onItem().transformToUni(ignored -> Uni.createFrom().item(usuario))
+                            );
                 })
                 .map(UsuarioResponse::toResponse));
     }

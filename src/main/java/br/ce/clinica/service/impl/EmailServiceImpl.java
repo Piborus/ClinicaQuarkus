@@ -2,8 +2,6 @@ package br.ce.clinica.service.impl;
 
 import br.ce.clinica.dto.request.LembreteDeConsultaRequest;
 import br.ce.clinica.exception.UnprocessableEntityBusinessException;
-import br.ce.clinica.repository.UsuarioRepository;
-import br.ce.clinica.security.CodigoRecuperacao;
 import br.ce.clinica.service.EmailService;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MailTemplate;
@@ -19,6 +17,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @ApplicationScoped
 public class EmailServiceImpl implements EmailService {
@@ -36,13 +36,11 @@ public class EmailServiceImpl implements EmailService {
     MailTemplate templateEsqueciSenha;
 
     @Inject
-    CodigoRecuperacao codigoRecuperacao;
+    @Location("mail/bemVindo")
+    MailTemplate templateBemVindo;
 
     @Inject
     ReactiveMailer mailer;
-
-    @Inject
-    UsuarioRepository usuarioRepository;
 
     @Override
     public Uni<String> enviarLembreConsulta(
@@ -116,6 +114,30 @@ public class EmailServiceImpl implements EmailService {
                         )
                 )
                 .replaceWithVoid();
+    }
+
+    @Override
+    public Uni<Void> enviarEmailBemVindo(String email, String nomeUsuario, LocalDate dataCriacao ) {
+        String html = templateBemVindo
+                .data("usuario", nomeUsuario)
+                .data("email", email)
+                .data("dataCriacao", dataCriacao.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+                .templateInstance()
+                .render();
+
+        Mail mail = Mail.withHtml(email, "Seja bem-vindo(a)!", html)
+                .addInlineAttachment(
+                        "logotipo.png",
+                        carregarLogoTemporario(),
+                        "image/png",
+                        CONTENT_ID
+                );
+
+        return mailer.send(mail)
+                .onFailure().transform(erro ->
+                        new UnprocessableEntityBusinessException(
+                                "Não foi possível enviar o e-mail de boas-vindas.")
+                        ).replaceWithVoid();
     }
 
 
