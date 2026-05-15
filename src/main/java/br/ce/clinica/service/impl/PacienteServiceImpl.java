@@ -45,6 +45,9 @@ public class PacienteServiceImpl implements PacienteService {
     @Inject
     AnamneseRepository anamneseRepository;
 
+    @Inject
+    UsuarioRepository usuarioRepository;
+
     private static final List<String> SORT_FIELDS_ALLOWED = List.of(
             "id",
             "nome",
@@ -78,6 +81,11 @@ public class PacienteServiceImpl implements PacienteService {
                             paciente.setTelefone(pacienteRequest.getTelefone());
                             paciente.setEmail(pacienteRequest.getEmail());
                             paciente.setIdade(pacienteRequest.getIdade());
+                            paciente.setReligiao(pacienteRequest.getReligiao());
+                            paciente.setNaturalidade(pacienteRequest.getNaturalidade());
+                            paciente.setEscolaridade(pacienteRequest.getEscolaridade());
+                            paciente.setProfissao(pacienteRequest.getProfissao());
+                            paciente.setEstadoCivil(pacienteRequest.getEstadoCivil());
 
                             if (pacienteRequest.getEndereco() != null) {
                                 Endereco endereco = new Endereco();
@@ -94,6 +102,12 @@ public class PacienteServiceImpl implements PacienteService {
 
                             return paciente;
                         })
+                        .onItem().transformToUni(paciente -> usuarioRepository.find("id", pacienteRequest.getUsuarioId())
+                                .firstResult()
+                                .onItem().ifNull().failWith(() -> new NotFoundBusinessException("Usuário não encontrado!"))
+                                .invoke(paciente::setUsuario)
+                                .replaceWith(paciente)
+                        )
                         .onItem().transformToUni(paciente -> pacienteRepository.persist(paciente))
                         .chain(paciente -> updateFiliacao(paciente, pacienteRequest))
 //                        .chain(paciente -> pacienteRepository.findByIdWithCollections(paciente.getId()))

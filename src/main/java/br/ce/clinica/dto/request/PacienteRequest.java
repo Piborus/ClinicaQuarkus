@@ -1,5 +1,7 @@
 package br.ce.clinica.dto.request;
 
+import br.ce.clinica.enums.Escolaridade;
+import br.ce.clinica.enums.EstadoCivil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import br.ce.clinica.enums.Sexo;
 import jakarta.validation.constraints.NotNull;
@@ -48,6 +50,24 @@ public class PacienteRequest {
     @Schema(name = "email", description = "Email do paciente", examples = {"jj@gmail.com"})
     @Email
     private String email;
+
+    @Schema(name = "religião", description = "Religião do paciente", examples = {"Católica"})
+    private String religiao;
+
+    @Schema(name = "naturalidade", description = "Naturalidade do paciente", examples = {"Brasil"})
+    private String naturalidade;
+
+    @Schema(name = "escolaridade", description = "Escolaridade do paciente", examples = {"SUPERIOR"})
+    private Escolaridade escolaridade;
+
+    @Schema(name = "profissão", description = "Profissão do paciente", examples = {"Engenheiro"})
+    private String profissao;
+
+    @Schema(name = "estadoCivil", description = "Estado Civil do paciente", examples = {"SOLTEIRO"})
+    private EstadoCivil estadoCivil;
+
+    @Schema(name = "usuarioId", description = "Id do usuário associado ao paciente", examples = {"1"})
+    private Long UsuarioId;
 
     private EnderecoRequest endereco;
 
