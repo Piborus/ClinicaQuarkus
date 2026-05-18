@@ -67,7 +67,7 @@ public class PacienteRequest {
     private EstadoCivil estadoCivil;
 
     @Schema(name = "usuarioId", description = "Id do usuário associado ao paciente", examples = {"1"})
-    private Long UsuarioId;
+    private Long usuarioId;
 
     private EnderecoRequest endereco;
 
