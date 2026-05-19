@@ -82,6 +82,7 @@ public class AuthServiceImpl implements AuthService {
                             .crp(request.getCrp())
                             .tipoUsuario(request.getCrp() != null ? TipoUsuario.PSICOLOGO : null)
                             .especialidade(request.getEspecialidade())
+                            .psicologiaAbordagem(request.getPsicologiaAbordagem())
                             .build();
 
                     return usuarioRepository.persist(usuario)

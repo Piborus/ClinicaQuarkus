@@ -22,6 +22,7 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import io.quarkus.security.identity.SecurityIdentity;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -48,8 +49,10 @@ public class PacienteServiceImpl implements PacienteService {
     @Inject
     UsuarioRepository usuarioRepository;
 
+    @Inject
+    SecurityIdentity securityIdentity;
+
     private static final List<String> SORT_FIELDS_ALLOWED = List.of(
-            "id",
             "nome",
             "cpf",
             "rg",
@@ -250,8 +253,12 @@ public class PacienteServiceImpl implements PacienteService {
             boolean asc = split.length < 2 || split[1].equalsIgnoreCase("asc");
             panacheSort = asc ? Sort.by("p." + field).ascending() : Sort.by("p." + field).descending();
         }
+
+        Long usuario = Long.valueOf(securityIdentity.getPrincipal().getName());
+
         PanacheQuery<Paciente> query =
                 pacienteRepository.findPaginated(
+                        usuario,
                         panacheSort,
                         filterFields,
                         filterValues

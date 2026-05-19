@@ -6,6 +6,7 @@ import br.ce.clinica.dto.request.PacienteRequest;
 import br.ce.clinica.entity.Endereco;
 import br.ce.clinica.entity.Filiacao;
 import br.ce.clinica.entity.Paciente;
+import br.ce.clinica.enums.GrauParentesco;
 import br.ce.clinica.enums.Sexo;
 import br.ce.clinica.exception.BadRequestBusinessException;
 import br.ce.clinica.exception.ConflictBusinessException;
@@ -208,7 +209,7 @@ class PacienteServiceImplTest {
                 .cpf("98765432101")
                 .telefone("11888888888")
                 .email("maria@email.com")
-                .grauDeParentesco("MÃE")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .build();
         pacienteRequest.setResponsaveis(List.of(filiacaoRequest));
 
@@ -580,7 +581,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull())).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull(), isNull())).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientes));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(1L));
@@ -607,7 +608,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(any(), isNull(), isNull())).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(any(), isNull(), isNull(), isNull())).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientes));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(1L));
@@ -633,7 +634,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(any(), isNull(), isNull())).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(any(), isNull(), isNull(), isNull())).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientes));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(1L));
@@ -660,7 +661,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(isNull(), eq(filterFields), eq(filterValues))).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(isNull(), isNull(), eq(filterFields), eq(filterValues))).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientes));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(1L));
@@ -705,7 +706,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(any(), isNull(), isNull())).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(any(), isNull(), isNull(), isNull())).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientes));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(1L));
@@ -731,7 +732,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull())).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull(), isNull())).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientes));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(1L));
@@ -757,7 +758,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull())).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull(), isNull())).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientes));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(1L));
@@ -788,7 +789,7 @@ class PacienteServiceImplTest {
                 .cpf("98765432101")
                 .telefone("11888888888")
                 .email("maria@email.com")
-                .grauDeParentesco("MÃE")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .build();
         pacienteRequest.setResponsaveis(List.of(filiacaoRequest));
 
@@ -831,7 +832,7 @@ class PacienteServiceImplTest {
                 .cpf("98765432101")
                 .telefone("11888888888")
                 .email("maria@email.com")
-                .grauDeParentesco("MÃE")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .build();
         pacienteRequest.setResponsaveis(List.of(filiacaoRequest));
 
@@ -927,7 +928,7 @@ class PacienteServiceImplTest {
                 .cpf("98765432101")
                 .telefone("11888888888")
                 .email("maria@email.com")
-                .grauDeParentesco("MÃE")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .build();
         pacienteRequest.setResponsaveis(List.of(filiacaoRequest));
 
@@ -970,7 +971,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(any(), isNull(), isNull())).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(any(), isNull(), isNull(), isNull())).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientes));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(1L));
@@ -1000,7 +1001,7 @@ class PacienteServiceImplTest {
                 .cpf("98765432101")
                 .telefone("11888888888")
                 .email("maria@email.com")
-                .grauDeParentesco("MÃE")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .idade(45)
                 .build();
         pacienteRequest.setResponsaveis(List.of(filiacaoRequest));
@@ -1041,7 +1042,7 @@ class PacienteServiceImplTest {
                 .cpf("98765432101")
                 .telefone("11888888888")
                 .email("maria@email.com")
-                .grauDeParentesco("MÃE")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .build();
         pacienteRequest.setResponsaveis(List.of(filiacaoRequest));
 
@@ -1080,7 +1081,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(isNull(), eq(filterFields), eq(filterValues))).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(isNull(), isNull(), eq(filterFields), eq(filterValues))).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientes));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(1L));
@@ -1108,7 +1109,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(any(), eq(filterFields), eq(filterValues))).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(any(), isNull(), eq(filterFields), eq(filterValues))).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientes));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(1L));
@@ -1133,7 +1134,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull())).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull(), isNull())).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientesVazio));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(0L));
@@ -1159,7 +1160,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull())).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull(), isNull())).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientes));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(15L));
@@ -1185,14 +1186,14 @@ class PacienteServiceImplTest {
                 .cpf("98765432101")
                 .telefone("11888888888")
                 .email("maria@email.com")
-                .grauDeParentesco("MÃE")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .build();
         FiliacaoRequest filiacaoRequest2 = FiliacaoRequest.builder()
                 .nome("José da Silva")
                 .cpf("11122233344")
                 .telefone("11777777777")
                 .email("jose@email.com")
-                .grauDeParentesco("PAI")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .build();
         pacienteRequest.setResponsaveis(List.of(filiacaoRequest1, filiacaoRequest2));
 
@@ -1281,14 +1282,14 @@ class PacienteServiceImplTest {
                 .cpf("98765432101")
                 .telefone("11888888888")
                 .email("maria@email.com")
-                .grauDeParentesco("MÃE")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .build();
         FiliacaoRequest filiacaoRequest2 = FiliacaoRequest.builder()
                 .nome("José da Silva")
                 .cpf("11122233344")
                 .telefone("11777777777")
                 .email("jose@email.com")
-                .grauDeParentesco("PAI")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .build();
         pacienteRequest.setResponsaveis(List.of(filiacaoRequest1, filiacaoRequest2));
 
@@ -1433,7 +1434,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull())).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull(), isNull())).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientes));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(1L));
@@ -1470,7 +1471,7 @@ class PacienteServiceImplTest {
 
         asserter.execute(() -> {
             PanacheQuery<Paciente> mockQuery = mock(PanacheQuery.class);
-            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull())).thenReturn(mockQuery);
+            when(pacienteRepository.findPaginated(isNull(), isNull(), isNull(), isNull())).thenReturn(mockQuery);
             when(mockQuery.page(page)).thenReturn(mockQuery);
             when(mockQuery.list()).thenReturn(Uni.createFrom().item(pacientes));
             when(mockQuery.count()).thenReturn(Uni.createFrom().item(2L));
@@ -1496,7 +1497,7 @@ class PacienteServiceImplTest {
                 .cpf("98765432101")
                 .telefone("11888888888")
                 .email("maria@email.com")
-                .grauDeParentesco("MÃE")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .idade(45)
                 .build();
         pacienteRequest.setResponsaveis(List.of(filiacaoRequest));
@@ -1507,7 +1508,7 @@ class PacienteServiceImplTest {
         filiacao.setCpf("98765432101");
         filiacao.setTelefone("11888888888");
         filiacao.setEmail("maria@email.com");
-        filiacao.setGrauDeParentesco("MÃE");
+        filiacao.setGrauDeParentesco(GrauParentesco.GENITOR);
         filiacao.setIdade(45);
 
         asserter.execute(() -> {

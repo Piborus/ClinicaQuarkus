@@ -2,6 +2,7 @@ package br.ce.clinica.resource;
 
 import br.ce.clinica.dto.request.FiliacaoRequest;
 import br.ce.clinica.dto.response.FiliacaoResponse;
+import br.ce.clinica.enums.GrauParentesco;
 import br.ce.clinica.exception.NotFoundBusinessException;
 import br.ce.clinica.service.FiliacaoService;
 import io.quarkus.test.InjectMock;
@@ -38,7 +39,7 @@ class FiliacaoResourceTest {
                 .cpf("529.982.247-25")
                 .telefone("11888888888")
                 .email("maria@email.com")
-                .grauDeParentesco("MÃE")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .build();
 
         filiacaoResponse = FiliacaoResponse.builder()
@@ -47,7 +48,7 @@ class FiliacaoResourceTest {
                 .cpf("529.982.247-25")
                 .telefone("11888888888")
                 .email("maria@email.com")
-                .grauDeParentesco("MÃE")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .build();
     }
 
@@ -154,7 +155,7 @@ class FiliacaoResourceTest {
                 .cpf("052.684.917-77")
                 .telefone("11777777777")
                 .email("jose@email.com")
-                .grauDeParentesco("PAI")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .build();
 
         when(filiacaoService.findByPacienteId(1L))

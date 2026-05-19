@@ -1,8 +1,8 @@
 package br.ce.clinica.entity;
 
+import br.ce.clinica.enums.GrauParentesco;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.validator.constraints.br.CPF;
 
@@ -34,7 +34,8 @@ public class Filiacao extends BaseAuditEntity {
     private String email;
 
     @Column(name = "grau_parentesco")
-    private String grauDeParentesco;
+    @Enumerated(EnumType.STRING)
+    private GrauParentesco grauDeParentesco;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id", nullable = false)

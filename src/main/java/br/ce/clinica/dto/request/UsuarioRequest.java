@@ -1,5 +1,7 @@
 package br.ce.clinica.dto.request;
 
+import br.ce.clinica.enums.Especialidade;
+import br.ce.clinica.enums.PsicologiaAbordagem;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -22,10 +24,6 @@ public class UsuarioRequest {
     @NotBlank
     @Schema(description = "Nome do usuário", examples = {"João"})
     private String nome;
-
-    @NotBlank
-    @Schema(description = " Sobrenome do usuário", examples = {"da Silva"})
-    private String sobrenome;
 
     @NotNull
     @PastOrPresent(message = "A data de nascimento do usuário não pode ser no futuro.")
@@ -54,6 +52,9 @@ public class UsuarioRequest {
     private String crp;
 
     @Schema(description = "Especialidade", examples = {"Psicologia não comportamental"})
-    private String especialidade;
+    private Especialidade especialidade;
+
+    @Schema(description = "Abordagem da psicologia", examples = {"Psicologia Comportamental"})
+    private PsicologiaAbordagem psicologiaAbordagem;
 
 }

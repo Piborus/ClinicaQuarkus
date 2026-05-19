@@ -4,6 +4,7 @@ import br.ce.clinica.dto.request.FiliacaoRequest;
 import br.ce.clinica.dto.response.FiliacaoResponse;
 import br.ce.clinica.entity.Filiacao;
 import br.ce.clinica.entity.Paciente;
+import br.ce.clinica.enums.GrauParentesco;
 import br.ce.clinica.exception.NotFoundBusinessException;
 import br.ce.clinica.exception.UnprocessableEntityBusinessException;
 import br.ce.clinica.repository.FiliacaoRepository;
@@ -54,7 +55,7 @@ class FiliacaoSeriveImplTest {
                 .cpf("12345678901")
                 .telefone("11999999999")
                 .email("maria@email.com")
-                .grauDeParentesco("MÃE")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .paciente(paciente)
                 .build();
         filiacao.setId(1L);
@@ -65,7 +66,7 @@ class FiliacaoSeriveImplTest {
                 .cpf("12345678901")
                 .telefone("11888888888")
                 .email("maria.atualizada@email.com")
-                .grauDeParentesco("MÃE")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .build();
     }
 
@@ -165,7 +166,7 @@ class FiliacaoSeriveImplTest {
                 .cpf("98765432101")
                 .telefone("11777777777")
                 .email("jose@email.com")
-                .grauDeParentesco("PAI")
+                .grauDeParentesco(GrauParentesco.GENITOR)
                 .paciente(paciente)
                 .build();
         filiacao2.setId(2L);
@@ -293,7 +294,7 @@ class FiliacaoSeriveImplTest {
                 .cpf("11122233344")
                 .telefone("11666666666")
                 .email("ana.maria@email.com")
-                .grauDeParentesco("IRMÃ")
+                .grauDeParentesco(GrauParentesco.IRMAO)
                 .build();
 
         asserter.execute(() -> {

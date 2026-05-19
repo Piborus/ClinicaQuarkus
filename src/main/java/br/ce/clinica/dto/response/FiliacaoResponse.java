@@ -1,6 +1,7 @@
 package br.ce.clinica.dto.response;
 
 import br.ce.clinica.entity.Filiacao;
+import br.ce.clinica.enums.GrauParentesco;
 import lombok.*;
 
 @Getter
@@ -21,7 +22,7 @@ public class FiliacaoResponse {
 
     private String email;
 
-    private String grauDeParentesco;
+    private GrauParentesco grauDeParentesco;
 
     public static FiliacaoResponse toResponse(Filiacao filiacao){
         return FiliacaoResponse.builder()

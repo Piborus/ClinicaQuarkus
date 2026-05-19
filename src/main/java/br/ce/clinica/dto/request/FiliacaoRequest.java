@@ -1,5 +1,6 @@
 package br.ce.clinica.dto.request;
 
+import br.ce.clinica.enums.GrauParentesco;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -30,6 +31,6 @@ public class FiliacaoRequest {
     private String email;
 
     @Schema(name = "grauDeParentesco", description = "Grau de parentesco", examples = {"FILHO"})
-    private String grauDeParentesco;
+    private GrauParentesco grauDeParentesco;
 
 }

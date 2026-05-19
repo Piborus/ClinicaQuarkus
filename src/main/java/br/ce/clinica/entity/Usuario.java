@@ -1,5 +1,7 @@
 package br.ce.clinica.entity;
 
+import br.ce.clinica.enums.Especialidade;
+import br.ce.clinica.enums.PsicologiaAbordagem;
 import br.ce.clinica.enums.TipoUsuario;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -47,7 +49,12 @@ public class Usuario extends BaseAuditEntity {
     private String crp;
 
     @Column(name = "especialidade")
-    private String especialidade;
+    @Enumerated(EnumType.STRING)
+    private Especialidade especialidade;
+
+    @Column(name = "psicologia_abordagem")
+    @Enumerated(EnumType.STRING)
+    private PsicologiaAbordagem psicologiaAbordagem;
     
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Consulta> consultas;

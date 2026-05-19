@@ -22,6 +22,7 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
             LEFT JOIN FETCH p.transacao
             LEFT JOIN FETCH p.responsaveis
             WHERE 1 = 1
+            AND p.usuario.id = ?1
             """;
 
     private static final String JPQL_FIND_BY_ID = """
@@ -42,12 +43,15 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
     }
 
     public PanacheQuery<Paciente> findPaginated(
+           Long usuario,
            Sort sort,
            List<String> fields,
            List<String> values
     ){
         StringBuilder query = new StringBuilder(JPQL_BASE);
         List<Object> params = new ArrayList<>();
+        params.add(usuario);
+
 
         if (fields != null && values != null) {
 
@@ -61,17 +65,19 @@ public class PacienteRepository implements PanacheRepository<Paciente> {
                 String field = fields.get(i);
                 String value = values.get(i);
 
+                int paramIndex = i + 2;
+
                 if (isStringValue(value)) {
                     query.append(" AND LOWER(p.")
                             .append(field)
                             .append(") LIKE ?")
-                            .append(i + 1);
+                            .append(paramIndex);
                     params.add("%" + value.toLowerCase() + "%");
                 } else {
                     query.append(" AND p.")
                             .append(field)
                             .append(" = ?")
-                            .append(i + 1);
+                            .append(paramIndex);
                     params.add(formatValue(value));
                 }
             }

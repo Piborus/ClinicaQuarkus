@@ -1,8 +1,6 @@
 package br.ce.clinica.entity;
 
-import br.ce.clinica.enums.Escolaridade;
-import br.ce.clinica.enums.EstadoCivil;
-import br.ce.clinica.enums.Sexo;
+import br.ce.clinica.enums.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -53,10 +51,12 @@ public class Paciente extends BaseAuditEntity {
     private String email;
 
     @Column(name = "religiao")
-    private String religiao;
+    @Enumerated(EnumType.STRING)
+    private Religiao religiao;
 
     @Column(name = "naturalidade")
-    private String naturalidade;
+    @Enumerated(EnumType.STRING)
+    private Naturalidade naturalidade;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "escolaridade")
